@@ -1,4 +1,10 @@
-import { AppBar, Drawer, IconButton, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  IconButton,
+  SwipeableDrawer,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AccountCircle } from "@mui/icons-material";
 import React from "react";
@@ -10,10 +16,9 @@ import useSWR from "swr";
 import { fetcher } from "../../utils/swrConfig";
 import { IUserMe } from "../../pages/api/user/me";
 import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
-import router, { useRouter } from "next/router";
-import session from "supertokens-node/recipe/session";
-import { set } from "date-fns";
+import { useRouter } from "next/router";
 import NavMenuComponent from "./navMenu";
+import { useUserData } from "../../utils/authUtils";
 
 export default function MainAppBar() {
   let sessionContext = Session.useSessionContext() as SessionContextType &
@@ -35,10 +40,7 @@ export default function MainAppBar() {
     setUserMenuAnchorEl(undefined);
   }
 
-  const { data: userData, isLoading } = useSWR(
-    sessionContext.doesSessionExist ? "/api/user/me" : null,
-    fetcher<IUserMe>
-  );
+  const { user, isLoading, isError } = useUserData();
 
   function handleNavMenu() {
     if (!sessionContext.doesSessionExist) {
@@ -76,22 +78,24 @@ export default function MainAppBar() {
 
       <UserMenuComponent
         router={router}
-        user={userData?.user}
+        user={user}
         onClose={handleCloseUserMenu}
         open={openUserMenu}
         anchorEl={userMenuAnchorEl}
       />
 
-      <Drawer
+      <SwipeableDrawer
         anchor="left"
         open={navMenuOpen}
         onClose={() => setNavMenuOpen(false)}
+        onOpen={() => setNavMenuOpen(true)}
       >
         <NavMenuComponent
+          role={user?.role}
           router={router}
           onClose={() => setNavMenuOpen(false)}
         />
-      </Drawer>
+      </SwipeableDrawer>
     </AppBar>
   );
 }

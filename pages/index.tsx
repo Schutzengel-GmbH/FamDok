@@ -9,11 +9,7 @@ function ProtectedPage() {
     return <CircularProgress />;
   }
 
-  return (
-    <Box>
-      <Typography variant="body1">logged in</Typography>
-    </Box>
-  );
+  return <Box></Box>;
 }
 
 export default function Home(props) {
