@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { User } from "@prisma/client";
 import React from "react";
 import { isValidEmail } from "../../utils/validationUtils";
@@ -34,6 +34,10 @@ export default function EditUser({ user }: EditUserProps) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Typography variant="h4" sx={{ m: "1rem" }}>
+        Meine Daten bearbeiten
+      </Typography>
+
       <TextField
         value={name}
         onChange={handleNameChange}

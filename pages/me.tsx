@@ -1,4 +1,4 @@
-import { Box, CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import useSWR from "swr";
 import SessionReact, {
   useSessionContext,
@@ -16,11 +16,7 @@ function ProtectedPage() {
     return <CircularProgress />;
   }
 
-  return (
-    <Box sx={{ m: 1 }}>
-      <EditUser user={data.user} />
-    </Box>
-  );
+  return <EditUser user={data.user} />;
 }
 
 export default function Me() {

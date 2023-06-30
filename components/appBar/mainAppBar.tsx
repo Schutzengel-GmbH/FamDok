@@ -3,13 +3,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { AccountCircle } from "@mui/icons-material";
 import React from "react";
 import UserMenuComponent from "./userMenu";
-import Session from "supertokens-auth-react/recipe/session";
+import Session, {
+  SessionContextType,
+} from "supertokens-auth-react/recipe/session";
 import useSWR from "swr";
 import { fetcher } from "../../utils/swrConfig";
 import { IUserMe } from "../../pages/api/user/me";
+import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
 
 export default function MainAppBar() {
-  let sessionContext = Session.useSessionContext();
+  let sessionContext = Session.useSessionContext() as SessionContextType &
+    SessionContextUpdate;
+
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<
     HTMLElement | undefined
   >(undefined);
@@ -24,7 +29,7 @@ export default function MainAppBar() {
   }
 
   const { data: userData, isLoading } = useSWR(
-    "/api/user/me",
+    sessionContext.doesSessionExist ? "/api/user/me" : null,
     fetcher<IUserMe>
   );
 
@@ -33,7 +38,7 @@ export default function MainAppBar() {
   if (sessionContext.loading) return null;
 
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar>
         <IconButton color="inherit" onClick={handleNavMenu}>
           <MenuIcon />
@@ -47,7 +52,6 @@ export default function MainAppBar() {
           color="inherit"
           onClick={handleUserMenu}
           sx={
-            //@ts-ignore
             sessionContext.doesSessionExist
               ? { display: "block" }
               : { display: "none" }
