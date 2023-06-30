@@ -1,0 +1,46 @@
+version: '3.2'
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      - 'POSTGRES_USER=${POSTGRES_USER}'
+      - 'POSTGRES_DB=${POSTGRES_DB}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+    volumes:
+      - ./.docker/volumes/db/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - app_network
+    restart: unless-stopped
+  supertokens:
+    image: 'registry.supertokens.io/supertokens/supertokens-postgresql'
+    depends_on:
+      - db
+    environment:
+      POSTGRESQL_CONNECTION_URI: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}'
+      API_KEYS: '${API_KEY}'
+    ports:
+      - 3567:3567
+    networks:
+      - app_network
+    restart: unless-stopped
+  app-db:
+    image: postgres:14
+    environment:
+      - 'POSTGRES_USER=${POSTGRES_APP_USER}'
+      - 'POSTGRES_DB=${POSTGRES_APP_DB}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_APP_PASSWORD}'
+    volumes:
+      - ./.docker/volumes/app-db/postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    networks:
+      - app_network
+    restart: unless-stopped
+    # add nextjs app for prod
+networks:
+  app_network:
+    driver: bridge
+    internal: false

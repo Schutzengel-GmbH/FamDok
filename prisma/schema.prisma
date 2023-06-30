@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  authId         String        @unique
+  name           String        @default("")
+  email          String        @unique
+  emailVerified  DateTime?
+  image          String?
+  role           Role          @default(USER)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  responses      Response[]
+  Survey         Survey[]
+  Family         Family[]
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  User      User[]
+  Survey    Survey[]
+}
+
+enum Role {
+  ADMIN
+  CONTROLLER
+  ORGCONTROLLER
+  USER
+}
+
+model Survey {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  createdBy      User?         @relation(fields: [creatorId], references: [id])
+  creatorId      String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  name           String?
+  description    String?
+  questions      Question[]
+  responses      Response[]
+  hasFamily      Boolean       @default(false)
+}
+
+model Question {
+  id                         String         @id @default(cuid())
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
+  type                       QuestionType
+  questionTitle              String?
+  questionText               String
+  questionDescription        String?
+  selectOptions              SelectOption[] @relation(name: "SelectOptionAnswer")
+  selectMultiple             Boolean?
+  intRange                   Boolean?
+  intRangeLow                Int?
+  intRangeHigh               Int?
+  numRange                   Boolean?
+  numRangeLow                Float?
+  numRangeHigh               Float?
+  survey                     Survey?        @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  surveyId                   String?
+  answers                    Answer[]
+  defaultAnswerSelectOptions SelectOption[] @relation(name: "DefaultSelectOptionQuestion")
+  defaultAnswerText          String?
+  defaultAnswerBool          Boolean?
+  defaultAnswerInt           Int?
+  defaultAnswerNum           Float?
+  defaultAnswerDate          DateTime?
+}
+
+model SelectOption {
+  id         String     @id @default(uuid())
+  isOpen     Boolean    @default(false)
+  value      String
+  question   Question   @relation(name: "SelectOptionAnswer", fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  questions  Question[] @relation(name: "DefaultSelectOptionQuestion")
+  answer     Answer[]
+}
+
+model Response {
+  id          String     @id @default(cuid())
+  name        String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+  surveyId    String
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  family      Family?    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId    String?
+  child       Child?     @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId     String?
+  caregiver   Caregiver? @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String?
+}
+
+model Answer {
+  id                      String         @id @default(cuid())
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  question                Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answerText              String?
+  answerBool              Boolean?
+  answerInt               Int?
+  answerNum               Float?
+  answerSelect            SelectOption[]
+  answerSelectOtherValues Json?
+  answerDate              DateTime?
+  response                Response       @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  responseId              String
+  questionId              String
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  number Int @unique @default(autoincrement())
+
+  caregivers          Caregiver[]
+  children            Child[]
+  childrenInHousehold Int?
+
+  beginOfCare DateTime
+  endOfCare   DateTime?
+
+  location String?
+
+  otherInstalledProfessionals String?
+  Response                    Response[]
+}
+
+model Caregiver {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  number Int @unique @default(autoincrement())
+
+  family   Family? @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String?
+
+  dateOfBirth         DateTime?
+  gender              Gender      @default(Unknown)
+  migrationBackground Boolean?
+  education           Education?
+  disability          Disability?
+  psychDiagosis       Boolean?
+  Response            Response[]
+}
+
+model Child {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  number Int @unique @default(autoincrement())
+
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+  gender   Gender @default(Unknown)
+
+  beginOfCare DateTime?
+  endOfCare   DateTime?
+
+  dateOfBirth   DateTime?
+  disability    Disability?
+  psychDiagosis Boolean?
+  isMultiple    Boolean?
+  Response      Response[]
+}
+
+enum Disability {
+  Yes
+  No
+  Impending
+  None
+  Unknown
+}
+
+enum Education {
+  None
+  Unknown
+  Hauptschulabschluss
+  Realschulabschluss
+  Fachhochschulreife
+  Abitur
+  Berufsausbildung
+  UniversityDegree
+  Higher
+  Other
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+  Unknown
+}
+
+enum QuestionType {
+  Text
+  Bool
+  Int
+  Num
+  Select
+  Date
+  Scale
+}
