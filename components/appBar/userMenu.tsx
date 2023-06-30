@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { User } from "@prisma/client";
+import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
 
 export interface UserMenuComponentProps {
+  router: NextRouter;
   user: User | undefined;
   open: boolean;
   anchorEl: Element | undefined | null;
@@ -20,6 +22,7 @@ export interface UserMenuComponentProps {
 }
 
 export default function UserMenuComponent({
+  router,
   user,
   open,
   anchorEl,
@@ -27,13 +30,13 @@ export default function UserMenuComponent({
 }: UserMenuComponentProps) {
   async function handleLogout() {
     await signOut();
-    window.location.href = "/";
+    router.push("/auth");
     onClose();
   }
 
   function handleMeClick() {
     onClose();
-    window.location.href = "/me";
+    router.push("/me");
   }
 
   return (
