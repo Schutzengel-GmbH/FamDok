@@ -1,23 +1,25 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { User } from "@prisma/client";
-import React from "react";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { isValidEmail } from "../../utils/validationUtils";
 import { useUserData } from "../../utils/authUtils";
+import Loading from "../utilityComponents/loadingMainContent";
+import { useState } from "react";
+import useNotification from "../utilityComponents/notificationContext";
 
 export default function EditMe() {
-  const { user, isLoading, isError } = useUserData();
+  const { user, isLoading, error } = useUserData();
+  if (isLoading) return <Loading />;
 
-  if (isLoading) return <CircularProgress />;
-  if (isError) return <div>error</div>;
+  const { addAlert } = useNotification();
 
-  const [name, setName] = React.useState(user.name);
-  const [email, setEmail] = React.useState(user.email);
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+
+  if (error)
+    return (
+      <Alert severity="error">
+        Fehler beim Abrufen der Nutzerdaten: {error}
+      </Alert>
+    );
 
   const emailValid = isValidEmail(email);
 
@@ -37,31 +39,31 @@ export default function EditMe() {
       },
       body: JSON.stringify({ name, email }),
     });
-    console.log(response);
+    if (response.ok)
+      addAlert({ message: "Änderungen gespeichert", severity: "success" });
+    else addAlert({ message: "Fehler beim Speichern", severity: "error" });
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <Typography variant="h4" sx={{ m: "1rem" }}>
-        Meine Daten bearbeiten
-      </Typography>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        "& > *": { mt: "1rem" },
+      }}
+    >
+      <Typography variant="h4">Meine Daten bearbeiten</Typography>
 
-      <TextField
-        value={name}
-        onChange={handleNameChange}
-        label={"Name"}
-        sx={{ m: "1rem" }}
-      />
+      <TextField value={name} onChange={handleNameChange} label={"Name"} />
 
       <TextField
         value={email}
         onChange={handleEmailChange}
         label={"E-Mail"}
-        sx={{ m: "1rem" }}
         error={!emailValid}
       />
 
-      <Button onClick={handleSave} sx={{ m: "1rem" }} disabled={!emailValid}>
+      <Button onClick={handleSave} disabled={!emailValid}>
         Speichern
       </Button>
     </Box>

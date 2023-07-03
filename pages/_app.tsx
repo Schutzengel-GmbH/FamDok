@@ -5,6 +5,9 @@ import SuperTokensReact, { SuperTokensWrapper } from "supertokens-auth-react";
 import * as SuperTokensConfig from "../config/frontendConfig";
 import Session from "supertokens-auth-react/recipe/session";
 import MainAppBar from "../components/appBar/mainAppBar";
+import Layout from "../components/layout";
+import { NotificationProvider } from "../components/utilityComponents/notificationContext";
+import { UserContextProvider } from "../components/utilityComponents/userDataContext";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -30,8 +33,13 @@ function MyApp({ Component, pageProps }): JSX.Element {
 
   return (
     <SuperTokensWrapper>
-      <MainAppBar />
-      <Component {...pageProps} />
+      <Layout>
+        <UserContextProvider>
+          <NotificationProvider>
+            <Component {...pageProps} />
+          </NotificationProvider>
+        </UserContextProvider>
+      </Layout>
     </SuperTokensWrapper>
   );
 }

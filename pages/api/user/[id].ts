@@ -1,6 +1,6 @@
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
-import supertokens from "supertokens-node";
+import supertokens, { deleteUser } from "supertokens-node";
 import { backendConfig } from "../../../config/backendConfig";
 import { prisma } from "../../../db/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,7 +11,7 @@ import { Prisma, Role, User } from "@prisma/client";
 supertokens.init(backendConfig());
 
 export interface IUser {
-  user?: User;
+  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "NOT_FOUND"
@@ -44,6 +44,7 @@ export default async function user(
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { id: id as string },
+      include: { organization: true },
     });
   } catch (err) {
     if (
@@ -78,13 +79,22 @@ export default async function user(
 
       if (!deletedUser)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-      return res.status(200).json({ user: deletedUser });
+
+      // delete auth user
+      return await deleteUser(deletedUser.authId)
+        .then((supertokensRes) => {
+          if (supertokensRes.status === "OK")
+            return res.status(200).json({ user: deletedUser });
+          else return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+        })
+        .catch((err) => console.log(err));
 
     case "POST":
       const updatedUser = await prisma.user
         .update({
           where: { id: id as string },
           data: req.body,
+          include: { organization: true },
         })
         .catch((err) => console.log(err));
 

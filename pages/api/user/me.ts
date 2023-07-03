@@ -10,7 +10,7 @@ import EmailPassword from "supertokens-node/recipe/emailpassword";
 supertokens.init(backendConfig());
 
 export interface IUserMe {
-  user?: User;
+  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
   error?:
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
@@ -32,6 +32,7 @@ export default async function me(req, res) {
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { authId: req.session.getUserId() },
+      include: { organization: true },
     });
   } catch (err) {
     if (

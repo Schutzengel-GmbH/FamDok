@@ -6,8 +6,24 @@ export function useUserData() {
   const { data, error, isLoading } = useSWR<IUserMe>("/api/user/me", fetcher);
 
   return {
-    user: data.user,
+    user: data?.user,
     isLoading: isLoading,
-    isError: error,
+    error: error,
   };
+}
+
+export function generateTempPassword(): string {
+  const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowerCase = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "1234567890";
+
+  const gen = (arr: string, n: number): string => {
+    let res: string = "";
+    for (let i = 0; i < n; i++) {
+      res += arr.at(Math.floor(Math.random() * arr.length))!;
+    }
+    return res;
+  };
+
+  return `${gen(upperCase, 1)}${gen(lowerCase, 2)}${gen(numbers, 4)}`;
 }

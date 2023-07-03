@@ -13,13 +13,13 @@ import { User } from "@prisma/client";
 import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
 
-export interface UserMenuComponentProps {
+type UserMenuComponentProps = {
   router: NextRouter;
   user: User | undefined;
   open: boolean;
   anchorEl: Element | undefined | null;
   onClose: () => void;
-}
+};
 
 export default function UserMenuComponent({
   router,

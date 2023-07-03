@@ -1,4 +1,5 @@
 import {
+  Alert,
   AppBar,
   IconButton,
   SwipeableDrawer,
@@ -12,9 +13,6 @@ import UserMenuComponent from "./userMenu";
 import Session, {
   SessionContextType,
 } from "supertokens-auth-react/recipe/session";
-import useSWR from "swr";
-import { fetcher } from "../../utils/swrConfig";
-import { IUserMe } from "../../pages/api/user/me";
 import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
 import { useRouter } from "next/router";
 import NavMenuComponent from "./navMenu";
@@ -40,7 +38,9 @@ export default function MainAppBar() {
     setUserMenuAnchorEl(undefined);
   }
 
-  const { user, isLoading, isError } = useUserData();
+  const { user, error } = useUserData();
+
+  if (error && sessionContext.doesSessionExist) console.error("Fehler beim Abrufen der Nutzerdaten: ", error)
 
   function handleNavMenu() {
     if (!sessionContext.doesSessionExist) {
@@ -62,6 +62,13 @@ export default function MainAppBar() {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Dokumentation
         </Typography>
+
+        {error && sessionContext.doesSessionExist && (
+          <Alert severity="error">
+            Fehler beim Abrufen der Nutzerdaten: {error}
+          </Alert>
+        )}
+
         <IconButton
           size="large"
           color="inherit"
