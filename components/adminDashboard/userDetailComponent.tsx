@@ -15,8 +15,8 @@ import useNotification from "../utilityComponents/notificationContext";
 import { IUser } from "../../pages/api/user/[id]";
 import OrgSelect from "./orgSelect";
 import RoleSelect from "./roleSelect";
-import useUserContext from "../utilityComponents/userDataContext";
 import { isValidEmail } from "../../utils/validationUtils";
+import { useUserData } from "../../utils/authUtils";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;
@@ -24,7 +24,7 @@ export interface UserEditProps {
 }
 
 export default function UserDetailComponent({ user, onChange }: UserEditProps) {
-  const { user: loggedInUser } = useUserContext();
+  const { user: loggedInUser } = useUserData();
   const isAdmin = loggedInUser?.role === Role.ADMIN;
 
   const [changePwDialogOpen, setChangePwDialogOpen] = useState<boolean>(false);

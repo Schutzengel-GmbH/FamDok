@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import useNotification from "../utilityComponents/notificationContext";
 
 export default function EditMe() {
-  const { user, isLoading, error } = useUserData();
+  const { user, isLoading, error, mutate } = useUserData();
 
   const { addAlert } = useNotification();
 
@@ -50,6 +50,7 @@ export default function EditMe() {
     if (response.ok)
       addAlert({ message: "Änderungen gespeichert", severity: "success" });
     else addAlert({ message: "Fehler beim Speichern", severity: "error" });
+    mutate();
   }
 
   return (

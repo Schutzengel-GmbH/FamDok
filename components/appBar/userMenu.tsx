@@ -9,13 +9,12 @@ import {
   LinearProgress,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { User } from "@prisma/client";
 import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
+import { useUserData } from "../../utils/authUtils";
 
 type UserMenuComponentProps = {
   router: NextRouter;
-  user: User | undefined;
   open: boolean;
   anchorEl: Element | undefined | null;
   onClose: () => void;
@@ -23,11 +22,12 @@ type UserMenuComponentProps = {
 
 export default function UserMenuComponent({
   router,
-  user,
   open,
   anchorEl,
   onClose,
 }: UserMenuComponentProps) {
+  const { user } = useUserData();
+
   async function handleLogout() {
     await signOut();
     router.push("/auth");

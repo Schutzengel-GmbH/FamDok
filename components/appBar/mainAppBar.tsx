@@ -1,5 +1,4 @@
 import {
-  Alert,
   AppBar,
   IconButton,
   SwipeableDrawer,
@@ -38,9 +37,7 @@ export default function MainAppBar() {
     setUserMenuAnchorEl(undefined);
   }
 
-  const { user, error } = useUserData();
-
-  if (error && sessionContext.doesSessionExist) console.error("Fehler beim Abrufen der Nutzerdaten: ", error)
+  const { user } = useUserData();
 
   function handleNavMenu() {
     if (!sessionContext.doesSessionExist) {
@@ -63,12 +60,6 @@ export default function MainAppBar() {
           Dokumentation
         </Typography>
 
-        {error && sessionContext.doesSessionExist && (
-          <Alert severity="error">
-            Fehler beim Abrufen der Nutzerdaten: {error}
-          </Alert>
-        )}
-
         <IconButton
           size="large"
           color="inherit"
@@ -85,7 +76,6 @@ export default function MainAppBar() {
 
       <UserMenuComponent
         router={router}
-        user={user}
         onClose={handleCloseUserMenu}
         open={openUserMenu}
         anchorEl={userMenuAnchorEl}

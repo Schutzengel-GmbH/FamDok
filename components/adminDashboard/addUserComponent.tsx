@@ -4,12 +4,12 @@ import { Role, Prisma } from "@prisma/client";
 import { useState } from "react";
 import ErrorDialog from "../utilityComponents/errorDialog";
 import RoleSelect from "./roleSelect";
-import useUserContext from "../utilityComponents/userDataContext";
 import OrgSelect from "./orgSelect";
 import { isValidEmail } from "../../utils/validationUtils";
 import useNotification from "../utilityComponents/notificationContext";
 import { IUsers } from "../../pages/api/user";
 import Working from "../utilityComponents/working";
+import { useUserData } from "../../utils/authUtils";
 
 export interface AddUserProps {
   onSave: () => void;
@@ -17,7 +17,7 @@ export interface AddUserProps {
 }
 
 export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
-  const { user } = useUserContext();
+  const { user } = useUserData();
   const isAdmin = user?.role === Role.ADMIN;
 
   const { addAlert } = useNotification();

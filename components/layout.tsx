@@ -5,7 +5,7 @@ export default function Layout({ children }) {
   return (
     <>
       <MainAppBar />
-      <Box sx={{ m: "1rem" }}>{children}</Box>
+      <Box sx={{ mt: "1rem", ml: "1rem", mr: "2rem" }}>{children}</Box>
     </>
   );
 }

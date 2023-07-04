@@ -1,6 +1,7 @@
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import SessionReact from "supertokens-auth-react/recipe/session";
 import { useSessionContext } from "supertokens-auth-react/recipe/session";
+import HomeNav from "../components/mainPage/homeNav";
 
 function ProtectedPage() {
   const session = useSessionContext();
@@ -9,7 +10,7 @@ function ProtectedPage() {
     return <CircularProgress />;
   }
 
-  return <Box></Box>;
+  return <HomeNav />;
 }
 
 export default function Home(props) {
