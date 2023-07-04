@@ -1,8 +1,9 @@
-import { AdminPanelSettings, AccountBox } from "@mui/icons-material";
+import { AdminPanelSettings, AccountBox, Poll } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import NavItem from "./navItem";
 import { Role } from "@prisma/client";
 import { useUserData } from "../../utils/authUtils";
+import { navigationList } from "../../utils/navigationUtils";
 
 export default function HomeNav() {
   const { user } = useUserData();
@@ -10,6 +11,11 @@ export default function HomeNav() {
   if (!user) return null;
 
   const canAccessAdminDashboard =
+    user.role === Role.ADMIN ||
+    user.role === Role.CONTROLLER ||
+    user.role === Role.ORGCONTROLLER;
+
+  const canAccessSurveyDashboard =
     user.role === Role.ADMIN ||
     user.role === Role.CONTROLLER ||
     user.role === Role.ORGCONTROLLER;
@@ -22,14 +28,15 @@ export default function HomeNav() {
         gap: ".5rem",
       }}
     >
-      <NavItem title="Profil" icon={<AccountBox />} url="/me" />
-      {canAccessAdminDashboard && (
+      {navigationList.map((navItem, i) => (
         <NavItem
-          title="Admin Dashboard"
-          icon={<AdminPanelSettings />}
-          url="/adminDashboard"
+          title={navItem.title}
+          icon={navItem.icon}
+          url={navItem.url}
+          key={i}
+          canAccess={navItem.canAccess(user)}
         />
-      )}
+      ))}
     </Box>
   );
 }

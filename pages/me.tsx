@@ -5,7 +5,7 @@ function ProtectedPage() {
   return <EditMe />;
 }
 
-export default function Me() {
+export default function MePage() {
   return (
     <SessionReact.SessionAuth>
       <ProtectedPage />

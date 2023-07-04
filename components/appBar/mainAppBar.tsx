@@ -37,8 +37,6 @@ export default function MainAppBar() {
     setUserMenuAnchorEl(undefined);
   }
 
-  const { user } = useUserData();
-
   function handleNavMenu() {
     if (!sessionContext.doesSessionExist) {
       return;
@@ -88,7 +86,6 @@ export default function MainAppBar() {
         onOpen={() => setNavMenuOpen(true)}
       >
         <NavMenuComponent
-          role={user?.role}
           router={router}
           onClose={() => setNavMenuOpen(false)}
         />

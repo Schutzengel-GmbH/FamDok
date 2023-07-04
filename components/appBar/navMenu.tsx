@@ -7,25 +7,23 @@ import {
 } from "@mui/material";
 import { Role } from "@prisma/client";
 import { NextRouter } from "next/router";
+import { useUserData } from "../../utils/authUtils";
+import { navigationList } from "../../utils/navigationUtils";
 
 export interface NavMenuComponentProps {
-  role: Role | undefined;
   router: NextRouter;
   onClose: () => void;
 }
 
 export default function NavMenuComponent({
-  role,
   router,
   onClose,
 }: NavMenuComponentProps) {
+  const { user } = useUserData();
+
   function onNavClick(url: string) {
     router.push(url);
     onClose();
-  }
-
-  function canAccessAdminDashboard() {
-    return role !== undefined && role !== Role.USER;
   }
 
   return (
@@ -37,14 +35,15 @@ export default function NavMenuComponent({
         <ListItemText primary={"Hauptseite"} />
       </ListItemButton>
 
-      {canAccessAdminDashboard() && (
-        <ListItemButton onClick={() => onNavClick("/adminDashboard")}>
-          <ListItemIcon>
-            <Home />
-          </ListItemIcon>
-          <ListItemText primary={"Admin-Dashboard"} />
+      {navigationList.map((navItem) => (
+        <ListItemButton
+          onClick={() => onNavClick(navItem.url)}
+          sx={{ display: navItem.canAccess(user) ? undefined : "none" }}
+        >
+          <ListItemIcon>{navItem.icon}</ListItemIcon>
+          <ListItemText primary={navItem.title} />
         </ListItemButton>
-      )}
+      ))}
     </List>
   );
 }

@@ -5,13 +5,14 @@ type NavItemProps = {
   title: string;
   icon: JSX.Element;
   url: string;
+  canAccess: boolean;
 };
 
-export default function NavItem({ title, icon, url }: NavItemProps) {
+export default function NavItem({ title, icon, url, canAccess }: NavItemProps) {
   const router = useRouter();
 
   const sx: SxProps = {
-    display: "flex",
+    display: canAccess ? "flex" : "none",
     flexDirection: "row",
     padding: "1rem",
     gap: ".5rem",
