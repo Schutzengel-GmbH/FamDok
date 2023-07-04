@@ -19,8 +19,8 @@ const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
   const [name, updateName] = useState<string>("");
   const { addAlert } = useNotification();
 
-  async function handleSave() {
-    await fetch("/api/organizations", {
+  function handleSave() {
+    fetch("/api/organizations", {
       body: JSON.stringify({ name }),
       method: "POST",
       headers: {

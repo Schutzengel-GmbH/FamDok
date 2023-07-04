@@ -71,8 +71,6 @@ export default async function surveys(
           { organizationId: null },
         ];
 
-      console.log(where);
-
       const surveys = await prisma.survey
         .findMany({
           where,
