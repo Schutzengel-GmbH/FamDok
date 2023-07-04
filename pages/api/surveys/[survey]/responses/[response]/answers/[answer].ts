@@ -26,7 +26,7 @@ export interface IAnswer {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function organizations(
@@ -82,13 +82,13 @@ export default async function organizations(
   }
 
   if (user.role === Role.USER && response.userId !== user.id)
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   if (
     user.role === Role.ORGCONTROLLER &&
     response.user.organizationId !== user.organizationId
   )
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   let answer: Prisma.AnswerGetPayload<{
     include: {

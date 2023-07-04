@@ -18,7 +18,7 @@ export interface IQuestion {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function organizations(
@@ -80,7 +80,7 @@ export default async function organizations(
         (user.role === Role.ORGCONTROLLER &&
           user.organizationId !== survey.organizationId)
       )
-        return res.status(403).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       try {
         questionUpdate = await prisma.question.update({
@@ -109,7 +109,7 @@ export default async function organizations(
         (user.role === Role.ORGCONTROLLER &&
           user.organizationId !== survey.organizationId)
       )
-        return res.status(403).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       try {
         deletedQuestion = await prisma.question.delete({

@@ -20,7 +20,7 @@ export interface IUsers {
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function users(
@@ -44,7 +44,7 @@ export default async function users(
     .catch((err) => console.log(err));
 
   if (!reqUser || reqUser.role === Role.USER)
-    return res.status(401).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   // if user is org controller, only allow access to users in their org
   let organizationId = undefined;

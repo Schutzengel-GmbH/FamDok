@@ -17,7 +17,7 @@ export interface IResponses {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function responses(
@@ -56,7 +56,7 @@ export default async function responses(
     survey.organizationId &&
     user.organizationId !== survey.organizationId
   )
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORB" });
 
   let where: Prisma.ResponseWhereInput = {
     survey: { id: surveyId as string },

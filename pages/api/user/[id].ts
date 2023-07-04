@@ -15,7 +15,7 @@ export interface IUser {
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "NOT_FOUND"
-    | "UNAUTHORIZED"
+    | "FORBIDDEN"
     | "METHOD_NOT_ALLOWED";
 }
 
@@ -58,13 +58,16 @@ export default async function user(
   }
 
   if (!reqUser || reqUser.role === Role.USER)
-    return res.status(401).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   if (
-    reqUser.role === Role.ORGCONTROLLER &&
-    reqUser.organizationId !== user.organizationId
+    (reqUser.role === Role.ORGCONTROLLER &&
+      reqUser.organizationId !== user.organizationId) ||
+    (reqUser.role === Role.CONTROLLER &&
+      user.id !== reqUser.id &&
+      (user.role === Role.CONTROLLER || user.role === Role.ADMIN))
   )
-    return res.status(401).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   switch (req.method) {
     case "GET":

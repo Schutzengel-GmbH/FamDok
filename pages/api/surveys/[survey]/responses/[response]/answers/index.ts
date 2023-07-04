@@ -37,7 +37,7 @@ export interface IAnswers {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function answers(
@@ -76,7 +76,7 @@ export default async function answers(
     survey.organizationId &&
     user.organizationId !== survey.organizationId
   )
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   let response: Prisma.ResponseGetPayload<{
     include: {
@@ -125,13 +125,13 @@ export default async function answers(
   }
 
   if (user.role === Role.USER && response.userId !== user.id)
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   if (
     user.role === Role.ORGCONTROLLER &&
     response.user.organizationId !== user.organizationId
   )
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   switch (req.method) {
     case "GET":

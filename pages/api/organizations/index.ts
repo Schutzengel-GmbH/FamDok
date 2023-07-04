@@ -14,7 +14,7 @@ supertokens.init(backendConfig());
 export interface IOrganizations {
   organizations?: Prisma.OrganizationGetPayload<{}>[];
   organization?: Prisma.OrganizationGetPayload<{}>;
-  error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED" | "UNAUTHORIZED";
+  error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED" | "FORBIDDEN";
 }
 
 export default async function organizations(
@@ -49,7 +49,7 @@ export default async function organizations(
 
     case "POST":
       if (user.role !== "ADMIN")
-        return res.status(401).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const newOrg = await prisma.organization
         .create({ data: req.body })

@@ -21,7 +21,7 @@ export interface IQuestions {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function questions(
@@ -86,7 +86,7 @@ export default async function questions(
         (user.role === Role.ORGCONTROLLER &&
           user.organizationId !== survey.organizationId)
       )
-        return res.status(403).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const questionInput = req.body;
       questionInput.survey = { connect: { id: surveyId as string } };

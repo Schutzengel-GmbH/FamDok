@@ -25,7 +25,7 @@ export interface ISurvey {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function survey(
@@ -77,7 +77,7 @@ export default async function survey(
     (user.role === Role.USER || user.role === Role.ORGCONTROLLER) &&
     survey.organizationId !== user.organizationId
   )
-    return res.status(401).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   switch (req.method) {
     case "GET":
@@ -85,7 +85,7 @@ export default async function survey(
 
     case "POST":
       if (user.role === Role.USER)
-        return res.status(401).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const updatedSurvey = await prisma.survey
         .update({ where: { id: surveyId as string }, data: req.body })
@@ -97,7 +97,7 @@ export default async function survey(
 
     case "DELETE":
       if (user.role === Role.USER)
-        return res.status(401).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const deletedSurvey = await prisma.survey
         .delete({ where: { id: surveyId as string } })

@@ -19,7 +19,7 @@ export interface IFamily {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function families(
@@ -71,7 +71,7 @@ export default async function families(
 
       if (user.role.includes("USER")) {
         if (family.userId !== user.id)
-          return res.status(401).json({ error: "UNAUTHORIZED" });
+          return res.status(403).json({ error: "FORBIDDEN" });
       }
 
       const newFamily = await prisma.family
@@ -85,7 +85,7 @@ export default async function families(
     case "DELETE":
       if (user.role.includes("USER")) {
         if (family.userId !== user.id)
-          return res.status(401).json({ error: "UNAUTHORIZED" });
+          return res.status(403).json({ error: "FORBIDDEN" });
       }
 
       const deletedFamily = await prisma.family

@@ -15,7 +15,7 @@ export interface IOrganizations {
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
-    | "UNAUTHORIZED"
+    | "FORBIDDEN"
     | "NOT_FOUND";
 }
 
@@ -63,7 +63,7 @@ export default async function organizations(
 
     case "POST":
       if (user.role !== "ADMIN")
-        return res.status(401).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const newOrg = await prisma.organization
         .create({ data: req.body })
@@ -76,7 +76,7 @@ export default async function organizations(
 
     case "DELETE":
       if (user.role !== "ADMIN")
-        return res.status(401).json({ error: "UNAUTHORIZED" });
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const deletedOrg = await prisma.organization
         .delete({ where: { id: id as string } })

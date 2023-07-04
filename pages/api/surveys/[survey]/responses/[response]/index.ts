@@ -16,7 +16,7 @@ export interface IResponse {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "UNAUTHORIZED";
+    | "FORBIDDEN";
 }
 
 export default async function response(
@@ -55,7 +55,7 @@ export default async function response(
     survey.organizationId &&
     user.organizationId !== survey.organizationId
   )
-    return res.status(403).json({ error: "UNAUTHORIZED" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   let response: Prisma.ResponseGetPayload<{
     include: { answers: { include: { answerSelect: true } }; user: true };
@@ -71,13 +71,13 @@ export default async function response(
       return res.status(404).json({ error: "NOT_FOUND" });
 
     if (user.role === Role.USER && response.userId !== user.id)
-      return res.status(403).json({ error: "UNAUTHORIZED" });
+      return res.status(403).json({ error: "FORBIDDEN" });
 
     if (
       user.role === Role.ORGCONTROLLER &&
       response.user?.organizationId !== user.organizationId
     )
-      return res.status(403).json({ error: "UNAUTHORIZED" });
+      return res.status(403).json({ error: "FORBIDDEN" });
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
