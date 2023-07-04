@@ -1,4 +1,5 @@
-import { Alert, Snackbar } from "@mui/material";
+import { Close } from "@mui/icons-material";
+import { Alert, Box, IconButton, Snackbar, Typography } from "@mui/material";
 import React, { useState, useEffect, useContext } from "react";
 
 interface INotificationContext {
@@ -38,8 +39,15 @@ export function NotificationProvider({ children }) {
     <NotificationContext.Provider value={value}>
       {children}
       {alerts.map((alert, i) => (
-        <Snackbar key={i} open={true} sx={{ paddingBottom: i * 7 }}>
-          <Alert severity={alert.severity}>{alert.message}</Alert>
+        <Snackbar
+          key={i}
+          open={true}
+          sx={{ paddingBottom: i * 7 }}
+          onClick={() =>
+            setAlerts((alerts) => alerts.filter((_, index) => index !== i))
+          }
+        >
+          <Alert severity={alert.severity}>{alert.message} </Alert>
         </Snackbar>
       ))}
     </NotificationContext.Provider>

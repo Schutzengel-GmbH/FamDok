@@ -1,4 +1,4 @@
-import { Delete, Save } from "@mui/icons-material";
+import { Cancel, Delete, Save } from "@mui/icons-material";
 import {
   Button,
   IconButton,
@@ -16,6 +16,7 @@ import { IUser } from "../../pages/api/user/[id]";
 import OrgSelect from "./orgSelect";
 import RoleSelect from "./roleSelect";
 import useUserContext from "../utilityComponents/userDataContext";
+import { isValidEmail } from "../../utils/validationUtils";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;
@@ -23,8 +24,8 @@ export interface UserEditProps {
 }
 
 export default function UserDetailComponent({ user, onChange }: UserEditProps) {
-  const { user: reqUser } = useUserContext();
-  const isAdmin = reqUser?.role === Role.ADMIN;
+  const { user: loggedInUser } = useUserContext();
+  const isAdmin = loggedInUser?.role === Role.ADMIN;
 
   const [changePwDialogOpen, setChangePwDialogOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>(user?.name || "");
@@ -34,6 +35,8 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   );
   const [role, setRole] = useState<Role>(user?.role || Role.USER);
   const [confirmDelOpen, setConfirmDelOpen] = useState<boolean>(false);
+
+  const emailValid = isValidEmail(email);
 
   const { addAlert } = useNotification();
 
@@ -106,6 +109,24 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
     setConfirmDelOpen(false);
   }
 
+  function cantEdit() {
+    let cantEdit = false;
+    if (loggedInUser.role === Role.CONTROLLER)
+      cantEdit = user.role === Role.ADMIN;
+
+    if (loggedInUser.role === Role.ORGCONTROLLER)
+      cantEdit = user.organizationId !== loggedInUser.organizationId;
+
+    return cantEdit;
+  }
+
+  function handleCancel() {
+    setName(user.name);
+    setEmail(user.email);
+    setOrganizationId(user.organizationId);
+    setRole(user.role);
+  }
+
   function handleDeleteClick() {
     setConfirmDelOpen(true);
   }
@@ -113,42 +134,58 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   return (
     <TableRow key={user.id}>
       <TableCell>
-        <TextField
-          fullWidth
-          value={name}
-          onChange={(e) => setName(e.currentTarget.value)}
-        />
+        {!cantEdit() && (
+          <TextField
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.currentTarget.value)}
+          />
+        )}
+        {cantEdit() && name}
       </TableCell>
       <TableCell>
-        <TextField
-          fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
-        />
+        {!cantEdit() && (
+          <TextField
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            error={!emailValid}
+            helperText={!emailValid && "Bitte geben Sie eine gültige E-Mail an"}
+          />
+        )}
+        {cantEdit() && email}
       </TableCell>
       <TableCell>
-        <Button onClick={() => setChangePwDialogOpen(true)}>Ändern</Button>
+        {!cantEdit() && (
+          <Button onClick={() => setChangePwDialogOpen(true)}>Ändern</Button>
+        )}
       </TableCell>
       <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
       <TableCell>
-        <RoleSelect
-          isAdmin={isAdmin}
-          onChange={(role) => setRole(role)}
-          value={role}
-        />
+        {!cantEdit() && (
+          <RoleSelect
+            isAdmin={isAdmin}
+            onChange={(role) => setRole(role)}
+            value={role}
+          />
+        )}
+        {cantEdit() && role}
       </TableCell>
       <TableCell>
-        <OrgSelect
-          value={organizationId}
-          onChange={(orgId) => setOrganizationId(orgId)}
-        />
+        {!cantEdit() && (
+          <OrgSelect
+            value={organizationId}
+            onChange={(orgId) => setOrganizationId(orgId)}
+          />
+        )}
+        {cantEdit() && (user.organization?.name || "Keine Organisation")}
       </TableCell>
       <TableCell>
         <Tooltip title="Änderungen speichern">
           {/* span because: A disabled element does not fire events. */}
           <span>
             <IconButton
-              disabled={!userChanged()}
+              disabled={!userChanged() || !emailValid || cantEdit()}
               color="primary"
               onClick={handleSaveChanges}
             >
@@ -159,7 +196,7 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
 
         <Tooltip
           title={
-            user.id === reqUser.id
+            user.id === loggedInUser.id
               ? "Sie können sich nicht selbst löschen"
               : "Löschen"
           }
@@ -169,9 +206,22 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
             <IconButton
               color="primary"
               onClick={handleDeleteClick}
-              disabled={user.id === reqUser.id}
+              disabled={user.id === loggedInUser.id || cantEdit()}
             >
               <Delete />
+            </IconButton>
+          </span>
+        </Tooltip>
+
+        <Tooltip title={"Änderungen verwerfen"}>
+          {/* span because: A disabled element does not fire events. */}
+          <span>
+            <IconButton
+              color="primary"
+              onClick={handleCancel}
+              disabled={!userChanged()}
+            >
+              <Cancel />
             </IconButton>
           </span>
         </Tooltip>

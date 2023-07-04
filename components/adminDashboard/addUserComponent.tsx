@@ -30,6 +30,8 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
     Partial<Prisma.OrganizationCreateNestedOneWithoutUserInput> | undefined
   >();
 
+  const emailValid = isValidEmail(email);
+
   const [working, setWorking] = useState<boolean>(false);
 
   async function save() {
@@ -93,6 +95,8 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
             fullWidth
             value={email}
             onChange={(e) => setEmail(e.currentTarget.value)}
+            error={!emailValid}
+            helperText={!emailValid && "Bitte geben Sie eine gültige E-Mail an"}
           />
         </TableCell>
         <TableCell></TableCell>

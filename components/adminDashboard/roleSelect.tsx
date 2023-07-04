@@ -1,6 +1,6 @@
 import { MenuItem, Select } from "@mui/material";
 import { Role } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface RoleSelectProps {
   isAdmin: boolean;
@@ -11,6 +11,8 @@ export interface RoleSelectProps {
 const RoleSelect = ({ isAdmin, onChange, value }: RoleSelectProps) => {
   const [role, setRole] = useState<Role>(value || Role.USER);
 
+  useEffect(() => setRole(value), [value]);
+
   return (
     <Select
       value={role}
@@ -19,8 +21,12 @@ const RoleSelect = ({ isAdmin, onChange, value }: RoleSelectProps) => {
         onChange(e.target.value as Role);
       }}
     >
-      {isAdmin && <MenuItem value={Role.ADMIN}>Admin</MenuItem>}
-      {isAdmin && <MenuItem value={Role.CONTROLLER}>Controller</MenuItem>}
+      <MenuItem value={Role.ADMIN} disabled={!isAdmin}>
+        Admin
+      </MenuItem>
+      <MenuItem value={Role.CONTROLLER} disabled={!isAdmin}>
+        Controller
+      </MenuItem>
       <MenuItem value={Role.ORGCONTROLLER}>Org Controller</MenuItem>
       <MenuItem value={Role.USER}>User</MenuItem>
     </Select>

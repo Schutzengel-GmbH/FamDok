@@ -2,17 +2,25 @@ import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { isValidEmail } from "../../utils/validationUtils";
 import { useUserData } from "../../utils/authUtils";
 import Loading from "../utilityComponents/loadingMainContent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useNotification from "../utilityComponents/notificationContext";
 
 export default function EditMe() {
   const { user, isLoading, error } = useUserData();
-  if (isLoading) return <Loading />;
 
   const { addAlert } = useNotification();
 
-  const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+    }
+  }, [user]);
+
+  if (isLoading) return <Loading />;
 
   if (error)
     return (
@@ -49,7 +57,7 @@ export default function EditMe() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        "& > *": { mt: "1rem" },
+        gap: "1rem",
       }}
     >
       <Typography variant="h4">Meine Daten bearbeiten</Typography>
@@ -61,6 +69,7 @@ export default function EditMe() {
         onChange={handleEmailChange}
         label={"E-Mail"}
         error={!emailValid}
+        helperText={!emailValid && "Bitte eine gültige E-Mail-Adresse eingeben"}
       />
 
       <Button onClick={handleSave} disabled={!emailValid}>
