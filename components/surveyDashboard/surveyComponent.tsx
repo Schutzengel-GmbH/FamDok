@@ -82,7 +82,7 @@ export default function SurveyComponent({
         </Typography>
         <Link
           href={{
-            pathname: `/editSurvey/${survey.id}`,
+            pathname: `/surveys/${survey.id}/edit`,
           }}
         >
           <Button

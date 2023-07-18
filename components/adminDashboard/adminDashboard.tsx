@@ -74,7 +74,7 @@ export default function AdminDashboard() {
               }}
             />
           )}
-          {(isLoading || isValidating) && (
+          {isLoading && (
             <TableRow>
               <TableCell>
                 <CircularProgress size={20} />

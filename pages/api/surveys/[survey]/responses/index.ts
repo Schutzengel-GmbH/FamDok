@@ -11,8 +11,22 @@ import { Prisma, Role } from "@prisma/client";
 supertokens.init(backendConfig());
 
 export interface IResponses {
-  responses?: Prisma.ResponseGetPayload<{}>[];
-  response?: Prisma.ResponseGetPayload<{}>;
+  responses?: Prisma.ResponseGetPayload<{
+    include: {
+      answers: { include: { answerSelect: true } };
+      user: true;
+      family: { include: { caregivers: true; children: true } };
+    };
+  }>[];
+  response?: Prisma.ResponseGetPayload<{
+    include: {
+      answers: { include: { answerSelect: true } };
+      user: true;
+      family: { include: { caregivers: true; children: true } };
+      child: true;
+      caregiver: true;
+    };
+  }>;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -45,8 +59,17 @@ export default async function responses(
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const survey = await prisma.survey
-    .findUnique({ where: { id: surveyId as string } })
-    .catch((err) => console.log(err));
+    .findUniqueOrThrow({ where: { id: surveyId as string } })
+    .catch((err) => {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "P2025"
+      )
+        return res.status(404).json({ error: "NOT_FOUND" });
+
+      console.error(err);
+      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+    });
 
   if (!survey) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -75,7 +98,16 @@ export default async function responses(
   switch (req.method) {
     case "GET":
       const responses = await prisma.response
-        .findMany({ where })
+        .findMany({
+          where,
+          include: {
+            answers: { include: { answerSelect: true } },
+            user: true,
+            family: { include: { caregivers: true, children: true } },
+            child: true,
+            caregiver: true,
+          },
+        })
         .catch((err) => console.log(err));
 
       if (!responses)
@@ -93,6 +125,13 @@ export default async function responses(
             family: req.body.family,
             survey: { connect: { id: survey.id } },
             user: { connect: { id: user.id } },
+          },
+          include: {
+            answers: { include: { answerSelect: true } },
+            user: true,
+            family: { include: { caregivers: true, children: true } },
+            child: true,
+            caregiver: true,
           },
         })
         .catch((err) => console.log(err));

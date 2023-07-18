@@ -1,4 +1,9 @@
-import { AdminPanelSettings, AccountBox, Poll } from "@mui/icons-material";
+import {
+  AdminPanelSettings,
+  AccountBox,
+  Poll,
+  Edit,
+} from "@mui/icons-material";
 import { Prisma, Role } from "@prisma/client";
 
 export const navigationList: {
@@ -34,5 +39,11 @@ export const navigationList: {
       (user.role === Role.ADMIN ||
         user.role === Role.CONTROLLER ||
         user.role === Role.ORGCONTROLLER),
+  },
+  {
+    title: "Fragebögen",
+    icon: <Edit />,
+    url: "/surveys",
+    canAccess: (user) => (user ? true : false),
   },
 ];

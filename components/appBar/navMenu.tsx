@@ -35,10 +35,11 @@ export default function NavMenuComponent({
         <ListItemText primary={"Hauptseite"} />
       </ListItemButton>
 
-      {navigationList.map((navItem) => (
+      {navigationList.map((navItem, i) => (
         <ListItemButton
           onClick={() => onNavClick(navItem.url)}
           sx={{ display: navItem.canAccess(user) ? undefined : "none" }}
+          key={i}
         >
           <ListItemIcon>{navItem.icon}</ListItemIcon>
           <ListItemText primary={navItem.title} />

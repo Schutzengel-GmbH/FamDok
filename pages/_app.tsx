@@ -6,6 +6,9 @@ import * as SuperTokensConfig from "../config/frontendConfig";
 import Session from "supertokens-auth-react/recipe/session";
 import Layout from "../components/layout";
 import { NotificationProvider } from "../components/utilityComponents/notificationContext";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { de } from "date-fns/locale";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -31,11 +34,13 @@ function MyApp({ Component, pageProps }): JSX.Element {
 
   return (
     <SuperTokensWrapper>
-      <Layout>
-        <NotificationProvider>
-          <Component {...pageProps} />
-        </NotificationProvider>
-      </Layout>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
+        <Layout>
+          <NotificationProvider>
+            <Component {...pageProps} />
+          </NotificationProvider>
+        </Layout>
+      </LocalizationProvider>
     </SuperTokensWrapper>
   );
 }

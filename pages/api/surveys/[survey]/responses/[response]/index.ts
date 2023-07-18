@@ -11,7 +11,13 @@ import { Prisma, Role } from "@prisma/client";
 supertokens.init(backendConfig());
 
 export interface IResponse {
-  response?: Prisma.ResponseGetPayload<{}>;
+  response?: Prisma.ResponseGetPayload<{
+    include: {
+      answers: { include: { answerSelect: true } };
+      user: true;
+      family: { include: { caregivers: true; children: true } };
+    };
+  }>;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -58,13 +64,21 @@ export default async function response(
     return res.status(403).json({ error: "FORBIDDEN" });
 
   let response: Prisma.ResponseGetPayload<{
-    include: { answers: { include: { answerSelect: true } }; user: true };
+    include: {
+      answers: { include: { answerSelect: true } };
+      user: true;
+      family: { include: { children: true; caregivers: true } };
+    };
   }>;
 
   try {
     response = await prisma.response.findUniqueOrThrow({
       where: { id: responseId as string },
-      include: { answers: { include: { answerSelect: true } }, user: true },
+      include: {
+        answers: { include: { answerSelect: true } },
+        user: true,
+        family: { include: { caregivers: true, children: true } },
+      },
     });
 
     if (response.surveyId !== surveyId)

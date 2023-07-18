@@ -7,6 +7,7 @@ import { useState } from "react";
 import SurveyComponent from "./surveyComponent";
 import Working from "../utilityComponents/working";
 import AddSurveyDialog from "./addSurveyDialog";
+import ImportSurveyDialog from "./importSurveyDialog";
 
 export default function SurveyDashboard() {
   const [addSurveyOpen, setAddSurveyOpen] = useState<boolean>(false);
@@ -49,13 +50,13 @@ export default function SurveyDashboard() {
         }}
       />
 
-      {/* <ImportSurveyDialog
+      <ImportSurveyDialog
         open={importOpen}
         onClose={() => {
           setImportOpen(false);
           mutate();
         }}
-      /> */}
+      />
 
       <Working open={isLoading} />
     </Box>
