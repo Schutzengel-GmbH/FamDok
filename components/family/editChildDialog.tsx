@@ -7,10 +7,10 @@ import {
 } from "@mui/material";
 import { Child } from "@prisma/client";
 import { useState } from "react";
-import GenderPickComponent from "./pickComponents/genderPickComponent";
-import BooleanOrUndefinedPickComponent from "./pickComponents/yesNoPickComponent";
-import DisabilityPickComponent from "./pickComponents/disabilityPickComponent";
-import DatePickerComponent from "../utilityComponents/datePickerComponent";
+import GenderPickComponent from "@/components/family/pickComponents/genderPickComponent";
+import BooleanOrUndefinedPickComponent from "@/components/family/pickComponents/yesNoPickComponent";
+import DisabilityPickComponent from "@/components/family/pickComponents/disabilityPickComponent";
+import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 
 interface EditChildDialogProps {
   initialChild?: Partial<Child>;

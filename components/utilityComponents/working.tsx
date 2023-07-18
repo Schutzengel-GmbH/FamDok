@@ -1,5 +1,5 @@
 import { Modal } from "@mui/material";
-import Loading from "./loadingMainContent";
+import Loading from "@/components/utilityComponents/loadingMainContent";
 
 type WorkingProps = {
   open: boolean;

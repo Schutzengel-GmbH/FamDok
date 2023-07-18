@@ -3,10 +3,10 @@ import { Button, Paper, Typography } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import SelectResponseDialog from "./selectResponseDialog";
+import SelectResponseDialog from "@/components/surveys/selectResponseDialog";
 import useSWR from "swr";
-import { IResponses } from "../../pages/api/surveys/[survey]/responses";
-import { fetcher } from "../../utils/swrConfig";
+import { IResponses } from "@/pages/api/surveys/[survey]/responses";
+import { fetcher } from "@/utils/swrConfig";
 
 export interface SurveyComponentProps {
   survey: Prisma.SurveyGetPayload<{

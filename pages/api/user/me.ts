@@ -1,10 +1,10 @@
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import supertokens from "supertokens-node";
-import { backendConfig } from "../../../config/backendConfig";
-import { prisma } from "../../../db/prisma";
+import { backendConfig } from "@/config/backendConfig";
+import { prisma } from "@/db/prisma";
 import { Prisma, User } from "@prisma/client";
-import { isValidEmail } from "../../../utils/validationUtils";
+import { isValidEmail } from "@/utils/validationUtils";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 
 supertokens.init(backendConfig());

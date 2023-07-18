@@ -11,7 +11,7 @@ import {
 import { Box } from "@mui/system";
 import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
-import { useUserData } from "../../utils/authUtils";
+import { useUserData } from "@/utils/authUtils";
 
 type UserMenuComponentProps = {
   router: NextRouter;

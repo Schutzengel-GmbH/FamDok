@@ -11,11 +11,10 @@ import {
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import { useState, useEffect } from "react";
-import { getAge } from "../../utils/utils";
-import { RssFeed } from "@mui/icons-material";
-import { IFamilies } from "../../pages/api/families";
-import useNotification from "../utilityComponents/notificationContext";
-import { FullFamily } from "../../types/prismaHelperTypes";
+import { getAge } from "@/utils/utils";
+import { IFamilies } from "@/pages/api/families";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { FullFamily } from "@/types/prismaHelperTypes";
 
 type FindFamilyDialogProps = {
   open: boolean;

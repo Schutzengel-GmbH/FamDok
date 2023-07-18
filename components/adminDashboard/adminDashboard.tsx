@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import useNotification from "../utilityComponents/notificationContext";
+import useNotification from "@/components/utilityComponents/notificationContext";
 import {
   CircularProgress,
   IconButton,
@@ -12,10 +12,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { PersonAdd } from "@mui/icons-material";
-import UserDetailComponent from "./userDetailComponent";
-import { IUsers } from "../../pages/api/user";
-import { fetcher } from "../../utils/swrConfig";
-import AddUserComponent from "./addUserComponent";
+import UserDetailComponent from "@/components/adminDashboard/userDetailComponent";
+import { IUsers } from "@/pages/api/user";
+import { fetcher } from "@/utils/swrConfig";
+import AddUserComponent from "@/components/adminDashboard/addUserComponent";
 
 export default function AdminDashboard() {
   const { addAlert } = useNotification();

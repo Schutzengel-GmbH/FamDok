@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 export interface ImportSurveyDialogProps {
   open: boolean;

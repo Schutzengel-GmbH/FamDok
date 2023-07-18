@@ -5,10 +5,9 @@ import {
   ListItemText,
   ListItemIcon,
 } from "@mui/material";
-import { Role } from "@prisma/client";
 import { NextRouter } from "next/router";
-import { useUserData } from "../../utils/authUtils";
-import { navigationList } from "../../utils/navigationUtils";
+import { useUserData } from "@/utils/authUtils";
+import { navigationList } from "@/utils/navigationUtils";
 
 export interface NavMenuComponentProps {
   router: NextRouter;

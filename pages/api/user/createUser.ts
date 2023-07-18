@@ -3,7 +3,7 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { SessionRequest } from "supertokens-node/framework/express";
 import UserRoles from "supertokens-node/recipe/userroles";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
-import { prisma } from "../../../db/prisma";
+import { prisma } from "@/db/prisma";
 import { Role } from "@prisma/client";
 
 const FAKE_PASSWORD = "asokdA87fnf30efjoiOI**cwjkn";

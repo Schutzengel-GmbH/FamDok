@@ -9,14 +9,14 @@ import {
 } from "@mui/material";
 import { Prisma, Role } from "@prisma/client";
 import { useState } from "react";
-import ConfirmDialog from "../utilityComponents/confirmDialog";
-import ChangePasswordDialog from "./changePassword";
-import useNotification from "../utilityComponents/notificationContext";
-import { IUser } from "../../pages/api/user/[id]";
-import OrgSelect from "./orgSelect";
-import RoleSelect from "./roleSelect";
-import { isValidEmail } from "../../utils/validationUtils";
-import { useUserData } from "../../utils/authUtils";
+import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
+import ChangePasswordDialog from "@/components/adminDashboard/changePassword";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { IUser } from "@/pages/api/user/[id]";
+import OrgSelect from "@/components/adminDashboard/orgSelect";
+import RoleSelect from "@/components/adminDashboard/roleSelect";
+import { isValidEmail } from "@/utils/validationUtils";
+import { useUserData } from "@/utils/authUtils";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;

@@ -1,9 +1,9 @@
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
-import { isValidEmail } from "../../utils/validationUtils";
-import { useUserData } from "../../utils/authUtils";
-import Loading from "../utilityComponents/loadingMainContent";
+import { isValidEmail } from "@/utils/validationUtils";
+import { useUserData } from "@/utils/authUtils";
+import Loading from "@/components/utilityComponents/loadingMainContent";
 import { useEffect, useState } from "react";
-import useNotification from "../utilityComponents/notificationContext";
+import useNotification from "@/components/utilityComponents/notificationContext";
 
 export default function EditMe() {
   const { user, isLoading, error, mutate } = useUserData();

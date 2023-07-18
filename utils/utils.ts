@@ -1,5 +1,33 @@
-import { Caregiver, Child, Family, Gender, Prisma } from "@prisma/client";
+import {
+  Caregiver,
+  Child,
+  Family,
+  Gender,
+  Prisma,
+  QuestionType,
+} from "@prisma/client";
 import { differenceInYears } from "date-fns";
+
+export function getQuestionTypeString(type: QuestionType) {
+  switch (type) {
+    case QuestionType.Bool:
+      return "Ja-Nein-Frage";
+    case QuestionType.Int:
+      return "Frage nach ganzer Zahl";
+    case QuestionType.Num:
+      return "Frage nach Dezimalzahl";
+    case QuestionType.Text:
+      return "Freitext-Frage";
+    case QuestionType.Select:
+      return "Auswahl-Frage";
+    case QuestionType.Date:
+      return "Frage nach Datum";
+    case QuestionType.Scale:
+      return "Skala";
+    default:
+      return type;
+  }
+}
 
 export const getAge = (birthDate: Date) => {
   const today = new Date();

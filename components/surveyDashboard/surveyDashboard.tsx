@@ -1,13 +1,13 @@
 import { Add, FileUpload } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import useSWR from "swr";
-import { fetcher } from "../../utils/swrConfig";
-import { ISurveys } from "../../pages/api/surveys";
+import { fetcher } from "@/utils/swrConfig";
+import { ISurveys } from "@/pages/api/surveys";
 import { useState } from "react";
-import SurveyComponent from "./surveyComponent";
-import Working from "../utilityComponents/working";
-import AddSurveyDialog from "./addSurveyDialog";
-import ImportSurveyDialog from "./importSurveyDialog";
+import SurveyComponent from "@/components/surveyDashboard/surveyComponent";
+import Working from "@/components/utilityComponents/working";
+import AddSurveyDialog from "@/components/surveyDashboard/addSurveyDialog";
+import ImportSurveyDialog from "@/components/surveyDashboard/importSurveyDialog";
 
 export default function SurveyDashboard() {
   const [addSurveyOpen, setAddSurveyOpen] = useState<boolean>(false);

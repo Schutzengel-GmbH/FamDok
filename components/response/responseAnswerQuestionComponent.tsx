@@ -4,8 +4,7 @@ import {
   FullAnswer,
   FullResponse,
   FullSurvey,
-} from "../../types/prismaHelperTypes";
-import { Prisma, Question } from "@prisma/client";
+} from "@/types/prismaHelperTypes";
 
 type ResponseAnswerQuestionComponentProps = {
   response?: FullResponse;

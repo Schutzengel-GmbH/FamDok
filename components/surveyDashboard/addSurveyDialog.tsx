@@ -10,9 +10,9 @@ import {
   TextField,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import useNotification from "../utilityComponents/notificationContext";
+import useNotification from "@/components/utilityComponents/notificationContext";
 import { Prisma } from "@prisma/client";
-import { ISurveys } from "../../pages/api/surveys";
+import { ISurveys } from "@/pages/api/surveys";
 
 export interface AddSurveyDialogProps {
   open: boolean;

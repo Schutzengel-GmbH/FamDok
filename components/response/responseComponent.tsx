@@ -1,16 +1,15 @@
 import { Box } from "@mui/material";
 import {
   ChangedOrNewAnswer,
-  FullAnswer,
   FullResponse,
   FullSurvey,
-} from "../../types/prismaHelperTypes";
+} from "@/types/prismaHelperTypes";
 import { useState } from "react";
 import ResponseRelationComponent, {
   ResponseRelation,
-} from "./responseRelationComponent";
-import ResponseAnswerQuestionComponent from "./responseAnswerQuestionComponent";
-import UnsavedChangesComponent from "./unsavedChangesComponent";
+} from "@/components/response/responseRelationComponent";
+import ResponseAnswerQuestionComponent from "@/components/response/responseAnswerQuestionComponent";
+import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
 
 type ResponseComponentProps = {

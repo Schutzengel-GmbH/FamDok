@@ -1,12 +1,12 @@
 import { Prisma, Gender, Disability, Education } from "@prisma/client";
 import supertokens from "supertokens-node/lib/build/supertokens";
-import { backendConfig } from "../../config/backendConfig";
+import { backendConfig } from "@/config/backendConfig";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { Response } from "express";
-import { prisma } from "../../db/prisma";
+import { prisma } from "@/db/prisma";
 
 supertokens.init(backendConfig());
 

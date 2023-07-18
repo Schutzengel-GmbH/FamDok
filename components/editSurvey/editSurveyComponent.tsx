@@ -1,7 +1,13 @@
+import EditQuestionDialog from "@/components/editSurvey/editQuestion";
+import EditStringDialog from "@/components/editSurvey/editStringDialog";
+import ListItemQuestion from "@/components/editSurvey/listItemQuestion";
+import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { FullSurvey } from "@/types/prismaHelperTypes";
+import { Add, Edit } from "@mui/icons-material";
 import {
   Alert,
   Box,
-  Button,
   Checkbox,
   FormControlLabel,
   IconButton,
@@ -11,21 +17,17 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { FullSurvey } from "../../types/prismaHelperTypes";
-import { Add, Edit } from "@mui/icons-material";
 import { compareAsc } from "date-fns";
-import error from "next/error";
-import EditStringDialog from "./editStringDialog";
 import { useState } from "react";
-import UnsavedChangesComponent from "../response/unsavedChangesComponent";
-import useNotification from "../utilityComponents/notificationContext";
 
 type EditSurveyComponentProps = {
   survey: FullSurvey;
+  onChange: () => void;
 };
 
 export default function EditSurveyComponent({
   survey,
+  onChange,
 }: EditSurveyComponentProps) {
   const { addAlert } = useNotification();
 
@@ -38,8 +40,11 @@ export default function EditSurveyComponent({
 
   const [editNameOpen, setEditNameOpen] = useState<boolean>(false);
   const [editDescOpen, setEditDescOpen] = useState<boolean>(false);
+  const [addOpen, setAddOpen] = useState<boolean>(false);
 
-  function handleAdd() {}
+  function handleAdd() {
+    setAddOpen(true);
+  }
 
   async function handleSaveChanges() {}
 
@@ -89,7 +94,14 @@ export default function EditSurveyComponent({
             .sort((q1, q2) =>
               compareAsc(new Date(q1.createdAt), new Date(q2.createdAt))
             )
-            .map((q) => <>{q.questionTitle}</>)}
+            .map((q) => (
+              <ListItemQuestion
+                key={q.id}
+                question={q}
+                surveyId={survey.id}
+                onDataChange={onChange}
+              />
+            ))}
         <ListItemButton onClick={handleAdd}>
           <ListItemIcon>
             <Add />
@@ -98,14 +110,14 @@ export default function EditSurveyComponent({
         </ListItemButton>
       </List>
 
-      {/* <EditQuestionDialog
+      <EditQuestionDialog
         surveyId={survey.id}
         open={addOpen}
         onClose={() => {
-          onDataChange();
+          onChange();
           setAddOpen(false);
         }}
-      /> */}
+      />
 
       <EditStringDialog
         title={"Namen der Survey ändern"}

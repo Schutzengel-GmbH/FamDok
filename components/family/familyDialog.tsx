@@ -10,14 +10,14 @@ import {
 } from "@mui/material";
 import { Caregiver, Child, Family, Prisma } from "@prisma/client";
 import { useEffect, useState } from "react";
-import ChildrenComponent from "./childrenComponent";
-import CaregiversComponent from "./caregiversComponent";
-import FamilyNumberDialog from "./familyNumberDialog";
-import DatePickerComponent from "../utilityComponents/datePickerComponent";
-import { getAddFamilyInput } from "../../utils/utils";
-import { useUserData } from "../../utils/authUtils";
-import useNotification from "../utilityComponents/notificationContext";
-import { FullFamily } from "../../types/prismaHelperTypes";
+import ChildrenComponent from "@/components/family/childrenComponent";
+import CaregiversComponent from "@/components/family/caregiversComponent";
+import FamilyNumberDialog from "@/components/family/familyNumberDialog";
+import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
+import { getAddFamilyInput } from "@/utils/utils";
+import { useUserData } from "@/utils/authUtils";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { FullFamily } from "@/types/prismaHelperTypes";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }

@@ -8,9 +8,9 @@ import {
   Typography,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import FindFamilyDialog from "../family/findFamilyDialog";
-import { getAge } from "../../utils/utils";
-import { FullFamily } from "../../types/prismaHelperTypes";
+import FindFamilyDialog from "@/components/family/findFamilyDialog";
+import { getAge } from "@/utils/utils";
+import { FullFamily } from "@/types/prismaHelperTypes";
 
 export type ResponseRelation = {
   family: FullFamily;

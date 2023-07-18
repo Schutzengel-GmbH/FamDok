@@ -1,9 +1,8 @@
-import { AdminPanelSettings, AccountBox, Poll } from "@mui/icons-material";
 import { Box } from "@mui/material";
-import NavItem from "./navItem";
+import NavItem from "@/components/mainPage/navItem";
 import { Role } from "@prisma/client";
-import { useUserData } from "../../utils/authUtils";
-import { navigationList } from "../../utils/navigationUtils";
+import { useUserData } from "@/utils/authUtils";
+import { navigationList } from "@/utils/navigationUtils";
 
 export default function HomeNav() {
   const { user } = useUserData();

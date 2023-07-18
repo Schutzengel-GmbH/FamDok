@@ -2,11 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
-import { prisma } from "../../../../../db/prisma";
+import { prisma } from "@/db/prisma";
 import { Response } from "express";
 import { Prisma, Role } from "@prisma/client";
 import supertokens from "supertokens-node/lib/build/supertokens";
-import { backendConfig } from "../../../../../config/backendConfig";
+import { backendConfig } from "@/config/backendConfig";
 
 supertokens.init(backendConfig());
 

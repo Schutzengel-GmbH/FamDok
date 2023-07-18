@@ -9,7 +9,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useState } from "react";
-import { generateTempPassword } from "../../utils/authUtils";
+import { generateTempPassword } from "@/utils/authUtils";
 
 interface ChangePasswordDialogProps {
   open: boolean;

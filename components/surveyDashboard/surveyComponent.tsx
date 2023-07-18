@@ -5,10 +5,10 @@ import { Prisma } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { SurveyExport } from "../../utils/importExport";
-import ConfirmDialog from "../utilityComponents/confirmDialog";
-import useNotification from "../utilityComponents/notificationContext";
-import { ISurveys } from "../../pages/api/surveys";
+import { SurveyExport } from "@/utils/importExport";
+import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { ISurveys } from "@/pages/api/surveys";
 
 export interface SurveyComponentProps {
   survey: Prisma.SurveyGetPayload<{

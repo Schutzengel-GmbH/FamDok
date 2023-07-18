@@ -2,14 +2,14 @@ import { Cancel, Save } from "@mui/icons-material";
 import { TableRow, TableCell, TextField, IconButton } from "@mui/material";
 import { Role, Prisma } from "@prisma/client";
 import { useState } from "react";
-import ErrorDialog from "../utilityComponents/errorDialog";
-import RoleSelect from "./roleSelect";
-import OrgSelect from "./orgSelect";
-import { isValidEmail } from "../../utils/validationUtils";
-import useNotification from "../utilityComponents/notificationContext";
-import { IUsers } from "../../pages/api/user";
-import Working from "../utilityComponents/working";
-import { useUserData } from "../../utils/authUtils";
+import ErrorDialog from "@/components/utilityComponents/errorDialog";
+import RoleSelect from "@/components/adminDashboard/roleSelect";
+import OrgSelect from "@/components/adminDashboard/orgSelect";
+import { isValidEmail } from "@/utils/validationUtils";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { IUsers } from "@/pages/api/user";
+import Working from "@/components/utilityComponents/working";
+import { useUserData } from "@/utils/authUtils";
 
 export interface AddUserProps {
   onSave: () => void;

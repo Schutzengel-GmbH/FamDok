@@ -1,6 +1,6 @@
 import { Paper, Box, Typography } from "@mui/material";
 import { Child } from "@prisma/client";
-import { getAge } from "../../utils/utils";
+import { getAge } from "@/utils/utils";
 
 interface ChildDisplayBarProps {
   child: Partial<Child>;

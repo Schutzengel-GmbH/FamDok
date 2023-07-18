@@ -6,9 +6,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import useSWR from "swr";
-import AddOrgMenu from "./addOrg";
-import { IOrganizations } from "../../pages/api/organizations";
-import { fetcher } from "../../utils/swrConfig";
+import AddOrgMenu from "@/components/adminDashboard/addOrg";
+import { IOrganizations } from "@/pages/api/organizations";
+import { fetcher } from "@/utils/swrConfig";
 
 export interface OrgSelectInterface {
   value?: string;

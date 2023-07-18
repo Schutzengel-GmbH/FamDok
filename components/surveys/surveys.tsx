@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { Prisma } from "@prisma/client";
-import SurveyComponent from "./surveyComponent";
+import SurveyComponent from "@/components/surveys/surveyComponent";
 
 type SurveysProps = {
   surveys: Prisma.SurveyGetPayload<{

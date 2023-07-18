@@ -1,10 +1,10 @@
 import { Edit } from "@mui/icons-material";
-import { Paper, Box, Typography, IconButton } from "@mui/material";
+import { Paper, Box, IconButton } from "@mui/material";
 import { Child } from "@prisma/client";
 import { Delete } from "@mui/icons-material";
-import EditChildDialog from "./editChildDialog";
+import EditChildDialog from "@/components/family/editChildDialog";
 import { useState } from "react";
-import ChildDisplayBar from "./childDisplayBarComponent";
+import ChildDisplayBar from "@/components/family/childDisplayBarComponent";
 
 interface ChildrenComponentProps {
   value: Partial<Child>;

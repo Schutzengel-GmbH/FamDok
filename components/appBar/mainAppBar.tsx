@@ -8,14 +8,13 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { AccountCircle } from "@mui/icons-material";
 import React from "react";
-import UserMenuComponent from "./userMenu";
+import UserMenuComponent from "@/components/appBar/userMenu";
 import Session, {
   SessionContextType,
 } from "supertokens-auth-react/recipe/session";
 import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
 import { useRouter } from "next/router";
-import NavMenuComponent from "./navMenu";
-import { useUserData } from "../../utils/authUtils";
+import NavMenuComponent from "@/components/appBar/navMenu";
 
 export default function MainAppBar() {
   let sessionContext = Session.useSessionContext() as SessionContextType &

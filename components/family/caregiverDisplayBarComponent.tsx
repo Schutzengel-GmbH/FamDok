@@ -1,6 +1,6 @@
 import { Paper, Box, Typography } from "@mui/material";
 import { Caregiver } from "@prisma/client";
-import { getAge } from "../../utils/utils";
+import { getAge } from "@/utils/utils";
 
 interface CaregiverDisplayBarProps {
   caregiver: Partial<Caregiver>;

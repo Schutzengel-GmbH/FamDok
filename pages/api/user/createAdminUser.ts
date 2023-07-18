@@ -3,8 +3,8 @@ import supertokens from "supertokens-node/lib/build/supertokens";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import UserRoles from "supertokens-node/recipe/userroles";
-import { backendConfig } from "../../../config/backendConfig";
-import { prisma } from "../../../db/prisma";
+import { backendConfig } from "@/config/backendConfig";
+import { prisma } from "@/db/prisma";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 
 supertokens.init(backendConfig());

@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import MainAppBar from "./appBar/mainAppBar";
+import MainAppBar from "@/components/appBar/mainAppBar";
 
 export default function Layout({ children }) {
   return (

@@ -1,16 +1,19 @@
-import { Box, Paper, Button, Typography } from '@mui/material';
-import { Child } from '@prisma/client';
-import ChildComponent from './childComponent';
-import { Add } from '@mui/icons-material';
-import { useState } from 'react';
-import EditChildDialog from './editChildDialog';
+import { Box, Paper, Button, Typography } from "@mui/material";
+import { Child } from "@prisma/client";
+import ChildComponent from "./childComponent";
+import { Add } from "@mui/icons-material";
+import { useState } from "react";
+import EditChildDialog from "@/components/family/editChildDialog";
 
 interface ChildrenComponentProps {
   value: Partial<Child>[];
   onChange(children: Partial<Child>[]): void;
 }
 
-export default function ChildrenComponent({ value, onChange }: ChildrenComponentProps) {
+export default function ChildrenComponent({
+  value,
+  onChange,
+}: ChildrenComponentProps) {
   const [editOpen, setEditOpen] = useState<boolean>(false);
 
   function handleAdd() {
@@ -26,14 +29,20 @@ export default function ChildrenComponent({ value, onChange }: ChildrenComponent
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        flexDirection: "column",
+      }}
+    >
       <Typography
-        variant='body2'
-        sx={{ mt: '.25rem', fontSize: 'medium', fontWeight: 'bold' }}
+        variant="body2"
+        sx={{ mt: ".25rem", fontSize: "medium", fontWeight: "bold" }}
       >
         Kinder:
       </Typography>
-      <Paper sx={{ width: '100%' }}>
+      <Paper sx={{ width: "100%" }}>
         {value.map((child, index) => (
           <ChildComponent
             key={index}
@@ -44,15 +53,15 @@ export default function ChildrenComponent({ value, onChange }: ChildrenComponent
         ))}
         <Paper
           sx={{
-            mt: '1rem',
-            m: '.2rem',
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            p: '.25rem',
+            mt: "1rem",
+            m: ".2rem",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            p: ".25rem",
           }}
         >
-          <Button sx={{ width: '100%', height: '100%' }} onClick={handleAdd}>
+          <Button sx={{ width: "100%", height: "100%" }} onClick={handleAdd}>
             <Add />
           </Button>
         </Paper>

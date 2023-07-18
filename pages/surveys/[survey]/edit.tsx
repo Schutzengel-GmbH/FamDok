@@ -15,7 +15,10 @@ function ProtectedPage() {
 
   const { survey: id } = router.query;
 
-  const { data, isLoading } = useSWR<ISurvey>(`/api/surveys/${id}`, fetcher);
+  const { data, isLoading, mutate } = useSWR<ISurvey>(
+    `/api/surveys/${id}`,
+    fetcher
+  );
 
   if (isLoading) return <Loading />;
   console.log(data);
@@ -29,7 +32,7 @@ function ProtectedPage() {
   )
     return <ErrorPage message="Forbidden" />;
 
-  return <EditSurveyComponent survey={data.survey} />;
+  return <EditSurveyComponent survey={data.survey} onChange={mutate} />;
 }
 
 export default function EditSurveyPage() {

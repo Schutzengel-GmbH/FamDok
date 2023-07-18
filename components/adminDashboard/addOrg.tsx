@@ -7,8 +7,8 @@ import {
   TextField,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import useNotification from "../utilityComponents/notificationContext";
-import { IOrganizations } from "../../pages/api/organizations";
+import useNotification from "@/components/utilityComponents/notificationContext";
+import { IOrganizations } from "@/pages/api/organizations";
 
 export interface AddOrgMenuProps {
   open: boolean;

@@ -1,9 +1,9 @@
 import { Delete, Edit } from "@mui/icons-material";
-import { Paper, Box, Typography, IconButton } from "@mui/material";
+import { Paper, Box, IconButton } from "@mui/material";
 import { Caregiver } from "@prisma/client";
 import { useState } from "react";
-import EditCaregiverDialog from "./editCaregiverDialog";
-import CaregiverDisplayBar from "./caregiverDisplayBarComponent";
+import EditCaregiverDialog from "@/components/family/editCaregiverDialog";
+import CaregiverDisplayBar from "@/components/family/caregiverDisplayBarComponent";
 
 interface CaregiverComponentProps {
   value: Partial<Caregiver>;

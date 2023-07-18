@@ -1,8 +1,8 @@
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import supertokens, { deleteUser } from "supertokens-node";
-import { backendConfig } from "../../../config/backendConfig";
-import { prisma } from "../../../db/prisma";
+import { backendConfig } from "@/config/backendConfig";
+import { prisma } from "@/db/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";

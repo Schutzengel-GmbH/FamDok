@@ -5,13 +5,13 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { Caregiver, Disability, Education, Gender } from "@prisma/client";
+import { Caregiver } from "@prisma/client";
 import { useState } from "react";
-import GenderPickComponent from "./pickComponents/genderPickComponent";
-import EducationPickComponent from "./pickComponents/educationPickComponent";
-import BooleanOrUndefinedPickComponent from "./pickComponents/yesNoPickComponent";
-import DisabilityPickComponent from "./pickComponents/disabilityPickComponent";
-import DatePickerComponent from "../utilityComponents/datePickerComponent";
+import GenderPickComponent from "@/components/family/pickComponents/genderPickComponent";
+import EducationPickComponent from "@/components/family/pickComponents/educationPickComponent";
+import BooleanOrUndefinedPickComponent from "@/components/family/pickComponents/yesNoPickComponent";
+import DisabilityPickComponent from "@/components/family/pickComponents/disabilityPickComponent";
+import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 
 interface EditCaregiverDialogProps {
   initialCaregiver?: Partial<Caregiver>;
