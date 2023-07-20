@@ -82,5 +82,5 @@ export default async function importSurvey(
     if (!q) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
-  return res.status(200).end();
+  return res.status(200).json({});
 }
