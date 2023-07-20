@@ -4,6 +4,8 @@ import { useUserData } from "@/utils/authUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import { useEffect, useState } from "react";
 import useNotification from "@/components/utilityComponents/notificationContext";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import { IUserMe } from "@/pages/api/user/me";
 
 export default function EditMe() {
   const { user, isLoading, error, mutate } = useUserData();
@@ -40,17 +42,18 @@ export default function EditMe() {
   }
 
   async function handleSave() {
-    const response = await fetch("/api/user/me", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email }),
-    });
-    if (response.ok)
-      addAlert({ message: "Änderungen gespeichert", severity: "success" });
-    else addAlert({ message: "Fehler beim Speichern", severity: "error" });
-    mutate();
+    const res = await apiPostJson<IUserMe>("/api/user/me", { name, email });
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
+        addAlert({ message: "Fehler beim Speichern", severity: "error" });
+      else addAlert({ message: "Änderungen gespeichert", severity: "success" });
+      mutate();
+    }
   }
 
   return (

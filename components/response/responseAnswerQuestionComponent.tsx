@@ -1,27 +1,27 @@
 import { Box } from "@mui/material";
-import {
-  ChangedOrNewAnswer,
-  FullAnswer,
-  FullResponse,
-  FullSurvey,
-} from "@/types/prismaHelperTypes";
+import { FullSurvey, PartialAnswer } from "@/types/prismaHelperTypes";
+import AnswerQuestion from "./answerQuestion";
 
-type ResponseAnswerQuestionComponentProps = {
-  response?: FullResponse;
+type ResponseAnswerQuestionsComponentProps = {
+  answersState: PartialAnswer[];
   survey: FullSurvey;
-  onChange: (newAnswers: ChangedOrNewAnswer[]) => void;
+  onChange: (newAnswer: PartialAnswer) => void;
 };
 
-export default function ResponseAnswerQuestionComponent({
-  response,
+export default function ResponseAnswerQuestionsComponent({
+  answersState,
   survey,
   onChange,
-}: ResponseAnswerQuestionComponentProps) {
-  console.log(survey);
+}: ResponseAnswerQuestionsComponentProps) {
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {survey.questions.map((q, i) => (
-        <>{q.questionTitle}</>
+        <AnswerQuestion
+          key={i}
+          answer={answersState.find((a) => a.questionId === q.id)}
+          question={q}
+          onChange={onChange}
+        />
       ))}
     </Box>
   );

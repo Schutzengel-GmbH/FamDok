@@ -17,6 +17,7 @@ import OrgSelect from "@/components/adminDashboard/orgSelect";
 import RoleSelect from "@/components/adminDashboard/roleSelect";
 import { isValidEmail } from "@/utils/validationUtils";
 import { useUserData } from "@/utils/authUtils";
+import { FetchError, apiDelete, apiPostJson } from "@/utils/fetchApiUtils";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;
@@ -50,61 +51,53 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   }
 
   async function handleSaveChanges() {
-    await fetch(`/api/user/${user.id}`, {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        email,
-        organization: organizationId
-          ? { connect: { id: organizationId } }
-          : undefined,
-        role,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        const update = (await res.json()) as IUser;
-        if (res.ok) {
-          addAlert({
-            message: `${update.user.name || update.user.email} aktualisiert`,
-            severity: "success",
-          });
-        } else {
-          addAlert({
-            message: `Fehler bei Update: ${update.error || res.statusText}`,
-            severity: "error",
-          });
-        }
-      })
-      .catch((err) =>
+    const res = await apiPostJson<IUser>(`/api/user/${user.id}`, {
+      name,
+      email,
+      organization: organizationId
+        ? { connect: { id: organizationId } }
+        : undefined,
+      role,
+    });
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Es ist ein Fehler aufgetreten: ${err}`,
+          message: `Fehler beim Update eines Users: ${res.error}}`,
           severity: "error",
-        })
-      );
+        });
+
+      addAlert({
+        message: `${res.user.name || res.user.email} aktualisiert`,
+        severity: "success",
+      });
+    }
     onChange();
   }
 
   async function handleDelete() {
-    await fetch(`/api/user/${user.id}`, { method: "DELETE" })
-      .then((res) => {
-        if (res.ok) {
-          addAlert({ message: "Benutzer gelöscht", severity: "success" });
-        } else {
-          addAlert({
-            message: `Benutzer konnte nicht gelöscht werden: ${res.statusText}`,
-            severity: "error",
-          });
-        }
-      })
-      .catch((err) =>
+    const res = await apiDelete<IUser>(`/api/user/${user.id}`);
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Es ist ein Fehler aufgetreten: ${err}`,
+          message: `Benutzer konnte nicht gelöscht werden: ${res.error}`,
           severity: "error",
-        })
-      );
+        });
+
+      addAlert({
+        message: "Benutzer gelöscht",
+        severity: "success",
+      });
+    }
     onChange();
     setConfirmDelOpen(false);
   }

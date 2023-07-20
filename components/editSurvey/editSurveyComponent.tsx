@@ -3,8 +3,9 @@ import EditStringDialog from "@/components/editSurvey/editStringDialog";
 import ListItemQuestion from "@/components/editSurvey/listItemQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import useNotification from "@/components/utilityComponents/notificationContext";
+import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
-import { JsonHeaders } from "@/utils/utils";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { Add, Edit } from "@mui/icons-material";
 import {
   Alert,
@@ -48,23 +49,27 @@ export default function EditSurveyComponent({
   }
 
   async function handleSaveChanges() {
-    const res = await fetch(`/api/surveys/${survey.id}`, {
-      method: "POST",
-      body: JSON.stringify({ name, description }),
-      headers: JsonHeaders,
+    const res = await apiPostJson<ISurvey>(`/api/surveys/${survey.id}`, {
+      name,
+      description,
     });
-    if (res.status !== 200) {
+    if (res instanceof FetchError)
       addAlert({
-        message: `Beim Speichern ist ein Fehler aufgetreten: ${
-          res.statusText || res.status
-        }`,
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
-      handleCancelChanges();
-      return;
+    else {
+      if (res.error) {
+        addAlert({
+          message: `Beim Speichern ist ein Fehler aufgetreten: ${res.error}`,
+          severity: "error",
+        });
+        handleCancelChanges();
+        return;
+      }
+      addAlert({ message: "Änderungen gespeichert.", severity: "success" });
+      setUnsavedChanges(false);
     }
-    addAlert({ message: "Änderungen gespeichert.", severity: "success" });
-    setUnsavedChanges(false);
   }
 
   function handleCancelChanges() {

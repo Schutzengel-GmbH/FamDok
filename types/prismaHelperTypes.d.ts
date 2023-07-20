@@ -1,19 +1,21 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, SelectOption, Answer, SelectOption } from "@prisma/client";
 
 export type FullResponse = Prisma.ResponseGetPayload<{
   include: {
     answers: {
       include: {
         answerSelect: true;
-        question: { include: { selectOptions: true } };
       };
     };
-    survey: { include: { questions: { include: { selectOptions: true } } } };
     family: { include: { caregivers: true; children: true } };
     caregiver: true;
     child: true;
     user: true;
   };
+}>;
+
+export type FullQuestion = Prisma.QuestionGetPayload<{
+  include: { selectOptions: true; defaultAnswerSelectOptions: true };
 }>;
 
 export type FullFamily = Prisma.FamilyGetPayload<{
@@ -77,8 +79,6 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
   };
 }>;
 
-export type ChangedOrNewAnswer = {
-  question: Question;
-  type: "changed" | "new";
-  answer: Prisma.AnswerCreateInput | Prisma.AnswerUpdateInput;
+export type PartialAnswer = Partial<Answer> & {
+  answerSelect: Partial<SelectOption>[];
 };

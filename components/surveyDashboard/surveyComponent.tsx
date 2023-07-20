@@ -9,6 +9,8 @@ import { SurveyExport } from "@/utils/importExport";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { ISurveys } from "@/pages/api/surveys";
+import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
+import { ISurvey } from "@/pages/api/surveys/[survey]";
 
 export interface SurveyComponentProps {
   survey: Prisma.SurveyGetPayload<{
@@ -35,28 +37,24 @@ export default function SurveyComponent({
   }
 
   async function deleteThisSurvey() {
-    await fetch(`/api/surveys/${survey.id}`, {
-      method: "DELETE",
-    })
-      .then(async (res) => {
-        const response = (await res.json()) as ISurveys;
-        if (res.status === 200)
-          addAlert({
-            message: `${response.survey.name || "Survey"} gelöscht`,
-            severity: "success",
-          });
-        else
-          addAlert({
-            message: `Fehler beim Löschen: ${response.error}`,
-            severity: "error",
-          });
-      })
-      .catch((err) => {
+    const res = await apiDelete<ISurvey>(`/api/surveys/${survey.id}`);
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Fehler beim Löschen: ${err}`,
+          message: `Fehler beim Löschen: ${res.error}`,
           severity: "error",
         });
-      });
+      else
+        addAlert({
+          message: `${res.survey.name || "Survey"} gelöscht`,
+          severity: "success",
+        });
+    }
     onChange();
   }
 

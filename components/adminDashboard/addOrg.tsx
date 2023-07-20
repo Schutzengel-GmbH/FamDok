@@ -9,6 +9,7 @@ import {
 import { ChangeEvent, useState } from "react";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { IOrganizations } from "@/pages/api/organizations";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 
 export interface AddOrgMenuProps {
   open: boolean;
@@ -19,35 +20,27 @@ const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
   const [name, updateName] = useState<string>("");
   const { addAlert } = useNotification();
 
-  function handleSave() {
-    fetch("/api/organizations", {
-      body: JSON.stringify({ name }),
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        const response = (await res.json()) as IOrganizations;
-        if (res.status === 200)
-          addAlert({
-            message: `${response.organization.name} hinzugefügt`,
-            severity: "success",
-          });
-        else
-          addAlert({
-            message: `Fehler beim Hinzufügen der Organisation: ${
-              response.error || res.statusText
-            }}`,
-            severity: "error",
-          });
-      })
-      .catch((err) => {
+  async function handleSave() {
+    const res = await apiPostJson<IOrganizations>("/api/organizations", {
+      name,
+    });
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Es ist ein Fehler aufgetreten: ${err}`,
+          message: `Fehler beim Hinzufügen der Organisation: ${res.error}}`,
           severity: "error",
         });
+
+      addAlert({
+        message: `${res.organization.name} hinzugefügt`,
+        severity: "success",
       });
+    }
     onClose();
   }
 

@@ -13,8 +13,6 @@ function ProtectedPage() {
 
   if (error) return <Error statusCode={500} title={error} />;
 
-  console.log(data);
-
   return <Surveys surveys={data.surveys} />;
 }
 

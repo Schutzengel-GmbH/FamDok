@@ -1,3 +1,5 @@
+import { IImportSurvey } from "@/pages/api/surveys/import";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { Check, Error } from "@mui/icons-material";
 import {
   Alert,
@@ -9,6 +11,7 @@ import {
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import { ChangeEvent, useState } from "react";
+import useNotification from "../utilityComponents/notificationContext";
 
 export interface ImportSurveyDialogProps {
   open: boolean;
@@ -16,6 +19,7 @@ export interface ImportSurveyDialogProps {
 }
 
 const ImportSurveyDialog = ({ open, onClose }: ImportSurveyDialogProps) => {
+  const { addAlert } = useNotification();
   const [createInput, updateCreateInput] = useState<
     Prisma.SurveyCreateInput | undefined
   >();
@@ -42,12 +46,13 @@ const ImportSurveyDialog = ({ open, onClose }: ImportSurveyDialogProps) => {
   async function save() {
     if (!createInput) updateError("keine Datei gewählt");
     else {
-      const res = await fetch("/api/surveys/import", {
-        method: "POST",
-        body: JSON.stringify(createInput),
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.status === 200) {
+      const res = await apiPostJson<IImportSurvey>(
+        "/api/surveys/import",
+        createInput
+      );
+      if (res instanceof FetchError)
+        updateError(`Fehler bei der Verbindung zum Server: ${res.error}`);
+      else if (!res.error) {
         updateError(undefined);
         updateCreateInput(undefined);
         onClose();

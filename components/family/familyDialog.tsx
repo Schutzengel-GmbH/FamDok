@@ -18,6 +18,8 @@ import { getAddFamilyInput } from "@/utils/utils";
 import { useUserData } from "@/utils/authUtils";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { FullFamily } from "@/types/prismaHelperTypes";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import { IFamilies } from "@/pages/api/families";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
@@ -62,15 +64,27 @@ export default function FamilyDialog({
       });
       return;
     }
+    const res = await apiPostJson<IFamilies>(
+      "/api/families",
+      update.familyCreate
+    );
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
+        addAlert({
+          message: `Fehler: ${res.error}`,
+          severity: "error",
+        });
 
-    const res = await fetch("/api/families", {
-      method: "POST",
-      body: JSON.stringify(update.familyCreate),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(await res.json());
+      addAlert({
+        message: `Familie ${res.familiy.number} erstellt`,
+        severity: "success",
+      });
+    }
   }
 
   return (

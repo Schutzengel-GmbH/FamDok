@@ -88,7 +88,3 @@ export function getAddFamilyInput(
     error: false,
   };
 }
-
-export const JsonHeaders = new Headers({
-  "Content-Type": "application/json",
-});

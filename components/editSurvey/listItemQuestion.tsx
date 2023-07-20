@@ -14,6 +14,8 @@ import EditQuestionDialog from "./editQuestion";
 import { getQuestionTypeString } from "@/utils/utils";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import useNotification from "@/components/utilityComponents/notificationContext";
+import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
+import { IQuestion } from "@/pages/api/surveys/[survey]/questions/[question]";
 
 export interface ListItemQuestionProps {
   question: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -45,22 +47,25 @@ export default function ListItemQuestion({
   }
 
   async function deleteQ() {
-    console.log("delete");
-    const res = await fetch(
-      `/api/surveys/${surveyId}/questions/${question.id}`,
-      { method: "DELETE" }
+    const res = await apiDelete<IQuestion>(
+      `/api/surveys/${surveyId}/questions/${question.id}`
     );
-
-    if (res.status !== 200)
+    if (res instanceof FetchError)
       addAlert({
-        message: `Fehler: ${res.statusText}`,
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
-      addAlert({ message: "Frage gelöscht", severity: "success" });
-      onDataChange();
+      if (res.error)
+        addAlert({
+          message: `Fehler: ${res.error}`,
+          severity: "error",
+        });
+      else {
+        addAlert({ message: "Frage gelöscht", severity: "success" });
+        onDataChange();
+      }
     }
-
     setDelOpen(false);
   }
 

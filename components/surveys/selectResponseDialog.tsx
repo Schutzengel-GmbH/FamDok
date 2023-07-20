@@ -84,7 +84,7 @@ export default function SelectResponseDialog({
           {filteredResponses.map((r) => (
             <ListItemButton
               key={r.id}
-              onClick={() => router.push(`/response/${r.id}`)}
+              onClick={() => router.push(`/surveys/${r.surveyId}/${r.id}`)}
             >
               <Typography>{getResponseNameString(r)}</Typography>
             </ListItemButton>

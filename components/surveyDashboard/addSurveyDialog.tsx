@@ -13,6 +13,8 @@ import { ChangeEvent, useState } from "react";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { Prisma } from "@prisma/client";
 import { ISurveys } from "@/pages/api/surveys";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import React from "react";
 
 export interface AddSurveyDialogProps {
   open: boolean;
@@ -55,32 +57,24 @@ export default function AddSurveyDialog({
       hasFamily,
     };
 
-    await fetch("/api/surveys", {
-      method: "POST",
-      body: JSON.stringify(createInput),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        const response = (await res.json()) as ISurveys;
-        if (res.status === 200)
-          addAlert({
-            message: `${response.survey.name || "Survey"} hinzugefügt`,
-            severity: "success",
-          });
-        else
-          addAlert({
-            message: `Fehler beim Hinzufügen: ${response.error}`,
-            severity: "error",
-          });
-      })
-      .catch((err) => {
+    const res = await apiPostJson<ISurveys>("/api/surveys", createInput);
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Fehler beim Hinzufügen: ${err}`,
+          message: `Fehler: ${res.error}`,
           severity: "error",
         });
+
+      addAlert({
+        message: `Survey ${res.survey.name} hinzugefügt`,
+        severity: "success",
       });
+    }
     clear();
     onClose();
   }

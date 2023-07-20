@@ -5,9 +5,9 @@ import { fetcher } from "@/utils/swrConfig";
 import { ISurveys } from "@/pages/api/surveys";
 import { useState } from "react";
 import SurveyComponent from "@/components/surveyDashboard/surveyComponent";
-import Working from "@/components/utilityComponents/working";
 import AddSurveyDialog from "@/components/surveyDashboard/addSurveyDialog";
 import ImportSurveyDialog from "@/components/surveyDashboard/importSurveyDialog";
+import Loading from "@/components/utilityComponents/loadingMainContent";
 
 export default function SurveyDashboard() {
   const [addSurveyOpen, setAddSurveyOpen] = useState<boolean>(false);
@@ -17,6 +17,8 @@ export default function SurveyDashboard() {
   function handleImport() {
     setImportOpen(true);
   }
+
+  if (isLoading) return <Loading />;
 
   return (
     <Box>
@@ -57,8 +59,6 @@ export default function SurveyDashboard() {
           mutate();
         }}
       />
-
-      <Working open={isLoading} />
     </Box>
   );
 }

@@ -19,7 +19,7 @@ export default function Surveys({ surveys }: SurveysProps) {
   return (
     <Box>
       {surveys.map((s) => (
-        <SurveyComponent survey={s} />
+        <SurveyComponent key={s.id} survey={s} />
       ))}
     </Box>
   );

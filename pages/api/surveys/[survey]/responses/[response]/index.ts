@@ -16,6 +16,8 @@ export interface IResponse {
       answers: { include: { answerSelect: true } };
       user: true;
       family: { include: { caregivers: true; children: true } };
+      caregiver: true;
+      child: true;
     };
   }>;
   error?:
@@ -68,6 +70,8 @@ export default async function response(
       answers: { include: { answerSelect: true } };
       user: true;
       family: { include: { children: true; caregivers: true } };
+      caregiver: true;
+      child: true;
     };
   }>;
 
@@ -78,6 +82,8 @@ export default async function response(
         answers: { include: { answerSelect: true } },
         user: true,
         family: { include: { caregivers: true, children: true } },
+        caregiver: true,
+        child: true,
       },
     });
 

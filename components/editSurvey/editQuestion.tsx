@@ -1,6 +1,5 @@
 import { Save, Cancel } from "@mui/icons-material";
 import {
-  Alert,
   Box,
   Button,
   Checkbox,
@@ -18,9 +17,9 @@ import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
 import { useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
-import { IQuestion } from "@/pages/api/surveys/[survey]/questions/[question]";
 import useNotification from "@/components/utilityComponents/notificationContext";
-import { JsonHeaders } from "@/utils/utils";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -92,44 +91,49 @@ export default function EditQuestionDialog({
   async function handleSave() {
     setLoading(true);
     if (!question) {
-      const res = await fetch(`/api/surveys/${surveyId}/questions`, {
-        method: "POST",
-        headers: JsonHeaders,
-        body: JSON.stringify(getCreateInputFromState(questionState, surveyId)),
-      });
-      const response = (await res.json()) as IQuestion;
-      if (res.status !== 200)
+      const res = await apiPostJson<IQuestions>(
+        `/api/surveys/${surveyId}/questions`,
+        getCreateInputFromState(questionState, surveyId)
+      );
+      if (res instanceof FetchError)
         addAlert({
-          message: `Fehler: ${response?.error || res.statusText}`,
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
-        handleClose();
-        addAlert({ message: "Frage hinzugefügt", severity: "success" });
+        if (res.error)
+          addAlert({
+            message: `Fehler: ${res.error}`,
+            severity: "error",
+          });
+        else {
+          handleClose();
+          addAlert({ message: "Frage hinzugefügt", severity: "success" });
+        }
       }
       setLoading(false);
     } else {
-      const res = await fetch(
-        `/api/surveys/${surveyId}/questions/${question.id}`,
-        {
-          method: "POST",
-          headers: JsonHeaders,
-          body: JSON.stringify(
-            getCreateInputFromState(questionState, surveyId)
-          ),
-        }
+      const res = await apiPostJson<IQuestions>(
+        `/api/surveys/${surveyId}/questions`,
+        getCreateInputFromState(questionState, surveyId)
       );
-      const response = (await res.json()) as IQuestion;
-      if (res.status !== 200)
+      if (res instanceof FetchError)
         addAlert({
-          message: `Fehler: ${response?.error || res.statusText}`,
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
-        handleClose();
-        addAlert({ message: "Frage geändert", severity: "success" });
+        if (res.error)
+          addAlert({
+            message: `Fehler: ${res.error}`,
+            severity: "error",
+          });
+        else {
+          handleClose();
+          addAlert({ message: "Frage geändert", severity: "success" });
+        }
+        setLoading(false);
       }
-      setLoading(false);
     }
   }
 

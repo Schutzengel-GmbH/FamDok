@@ -8,8 +8,9 @@ import OrgSelect from "@/components/adminDashboard/orgSelect";
 import { isValidEmail } from "@/utils/validationUtils";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { IUsers } from "@/pages/api/user";
-import Working from "@/components/utilityComponents/working";
 import { useUserData } from "@/utils/authUtils";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import Loading from "@/components/utilityComponents/loadingMainContent";
 
 export interface AddUserProps {
   onSave: () => void;
@@ -36,38 +37,29 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
 
   async function save() {
     setWorking(true);
-    await fetch(`/api/user`, {
-      method: "POST",
-      body: JSON.stringify({
-        name,
-        email,
-        role,
-        organization,
-      } as Prisma.UserCreateInput),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(async (res) => {
-        const update = (await res.json()) as IUsers;
-        if (res.ok) {
-          addAlert({
-            message: `${update.user.name || update.user.email} hinzugefügt`,
-            severity: "success",
-          });
-        } else {
-          addAlert({
-            message: `Fehler beim Erstellen: ${update.error || res.statusText}`,
-            severity: "error",
-          });
-        }
-      })
-      .catch((err) =>
+    const res = await apiPostJson<IUsers>("/api/user", {
+      name,
+      email,
+      role,
+      organization,
+    } as Prisma.UserCreateInput);
+    if (res instanceof FetchError)
+      addAlert({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
         addAlert({
-          message: `Es ist ein Fehler aufgetreten: ${err}`,
+          message: `Fehler beim Hinzufügen eines Users: ${res.error}}`,
           severity: "error",
-        })
-      );
+        });
+
+      addAlert({
+        message: `${res.user.name || res.user.email} hinzugefügt`,
+        severity: "success",
+      });
+    }
     onSave();
     setWorking(false);
   }
@@ -77,6 +69,8 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
   }
 
   const valid = isValidEmail(email);
+
+  if (working) return <Loading />;
 
   return (
     <>
@@ -128,8 +122,6 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
           onOK={() => setError("")}
         />
       </TableRow>
-
-      <Working open={working} />
     </>
   );
 }
