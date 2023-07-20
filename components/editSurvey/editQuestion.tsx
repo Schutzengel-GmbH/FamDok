@@ -20,6 +20,7 @@ import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
 import { IQuestion } from "@/pages/api/surveys/[survey]/questions/[question]";
 import useNotification from "@/components/utilityComponents/notificationContext";
+import { JsonHeaders } from "@/utils/utils";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -82,7 +83,6 @@ export default function EditQuestionDialog({
   const [questionState, updateQuestionState] = useState<QuestionState>(
     question || initialQuestionState
   );
-  const [error, updateError] = useState("");
 
   function handleClose() {
     updateQuestionState(question || initialQuestionState);
@@ -94,9 +94,7 @@ export default function EditQuestionDialog({
     if (!question) {
       const res = await fetch(`/api/surveys/${surveyId}/questions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: JsonHeaders,
         body: JSON.stringify(getCreateInputFromState(questionState, surveyId)),
       });
       const response = (await res.json()) as IQuestion;
@@ -111,6 +109,26 @@ export default function EditQuestionDialog({
       }
       setLoading(false);
     } else {
+      const res = await fetch(
+        `/api/surveys/${surveyId}/questions/${question.id}`,
+        {
+          method: "POST",
+          headers: JsonHeaders,
+          body: JSON.stringify(
+            getCreateInputFromState(questionState, surveyId)
+          ),
+        }
+      );
+      const response = (await res.json()) as IQuestion;
+      if (res.status !== 200)
+        addAlert({
+          message: `Fehler: ${response?.error || res.statusText}`,
+          severity: "error",
+        });
+      else {
+        handleClose();
+        addAlert({ message: "Frage geändert", severity: "success" });
+      }
       setLoading(false);
     }
   }
@@ -129,12 +147,7 @@ export default function EditQuestionDialog({
           ? `${question.questionTitle || "Frage"} bearbeiten`
           : "Frage erstellen"}
       </DialogTitle>
-      {error && (
-        <Alert severity="error">
-          <strong>Fehler: </strong>
-          {error}
-        </Alert>
-      )}
+
       <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
         <TextField
           sx={{ mt: ".5rem" }}
