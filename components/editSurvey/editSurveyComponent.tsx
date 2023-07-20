@@ -4,6 +4,7 @@ import ListItemQuestion from "@/components/editSurvey/listItemQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { FullSurvey } from "@/types/prismaHelperTypes";
+import { JsonHeaders } from "@/utils/utils";
 import { Add, Edit } from "@mui/icons-material";
 import {
   Alert,
@@ -46,9 +47,31 @@ export default function EditSurveyComponent({
     setAddOpen(true);
   }
 
-  async function handleSaveChanges() {}
+  async function handleSaveChanges() {
+    const res = await fetch(`/api/surveys/${survey.id}`, {
+      method: "POST",
+      body: JSON.stringify({ name, description }),
+      headers: JsonHeaders,
+    });
+    if (res.status !== 200) {
+      addAlert({
+        message: `Beim Speichern ist ein Fehler aufgetreten: ${
+          res.statusText || res.status
+        }`,
+        severity: "error",
+      });
+      handleCancelChanges();
+      return;
+    }
+    addAlert({ message: "Änderungen gespeichert.", severity: "success" });
+    setUnsavedChanges(false);
+  }
 
-  function handleCancelChanges() {}
+  function handleCancelChanges() {
+    setName(survey.name);
+    setDescription(survey.description);
+    setUnsavedChanges(false);
+  }
 
   return (
     <Box>
