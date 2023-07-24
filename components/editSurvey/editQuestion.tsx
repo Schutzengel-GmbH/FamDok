@@ -114,7 +114,7 @@ export default function EditQuestionDialog({
       setLoading(false);
     } else {
       const res = await apiPostJson<IQuestions>(
-        `/api/surveys/${surveyId}/questions`,
+        `/api/surveys/${surveyId}/questions/${question.id}`,
         getCreateInputFromState(questionState, surveyId)
       );
       if (res instanceof FetchError)
