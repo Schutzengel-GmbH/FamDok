@@ -31,8 +31,8 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   const [changePwDialogOpen, setChangePwDialogOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>(user?.name || "");
   const [email, setEmail] = useState<string>(user?.email || "");
-  const [organizationId, setOrganizationId] = useState<string | null>(
-    user?.organizationId || null
+  const [organizationId, setOrganizationId] = useState<string | "none">(
+    user?.organizationId || "none"
   );
   const [role, setRole] = useState<Role>(user?.role || Role.USER);
   const [confirmDelOpen, setConfirmDelOpen] = useState<boolean>(false);
@@ -46,7 +46,8 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
       user.name !== name ||
       user.email !== email ||
       user.role !== role ||
-      user.organizationId !== organizationId
+      (user.organizationId !== organizationId &&
+        !(!user.organizationId && organizationId === "none"))
     );
   }
 

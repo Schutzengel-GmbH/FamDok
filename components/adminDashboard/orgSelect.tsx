@@ -37,23 +37,22 @@ const OrgSelect = ({ value, onChange }: OrgSelectInterface) => {
 
   return (
     <>
-      <Select value={organizationId} onChange={handleChange}>
-        <MenuItem onClick={handleAddOrg}>Neu...</MenuItem>
-        {isLoading && (
-          <MenuItem disabled>
-            <CircularProgress />
+      {isLoading && <CircularProgress />}
+      {data && (
+        <Select value={organizationId} onChange={handleChange}>
+          <MenuItem onClick={handleAddOrg}>Neu...</MenuItem>
+
+          <MenuItem key={"none"} value={"none"}>
+            Keine Organisation
           </MenuItem>
-        )}
-        <MenuItem key={"none"} value={null}>
-          Keine Organisation
-        </MenuItem>
-        {data &&
-          data?.organizations?.map((o) => (
-            <MenuItem key={o.id} value={o.id}>
-              {o.name}
-            </MenuItem>
-          ))}
-      </Select>
+          {data &&
+            data.organizations?.map((o) => (
+              <MenuItem key={o.id} value={o.id}>
+                {o.name}
+              </MenuItem>
+            ))}
+        </Select>
+      )}
 
       <AddOrgMenu
         open={addOrgOpen}

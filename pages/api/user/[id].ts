@@ -93,6 +93,8 @@ export default async function user(
         .catch((err) => console.log(err));
 
     case "POST":
+      if (req.body.organization.connect.id === "none")
+        req.body.organization = { disconnect: true };
       const updatedUser = await prisma.user
         .update({
           where: { id: id as string },
