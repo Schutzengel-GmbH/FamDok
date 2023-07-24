@@ -6,29 +6,38 @@ import useSWR from "swr";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
+import { Alert } from "@mui/material";
 
 function ProtectedPage() {
   const router = useRouter();
   const { survey: surveyId, response: responseId } = router.query;
 
-  const { data: surveyData, isLoading: surveyIsLoading } = useSWR<ISurvey>(
-    `/api/surveys/${surveyId}`
-  );
+  const {
+    data: surveyData,
+    isLoading: surveyIsLoading,
+    error: surveyError,
+  } = useSWR<ISurvey>(`/api/surveys/${surveyId}`, fetcher);
 
-  const { data: responseData, isLoading: responseIsLoading } =
-    useSWR<IResponse>(
-      `/api/surveys/${surveyId}/responses/${responseId}`,
-      fetcher
-    );
+  const {
+    data: responseData,
+    isLoading: responseIsLoading,
+    error: responseError,
+    mutate: mutateResponse,
+  } = useSWR<IResponse>(
+    `/api/surveys/${surveyId}/responses/${responseId}`,
+    fetcher
+  );
 
   if (responseIsLoading || surveyIsLoading) return <Loading />;
 
-  console.log(responseData);
+  if (responseError || surveyError)
+    return <Alert severity="error">{surveyError || responseError}</Alert>;
 
   return (
     <ResponseComponent
       survey={surveyData.survey}
       initialResponse={responseData.response}
+      onChange={mutateResponse}
     />
   );
 }

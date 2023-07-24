@@ -21,11 +21,13 @@ import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
+  onChange: () => void;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
+  onChange,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addAlert } = useNotification();
@@ -65,6 +67,7 @@ export default function ResponseComponent({
     } else {
       submitAnswers(response.id);
     }
+    onChange();
   }
 
   async function submitAnswers(responseId: string) {
@@ -89,6 +92,7 @@ export default function ResponseComponent({
     }
 
     setUnsavedChanges(false);
+    onChange();
   }
 
   function handleCancel() {

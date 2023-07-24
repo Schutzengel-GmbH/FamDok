@@ -1,17 +1,11 @@
-import { FullQuestion, PartialAnswer } from "@/types/prismaHelperTypes";
-import { Box, FormControl, TextField } from "@mui/material";
-
-type AnswerTextComponentProps = {
-  question: FullQuestion;
-  answer?: PartialAnswer;
-  onChange: (answer: PartialAnswer) => void;
-};
+import { FormControl, TextField } from "@mui/material";
+import { AnswerComponentProps } from "@/components/response/answerQuestion";
 
 export default function AnswerTextComponent({
   question,
   answer,
   onChange,
-}: AnswerTextComponentProps) {
+}: AnswerComponentProps) {
   return (
     <FormControl>
       <TextField

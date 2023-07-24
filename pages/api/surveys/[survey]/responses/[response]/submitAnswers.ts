@@ -108,7 +108,7 @@ export default async function survey(
           answerInt: answer.answerInt,
           answerNum: answer.answerNum,
           answerSelect: {
-            connect: answer.answerSelect.map((a) => ({ id: a.id })),
+            set: answer.answerSelect.map((a) => ({ id: a.id })),
           },
           answerSelectOtherValues: answer.answerSelectOtherValues || undefined,
           answerText: answer.answerText,

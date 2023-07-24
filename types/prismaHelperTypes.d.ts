@@ -82,3 +82,10 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
 export type PartialAnswer = Partial<Answer> & {
   answerSelect: Partial<SelectOption>[];
 };
+
+export type IAnswerSelectOtherValue = {
+  selectOptionId: string;
+  value: string;
+};
+
+export type IAnswerSelectOtherValues = IAnswerSelectOtherValue[];
