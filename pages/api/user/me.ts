@@ -50,33 +50,33 @@ export default async function me(req, res) {
       return res.json({ user });
 
     case "POST":
-      // ignore all fields except name and email
+      // ignore all fields except name
       let userUpdate: Prisma.UserUpdateInput = {};
       userUpdate.name = req.body.name;
-      userUpdate.email = req.body.email;
+      //userUpdate.email = req.body.email;
 
       if (req.body.email && !isValidEmail(req.body.email))
         return res.status(400).json({ error: "INVALID_EMAIL" });
 
       // update auth email if changed
-      if (userUpdate.email && userUpdate.email !== user.email) {
-        let resp = await EmailPassword.updateEmailOrPassword({
-          userId: req.session.getUserId(),
-          email: userUpdate.email as string,
-        });
+      // if (userUpdate.email && userUpdate.email !== user.email) {
+      //   let resp = await EmailPassword.updateEmailOrPassword({
+      //     userId: req.session.getUserId(),
+      //     email: userUpdate.email as string,
+      //   });
 
-        switch (resp.status) {
-          case "OK":
-            break;
-          case "EMAIL_ALREADY_EXISTS_ERROR":
-            return res
-              .status(400)
-              .json({ error: "EMAIL_ALREADY_EXISTS_ERROR" });
-          default:
-            console.error(resp);
-            return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-        }
-      }
+      //   switch (resp.status) {
+      //     case "OK":
+      //       break;
+      //     case "EMAIL_ALREADY_EXISTS_ERROR":
+      //       return res
+      //         .status(400)
+      //         .json({ error: "EMAIL_ALREADY_EXISTS_ERROR" });
+      //     default:
+      //       console.error(resp);
+      //       return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+      //   }
+      // }
 
       const update = await prisma.user.update({
         data: userUpdate,

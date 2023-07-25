@@ -1,5 +1,4 @@
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
-import { isValidEmail } from "@/utils/validationUtils";
 import { useUserData } from "@/utils/authUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import { useEffect, useState } from "react";
@@ -13,12 +12,10 @@ export default function EditMe() {
   const { addAlert } = useNotification();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (user) {
       setName(user.name);
-      setEmail(user.email);
     }
   }, [user]);
 
@@ -31,18 +28,14 @@ export default function EditMe() {
       </Alert>
     );
 
-  const emailValid = isValidEmail(email);
+  const unsavedChanges = user.name !== name;
 
   function handleNameChange(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
   }
 
-  function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setEmail(event.target.value);
-  }
-
   async function handleSave() {
-    const res = await apiPostJson<IUserMe>("/api/user/me", { name, email });
+    const res = await apiPostJson<IUserMe>("/api/user/me", { name });
     if (res instanceof FetchError)
       addAlert({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
@@ -68,15 +61,7 @@ export default function EditMe() {
 
       <TextField value={name} onChange={handleNameChange} label={"Name"} />
 
-      <TextField
-        value={email}
-        onChange={handleEmailChange}
-        label={"E-Mail"}
-        error={!emailValid}
-        helperText={!emailValid && "Bitte eine gültige E-Mail-Adresse eingeben"}
-      />
-
-      <Button onClick={handleSave} disabled={!emailValid}>
+      <Button onClick={handleSave} disabled={!unsavedChanges}>
         Speichern
       </Button>
     </Box>
