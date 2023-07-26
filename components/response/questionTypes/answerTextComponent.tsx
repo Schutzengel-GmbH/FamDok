@@ -9,7 +9,7 @@ export default function AnswerTextComponent({
   return (
     <FormControl>
       <TextField
-        value={answer?.answerText || question.defaultAnswerText || ""}
+        value={answer?.answerText ?? question.defaultAnswerText ?? ""}
         onChange={(e) => {
           onChange({
             ...answer,

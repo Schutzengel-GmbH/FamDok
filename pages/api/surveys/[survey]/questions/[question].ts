@@ -74,6 +74,40 @@ export default async function organizations(
 
     case "POST":
       let questionUpdate;
+      const updateInput = req.body as Prisma.QuestionUpdateInput;
+
+      // we have to delete all the selectOptions that are no longer required before new ones are added.
+      let questionToUpdate: Prisma.QuestionGetPayload<{
+        include: { selectOptions: true; defaultAnswerSelectOptions: true };
+      }>;
+
+      try {
+        questionToUpdate = await prisma.question.findUnique({
+          where: { id: questionId as string },
+          include: { selectOptions: true, defaultAnswerSelectOptions: true },
+        });
+
+        const idsToKeep: string[] =
+          // @ts-ignore
+          updateInput.selectOptions.connectOrCreate.map((x) => x.where.id);
+
+        const idsToDel = questionToUpdate.selectOptions
+          .map((o) => o.id)
+          .filter((id) => !idsToKeep.includes(id));
+
+        await prisma.selectOption.deleteMany({
+          where: { id: { in: idsToDel } },
+        });
+      } catch (err) {
+        if (
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === "P2025"
+        )
+          return res.status(404).json({ message: "NOT_FOUND" });
+
+        console.error(err);
+        return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+      }
 
       if (
         user.role === Role.USER ||
@@ -84,16 +118,12 @@ export default async function organizations(
 
       try {
         questionUpdate = await prisma.question.update({
-          data: req.body,
+          data: updateInput,
           where: { id: questionId as string },
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         });
       } catch (err) {
-        if (
-          err instanceof Prisma.PrismaClientKnownRequestError &&
-          err.code === "P2025"
-        )
-          return res.status(404).json({ message: "NOT_FOUND" });
+        // cannot throw not found, as we just looked for it
 
         console.error(err);
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });

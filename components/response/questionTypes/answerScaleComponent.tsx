@@ -26,7 +26,7 @@ export default function AnswerScaleComponent({
             transform: "translateX(-100%)",
           },
         }}
-        value={answer ? answer.answerInt : question.defaultAnswerInt || 0}
+        value={answer?.answerInt ?? question.defaultAnswerInt ?? 0}
         onChange={(_, value) =>
           onChange({ ...answer, answerInt: value as number })
         }

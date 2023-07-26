@@ -16,7 +16,7 @@ export default function AnswerDateComponent({
         value={
           answer
             ? new Date(answer.answerDate)
-            : question.defaultAnswerDate || undefined
+            : question.defaultAnswerDate ?? undefined
         }
       />
     </FormControl>

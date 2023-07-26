@@ -63,6 +63,7 @@ model Question {
   createdAt                  DateTime       @default(now())
   updatedAt                  DateTime       @updatedAt
   type                       QuestionType
+  required                   Boolean?
   questionTitle              String?
   questionText               String
   questionDescription        String?

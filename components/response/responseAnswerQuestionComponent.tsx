@@ -1,11 +1,12 @@
 import { Box } from "@mui/material";
 import { FullSurvey, PartialAnswer } from "@/types/prismaHelperTypes";
-import AnswerQuestion from "./answerQuestion";
+import AnswerQuestion, { InputErrors } from "./answerQuestion";
+import { compareAsc } from "date-fns";
 
 type ResponseAnswerQuestionsComponentProps = {
   answersState: PartialAnswer[];
   survey: FullSurvey;
-  onChange: (newAnswer: PartialAnswer) => void;
+  onChange: (newAnswer: PartialAnswer, error?: InputErrors) => void;
 };
 
 export default function ResponseAnswerQuestionsComponent({
@@ -15,14 +16,18 @@ export default function ResponseAnswerQuestionsComponent({
 }: ResponseAnswerQuestionsComponentProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      {survey.questions.map((q, i) => (
-        <AnswerQuestion
-          key={i}
-          answer={answersState.find((a) => a.questionId === q.id)}
-          question={q}
-          onChange={onChange}
-        />
-      ))}
+      {survey.questions
+        .sort((a, b) =>
+          compareAsc(new Date(a.createdAt), new Date(b.createdAt))
+        )
+        .map((q, i) => (
+          <AnswerQuestion
+            key={i}
+            answer={answersState.find((a) => a.questionId === q.id)}
+            question={q}
+            onChange={onChange}
+          />
+        ))}
     </Box>
   );
 }

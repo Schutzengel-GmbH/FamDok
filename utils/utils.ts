@@ -1,3 +1,4 @@
+import { PartialAnswer } from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
@@ -87,4 +88,33 @@ export function getAddFamilyInput(
     },
     error: false,
   };
+}
+
+export function isInt(value: string) {
+  return Number(value) == parseInt(value);
+}
+
+export function isFloat(value: string) {
+  value = value.replace(",", ".");
+  return Number(value) == parseFloat(value);
+}
+
+export function answerHasNoValues(answer: PartialAnswer) {
+  const {
+    answerSelect,
+    answerBool,
+    answerDate,
+    answerInt,
+    answerNum,
+    answerText,
+  } = answer;
+  return (
+    !answerBool &&
+    !answerDate &&
+    !answerInt &&
+    !answerNum &&
+    !answerText &&
+    answerSelect &&
+    answerSelect.length < 1
+  );
 }

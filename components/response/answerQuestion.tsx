@@ -17,17 +17,25 @@ import AnswerSelectComponent from "@/components/response/questionTypes/answerSel
 import AnswerSelectMultipleComponent from "@/components/response/questionTypes/answerSelectMultipleComponent";
 import AnswerDateComponent from "@/components/response/questionTypes/answerDateComponent";
 import AnswerScaleComponent from "@/components/response/questionTypes/answerScaleComponent";
+import { answerHasNoValues } from "@/utils/utils";
+import { useEffect, useState } from "react";
+
+export enum InputErrors {
+  NUM_OUT_OF_RANGE,
+  NAN,
+  REQUIRED,
+}
 
 type AnswerQuestionProps = {
   question: FullQuestion;
   answer?: PartialAnswer;
-  onChange: (answer: PartialAnswer) => void;
+  onChange: (answer: PartialAnswer, error?: InputErrors) => void;
 };
 
 export type AnswerComponentProps = {
   question: FullQuestion;
   answer?: PartialAnswer;
-  onChange: (answer: PartialAnswer) => void;
+  onChange: (answer: PartialAnswer, error?: InputErrors) => void;
 };
 
 export default function AnswerQuestion({
@@ -37,13 +45,27 @@ export default function AnswerQuestion({
 }: AnswerQuestionProps) {
   let questionComponent: JSX.Element;
 
+  const [hasInputError, setHasInputError] = useState<boolean>(false);
+  const [requiredButNoInput, setRequiredButNoInput] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (question.required && answerHasNoValues(answer)) {
+      setRequiredButNoInput(true);
+    } else setRequiredButNoInput(false);
+  }, [answer]);
+
+  function handleChange(_answer: PartialAnswer, error?: InputErrors) {
+    setHasInputError(error !== undefined);
+    onChange(_answer, error);
+  }
+
   switch (question.type) {
     case QuestionType.Text:
       questionComponent = (
         <AnswerTextComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -52,7 +74,7 @@ export default function AnswerQuestion({
         <AnswerBoolComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -61,7 +83,7 @@ export default function AnswerQuestion({
         <AnswerIntComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -70,13 +92,13 @@ export default function AnswerQuestion({
         <AnswerSelectMultipleComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       ) : (
         <AnswerSelectComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -85,7 +107,7 @@ export default function AnswerQuestion({
         <AnswerNumComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -94,7 +116,7 @@ export default function AnswerQuestion({
         <AnswerDateComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -103,7 +125,7 @@ export default function AnswerQuestion({
         <AnswerScaleComponent
           question={question}
           answer={answer}
-          onChange={onChange}
+          onChange={handleChange}
         />
       );
       break;
@@ -120,10 +142,14 @@ export default function AnswerQuestion({
         display: "flex",
         flexDirection: "column",
         gap: ".5rem",
+        border: hasInputError || requiredButNoInput ? "2px solid red" : "none",
       }}
       elevation={3}
     >
-      <Typography variant="h6">{question.questionTitle}</Typography>
+      <Typography variant="h6">
+        {question.questionTitle}
+        {requiredButNoInput && <span style={{ color: "red" }}>*</span>}
+      </Typography>
       {question.questionText && (
         <Typography>{question.questionText}</Typography>
       )}
@@ -142,6 +168,11 @@ export default function AnswerQuestion({
         </Accordion>
       )}
       {questionComponent}
+      {requiredButNoInput && (
+        <Typography color={"error"} variant="caption">
+          *Diese Frage ist nicht optional.
+        </Typography>
+      )}
     </Paper>
   );
 }

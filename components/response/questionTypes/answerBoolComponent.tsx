@@ -4,8 +4,8 @@ import {
   Radio,
   RadioGroup,
 } from "@mui/material";
-import { AnswerComponentProps } from "../answerQuestion";
-import { useState } from "react";
+import { AnswerComponentProps, InputErrors } from "../answerQuestion";
+import { ChangeEvent, useState } from "react";
 
 export default function AnswerBoolComponent({
   question,
@@ -16,15 +16,15 @@ export default function AnswerBoolComponent({
     answer ? answer.answerBool : question.defaultAnswerBool || undefined
   );
 
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const ansValue = e.target.value == "true" ? true : false;
+    setValue(ansValue);
+    onChange({ ...answer, answerBool: ansValue });
+  }
+
   return (
     <FormControl>
-      <RadioGroup
-        onChange={(e) => {
-          const ansValue = e.target.value == "true" ? true : false;
-          setValue(ansValue);
-          onChange({ ...answer, answerBool: ansValue });
-        }}
-      >
+      <RadioGroup onChange={handleChange}>
         <FormControlLabel
           key={0}
           value={"true"}

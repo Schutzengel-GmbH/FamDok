@@ -21,7 +21,7 @@ function ProtectedPage() {
   );
 
   if (isLoading) return <Loading />;
-  console.log(data);
+
   if (!data?.survey) return <ErrorPage message="Unbekannter Fehler" />;
 
   if (

@@ -4,7 +4,7 @@ import {
   FullSurvey,
   PartialAnswer,
 } from "@/types/prismaHelperTypes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ResponseRelationComponent, {
   ResponseRelation,
 } from "@/components/response/responseRelationComponent";
@@ -17,17 +17,18 @@ import useNotification from "../utilityComponents/notificationContext";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { Prisma } from "@prisma/client";
 import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]/submitAnswers";
+import { InputErrors } from "@/components/response/answerQuestion";
+import InputErrorsComponent from "@/components/response/inputErrorsComponent";
+import { answerHasNoValues } from "@/utils/utils";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
-  onChange: () => void;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
-  onChange,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addAlert } = useNotification();
@@ -41,6 +42,9 @@ export default function ResponseComponent({
   const [answersState, setAnswersState] = useState<PartialAnswer[]>(
     response?.answers || getDefaultAnswerstate(survey)
   );
+  const [inputErrors, setInputErrors] = useState<
+    { questionId: string; error: InputErrors }[]
+  >([]);
 
   async function handleSave() {
     if (!response) {
@@ -67,7 +71,6 @@ export default function ResponseComponent({
     } else {
       submitAnswers(response.id);
     }
-    onChange();
   }
 
   async function submitAnswers(responseId: string) {
@@ -92,20 +95,51 @@ export default function ResponseComponent({
     }
 
     setUnsavedChanges(false);
-    onChange();
   }
 
   function handleCancel() {
     router.push("/surveys");
   }
 
-  function handleAnswerChanged(newAnswer: PartialAnswer) {
+  function handleAnswerChanged(newAnswer: PartialAnswer, error?: InputErrors) {
     setAnswersState(
       answersState.map((a) =>
         a.questionId === newAnswer.questionId ? newAnswer : a
       )
     );
     setUnsavedChanges(true);
+
+    const indexOfError = inputErrors.findIndex(
+      (e) => e.questionId === newAnswer.questionId
+    );
+
+    if (error && indexOfError >= 0)
+      setInputErrors(
+        inputErrors.map((e) =>
+          e.questionId === newAnswer.questionId
+            ? { questionId: newAnswer.questionId, error }
+            : e
+        )
+      );
+    else if (error && indexOfError < 0)
+      setInputErrors([
+        ...inputErrors,
+        { questionId: newAnswer.questionId, error },
+      ]);
+    else
+      setInputErrors(
+        inputErrors.filter((e) => e.questionId !== newAnswer.questionId)
+      );
+  }
+
+  function requiredQuestionsWithoutAnswers() {
+    return (
+      survey.questions.filter(
+        (q) =>
+          q.required &&
+          answerHasNoValues(answersState.find((a) => a.questionId === q.id))
+      ).length > 0
+    );
   }
 
   function handleResponseRelationChange(changedRelation: ResponseRelation) {
@@ -114,12 +148,34 @@ export default function ResponseComponent({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      <UnsavedChangesComponent
-        unsavedChanges={unsavedChanges}
-        onSave={handleSave}
-        onCancel={handleCancel}
-      />
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      <Box
+        sx={{
+          position: "sticky",
+          alignSelf: "flex-start",
+          top: ".5rem",
+          zIndex: "100",
+          minWidth: "100%",
+
+          display: "flex",
+          flexDirection: "column",
+          gap: ".5rem",
+        }}
+      >
+        <UnsavedChangesComponent
+          errors={inputErrors.length > 0 || requiredQuestionsWithoutAnswers()}
+          unsavedChanges={unsavedChanges}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      </Box>
+      <InputErrorsComponent survey={survey} errors={inputErrors} />
       <ResponseRelationComponent
         relation={currentRelation}
         onChange={handleResponseRelationChange}

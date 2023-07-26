@@ -22,7 +22,6 @@ function ProtectedPage() {
     data: responseData,
     isLoading: responseIsLoading,
     error: responseError,
-    mutate: mutateResponse,
   } = useSWR<IResponse>(
     `/api/surveys/${surveyId}/responses/${responseId}`,
     fetcher
@@ -37,7 +36,6 @@ function ProtectedPage() {
     <ResponseComponent
       survey={surveyData.survey}
       initialResponse={responseData.response}
-      onChange={mutateResponse}
     />
   );
 }

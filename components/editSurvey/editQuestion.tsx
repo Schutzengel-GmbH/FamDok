@@ -10,11 +10,12 @@ import {
   DialogTitle,
   FormControlLabel,
   Modal,
+  Switch,
   TextField,
 } from "@mui/material";
 import { Prisma, QuestionType } from "@prisma/client";
 import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
 import useNotification from "@/components/utilityComponents/notificationContext";
@@ -33,8 +34,9 @@ interface QuestionState {
   questionTitle?: string | null;
   questionText: string;
   type: QuestionType;
+  required?: boolean;
   questionDescription?: string | null;
-  selectOptions?: { value: string; isOpen?: boolean }[];
+  selectOptions?: { id?: string; value: string; isOpen?: boolean }[];
   selectMultiple?: boolean | null;
   intRange?: boolean | null;
   intRangeHigh?: number | null;
@@ -53,6 +55,7 @@ const initialQuestionState: QuestionState = {
   questionTitle: "",
   questionText: "",
   type: QuestionType.Text,
+  required: false,
   questionDescription: "",
   selectOptions: undefined,
   selectMultiple: undefined,
@@ -83,6 +86,11 @@ export default function EditQuestionDialog({
     question || initialQuestionState
   );
 
+  useEffect(
+    () => updateQuestionState(question || initialQuestionState),
+    [question]
+  );
+
   function handleClose() {
     updateQuestionState(question || initialQuestionState);
     onClose();
@@ -107,7 +115,6 @@ export default function EditQuestionDialog({
             severity: "error",
           });
         else {
-          handleClose();
           addAlert({ message: "Frage hinzugefügt", severity: "success" });
         }
       }
@@ -115,7 +122,7 @@ export default function EditQuestionDialog({
     } else {
       const res = await apiPostJson<IQuestions>(
         `/api/surveys/${surveyId}/questions/${question.id}`,
-        getCreateInputFromState(questionState, surveyId)
+        getUpdateInputFromState(questionState, surveyId)
       );
       if (res instanceof FetchError)
         addAlert({
@@ -129,12 +136,12 @@ export default function EditQuestionDialog({
             severity: "error",
           });
         else {
-          handleClose();
           addAlert({ message: "Frage geändert", severity: "success" });
         }
         setLoading(false);
       }
     }
+    handleClose();
   }
 
   if (loading)
@@ -187,6 +194,21 @@ export default function EditQuestionDialog({
             })
           }
           label="Beschreibung / Hinweise"
+        />
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={questionState.required}
+              onChange={(e) => {
+                updateQuestionState({
+                  ...questionState,
+                  required: e.target.checked,
+                });
+              }}
+            />
+          }
+          label={"Frage erforderlich?"}
         />
 
         <QuestionTypeSelect
@@ -351,6 +373,7 @@ function getCreateInputFromState(
     questionTitle: state.questionTitle,
     questionText: state.questionText,
     type: state.type,
+    required: state.required,
     questionDescription: state.questionDescription,
     selectMultiple: state.selectMultiple,
     intRange: state.intRange,
@@ -362,6 +385,46 @@ function getCreateInputFromState(
     survey: { connect: { id: surveyId } },
     selectOptions: selectOptions
       ? { createMany: { data: selectOptions } }
+      : undefined,
+    defaultAnswerText: state.defaultAnswerText,
+    defaultAnswerBool: state.defaultAnswerBool,
+    defaultAnswerDate: state.defaultAnswerDate,
+    defaultAnswerInt: state.defaultAnswerInt,
+    defaultAnswerNum: state.defaultAnswerNum,
+  };
+}
+
+function getUpdateInputFromState(
+  state: QuestionState,
+  surveyId: string
+): Prisma.QuestionUpdateInput {
+  const selectOptions = state.selectOptions?.map((o) => ({
+    id: o.id,
+    value: o.value,
+    isOpen: o.isOpen,
+  }));
+
+  return {
+    questionTitle: state.questionTitle,
+    questionText: state.questionText,
+    type: state.type,
+    required: state.required,
+    questionDescription: state.questionDescription,
+    selectMultiple: state.selectMultiple,
+    intRange: state.intRange,
+    intRangeHigh: state.intRangeHigh,
+    intRangeLow: state.intRangeLow,
+    numRange: state.numRange,
+    numRangeHigh: state.numRangeHigh,
+    numRangeLow: state.numRangeLow,
+    survey: { connect: { id: surveyId } },
+    selectOptions: selectOptions
+      ? {
+          connectOrCreate: selectOptions.map((s) => ({
+            where: { id: s.id || "" },
+            create: s,
+          })),
+        }
       : undefined,
     defaultAnswerText: state.defaultAnswerText,
     defaultAnswerBool: state.defaultAnswerBool,
