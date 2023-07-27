@@ -104,8 +104,8 @@ model Response {
   survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   answers     Answer[]
   surveyId    String
-  user        User       @relation(fields: [userId], references: [id])
-  userId      String
+  user        User?      @relation(fields: [userId], references: [id])
+  userId      String?
   family      Family?    @relation(fields: [familyId], references: [id], onDelete: Cascade)
   familyId    String?
   child       Child?     @relation(fields: [childId], references: [id], onDelete: Cascade)
