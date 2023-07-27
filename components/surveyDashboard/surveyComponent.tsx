@@ -33,7 +33,7 @@ export default function SurveyComponent({
   }
 
   function handleStats() {
-    router.push(`/surveyStats/${survey.id}`);
+    router.push(`/surveys/${survey.id}/stats`);
   }
 
   async function deleteThisSurvey() {
