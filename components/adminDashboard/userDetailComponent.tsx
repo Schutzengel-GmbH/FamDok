@@ -1,6 +1,5 @@
 import { Cancel, Delete, Save } from "@mui/icons-material";
 import {
-  Button,
   IconButton,
   TableCell,
   TableRow,
@@ -10,7 +9,6 @@ import {
 import { Prisma, Role } from "@prisma/client";
 import { useState } from "react";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
-import ChangePasswordDialog from "@/components/adminDashboard/changePassword";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { IUser } from "@/pages/api/user/[id]";
 import OrgSelect from "@/components/adminDashboard/orgSelect";
@@ -28,7 +26,6 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   const { user: loggedInUser } = useUserData();
   const isAdmin = loggedInUser?.role === Role.ADMIN;
 
-  const [changePwDialogOpen, setChangePwDialogOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>(user?.name || "");
   const [email, setEmail] = useState<string>(user?.email || "");
   const [organizationId, setOrganizationId] = useState<string | "none">(
@@ -149,11 +146,7 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
         )}
         {cantEdit() && email}
       </TableCell>
-      <TableCell>
-        {!cantEdit() && (
-          <Button onClick={() => setChangePwDialogOpen(true)}>Ändern</Button>
-        )}
-      </TableCell>
+
       <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
       <TableCell>
         {!cantEdit() && (
@@ -220,12 +213,6 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
           </span>
         </Tooltip>
       </TableCell>
-
-      <ChangePasswordDialog
-        open={changePwDialogOpen}
-        onClose={() => setChangePwDialogOpen(false)}
-        userId={user.id}
-      />
 
       <ConfirmDialog
         open={confirmDelOpen}

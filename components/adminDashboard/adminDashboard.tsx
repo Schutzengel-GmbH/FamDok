@@ -47,7 +47,7 @@ export default function AdminDashboard() {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>E-Mail</TableCell>
-            <TableCell>Passwort</TableCell>
+
             <TableCell>Erstellt am</TableCell>
             <TableCell>Rolle</TableCell>
             <TableCell>Organisation</TableCell>
@@ -88,13 +88,9 @@ export default function AdminDashboard() {
               <TableCell>
                 <CircularProgress size={20} />
               </TableCell>
-              <TableCell>
-                <CircularProgress size={20} />
-              </TableCell>
             </TableRow>
           )}
           <TableRow sx={{ m: 2, display: addUser ? "none" : "" }}>
-            <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
