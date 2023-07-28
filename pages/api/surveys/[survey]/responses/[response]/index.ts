@@ -13,7 +13,12 @@ supertokens.init(backendConfig());
 export interface IResponse {
   response?: Prisma.ResponseGetPayload<{
     include: {
-      answers: { include: { answerSelect: true } };
+      answers: {
+        include: {
+          answerSelect: true;
+          question: { include: { selectOptions: true } };
+        };
+      };
       user: true;
       family: { include: { caregivers: true; children: true } };
       caregiver: true;
@@ -67,7 +72,12 @@ export default async function response(
 
   let response: Prisma.ResponseGetPayload<{
     include: {
-      answers: { include: { answerSelect: true } };
+      answers: {
+        include: {
+          answerSelect: true;
+          question: { include: { selectOptions: true } };
+        };
+      };
       user: true;
       family: { include: { children: true; caregivers: true } };
       caregiver: true;
@@ -79,7 +89,12 @@ export default async function response(
     response = await prisma.response.findUniqueOrThrow({
       where: { id: responseId as string },
       include: {
-        answers: { include: { answerSelect: true } },
+        answers: {
+          include: {
+            answerSelect: true,
+            question: { include: { selectOptions: true } },
+          },
+        },
         user: true,
         family: { include: { caregivers: true, children: true } },
         caregiver: true,
@@ -114,13 +129,20 @@ export default async function response(
       return res.status(200).json({ response });
 
     case "POST":
+      console.log(req.body);
       const responseUpdate = await prisma.response
         .update({
           data: {
             name: req.body.name,
-            caregiver: req.body.caregiver,
-            child: req.body.child,
-            family: req.body.family,
+            family: req.body.family?.id
+              ? { connect: { id: req.body.family.id } }
+              : { disconnect: true },
+            caregiver: req.body.caregiver?.id
+              ? { connect: { id: req.body.caregiver.id } }
+              : { disconnect: true },
+            child: req.body.child?.id
+              ? { connect: { id: req.body.child.id } }
+              : { disconnect: true },
             answers: req.body.answers,
           },
           where: { id: responseId as string },

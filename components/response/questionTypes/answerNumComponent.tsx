@@ -21,7 +21,7 @@ export default function AnswerNumComponent({
 
     if (!_valueString) {
       setError("");
-      onChange({ ...answer, answerInt: undefined });
+      onChange({ ...answer, answerNum: undefined });
       return;
     }
 
@@ -31,29 +31,19 @@ export default function AnswerNumComponent({
       return;
     }
 
-    const _value = parseInt(_valueString);
-
-    if (
-      question.intRange &&
-      (_value < question.intRangeLow || _value > question.intRangeHigh)
-    ) {
-      setError("");
-      onChange(answer, InputErrors.NUM_OUT_OF_RANGE);
-      return;
-    }
+    const _value = parseFloat(_valueString.replace(",", "."));
 
     setError("");
-    onChange({ ...answer, answerInt: _value });
+    onChange({ ...answer, answerNum: _value });
   }
 
   return (
     <FormControl>
       <TextField
-        value={valueString}
+        value={valueString?.replace(".", ",") || ""}
         onChange={handleChange}
         error={error !== ""}
         helperText={error}
-        inputMode="decimal"
       />
     </FormControl>
   );

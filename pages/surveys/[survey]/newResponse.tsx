@@ -10,7 +10,7 @@ import ResponseComponent from "../../../components/response/responseComponent";
 function ProtectedPage() {
   const router = useRouter();
   const { survey: id } = router.query;
-  const { data, isLoading, error, isValidating } = useSWR<ISurvey>(
+  const { data, isLoading, error, mutate } = useSWR<ISurvey>(
     `/api/surveys/${id}`,
     fetcher
   );
@@ -19,7 +19,7 @@ function ProtectedPage() {
 
   if (error || data?.error) return <ErrorPage message={error || data.error} />;
 
-  return <ResponseComponent survey={data.survey} />;
+  return <ResponseComponent survey={data.survey} onChange={mutate} />;
 }
 
 export default function EditSurveyPage() {

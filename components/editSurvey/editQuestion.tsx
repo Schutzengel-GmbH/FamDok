@@ -160,7 +160,7 @@ export default function EditQuestionDialog({
       </DialogTitle>
 
       <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-        <TextField
+        {/* <TextField
           sx={{ mt: ".5rem" }}
           value={questionState.questionTitle || ""}
           onChange={(e) =>
@@ -170,7 +170,7 @@ export default function EditQuestionDialog({
             })
           }
           label="Titel"
-        />
+        /> */}
 
         <TextField
           sx={{ mt: ".5rem" }}

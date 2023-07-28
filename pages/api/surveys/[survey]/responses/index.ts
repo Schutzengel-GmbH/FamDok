@@ -13,14 +13,26 @@ supertokens.init(backendConfig());
 export interface IResponses {
   responses?: Prisma.ResponseGetPayload<{
     include: {
-      answers: { include: { answerSelect: true } };
+      answers: {
+        include: {
+          answerSelect: true;
+          question: { include: { selectOptions: true } };
+        };
+      };
       user: true;
       family: { include: { caregivers: true; children: true } };
+      child: true;
+      caregiver: true;
     };
   }>[];
   response?: Prisma.ResponseGetPayload<{
     include: {
-      answers: { include: { answerSelect: true } };
+      answers: {
+        include: {
+          answerSelect: true;
+          question: { include: { selectOptions: true } };
+        };
+      };
       user: true;
       family: { include: { caregivers: true; children: true } };
       child: true;
@@ -101,7 +113,12 @@ export default async function responses(
         .findMany({
           where,
           include: {
-            answers: { include: { answerSelect: true } },
+            answers: {
+              include: {
+                answerSelect: true,
+                question: { include: { selectOptions: true } },
+              },
+            },
             user: true,
             family: { include: { caregivers: true, children: true } },
             child: true,
@@ -127,7 +144,12 @@ export default async function responses(
             user: { connect: { id: user.id } },
           },
           include: {
-            answers: { include: { answerSelect: true } },
+            answers: {
+              include: {
+                answerSelect: true,
+                question: { include: { selectOptions: true } },
+              },
+            },
             user: true,
             family: { include: { caregivers: true, children: true } },
             child: true,

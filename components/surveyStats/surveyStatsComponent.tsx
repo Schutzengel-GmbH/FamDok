@@ -1,7 +1,11 @@
 import Loading from "@/components/utilityComponents/loadingMainContent";
+import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { fetcher } from "@/utils/swrConfig";
 import useSWR from "swr";
+import Error from "next/error";
+import { Box } from "@mui/material";
+import ResponsesTable from "@/components/surveyStats/responsesTable";
 
 type SurveyStatsComponentProps = {
   survey: FullSurvey;
@@ -10,14 +14,5 @@ type SurveyStatsComponentProps = {
 export default function SurveyStatsComponent({
   survey,
 }: SurveyStatsComponentProps) {
-  const { data, isLoading, error } = useSWR(
-    `/api/surveys/${survey.id}/responses`,
-    fetcher
-  );
-
-  if (isLoading) return <Loading />;
-
-  console.log(data);
-
-  return <>SurveyStatsComponent</>;
+  return <ResponsesTable survey={survey} />;
 }

@@ -93,8 +93,6 @@ export default async function survey(
     answersState: PartialAnswer[];
   };
 
-  console.log(req.body);
-
   let errors: any[];
 
   for (const answer of answersState) {

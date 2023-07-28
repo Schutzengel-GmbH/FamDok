@@ -52,6 +52,7 @@ export default function EditSurveyComponent({
     const res = await apiPostJson<ISurvey>(`/api/surveys/${survey.id}`, {
       name,
       description,
+      hasFamily,
     });
     if (res instanceof FetchError)
       addAlert({

@@ -4,31 +4,32 @@ import {
   FullSurvey,
   PartialAnswer,
 } from "@/types/prismaHelperTypes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ResponseRelationComponent, {
   ResponseRelation,
 } from "@/components/response/responseRelationComponent";
 import ResponseAnswerQuestionsComponent from "@/components/response/responseAnswerQuestionComponent";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
-import { ISurveys } from "@/pages/api/surveys";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import useNotification from "../utilityComponents/notificationContext";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
-import { Prisma } from "@prisma/client";
 import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]/submitAnswers";
 import { InputErrors } from "@/components/response/answerQuestion";
 import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
+import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
+  onChange: () => void;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
+  onChange,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addAlert } = useNotification();
@@ -50,7 +51,7 @@ export default function ResponseComponent({
     if (!response) {
       const res = await apiPostJson<IResponses>(
         `/api/surveys/${survey.id}/responses`,
-        {}
+        { ...currentRelation }
       );
       if (res instanceof FetchError)
         addAlert({
@@ -69,8 +70,28 @@ export default function ResponseComponent({
         }
       }
     } else {
-      submitAnswers(response.id);
+      const res = await apiPostJson<IResponse>(
+        `/api/surveys/${survey.id}/responses/${response.id}/`,
+        { ...currentRelation }
+      );
+      if (res instanceof FetchError)
+        addAlert({
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+          severity: "error",
+        });
+      else {
+        if (res.error)
+          addAlert({
+            message: `Fehler: ${res.error}`,
+            severity: "error",
+          });
+        else {
+          setResponse(response);
+          submitAnswers(response.id);
+        }
+      }
     }
+    onChange();
   }
 
   async function submitAnswers(responseId: string) {
@@ -176,10 +197,12 @@ export default function ResponseComponent({
         />
       </Box>
       <InputErrorsComponent survey={survey} errors={inputErrors} />
-      <ResponseRelationComponent
-        relation={currentRelation}
-        onChange={handleResponseRelationChange}
-      />
+      {survey.hasFamily && (
+        <ResponseRelationComponent
+          relation={currentRelation}
+          onChange={handleResponseRelationChange}
+        />
+      )}
       <ResponseAnswerQuestionsComponent
         survey={survey}
         answersState={answersState}

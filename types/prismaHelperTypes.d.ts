@@ -5,6 +5,7 @@ export type FullResponse = Prisma.ResponseGetPayload<{
     answers: {
       include: {
         answerSelect: true;
+        question: { include: { selectOptions: true } };
       };
     };
     family: { include: { caregivers: true; children: true } };
