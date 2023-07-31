@@ -17,9 +17,11 @@ export default function ResponseAnswerQuestionsComponent({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {survey.questions
-        .sort((a, b) =>
-          compareAsc(new Date(a.createdAt), new Date(b.createdAt))
-        )
+        .sort((a, b) => {
+          if (a.numberInSurvey && b.numberInSurvey)
+            return a.numberInSurvey - b.numberInSurvey;
+          else return compareAsc(new Date(a.createdAt), new Date(b.createdAt));
+        })
         .map((q, i) => (
           <AnswerQuestion
             key={i}

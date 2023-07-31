@@ -118,3 +118,9 @@ export function answerHasNoValues(answer: PartialAnswer) {
     answerSelect.length < 1
   );
 }
+
+export function range(start: number, end: number) {
+  let arr = new Array(end - start + 1).fill(undefined).map((_, i) => i + start);
+  console.log(arr);
+  return arr;
+}

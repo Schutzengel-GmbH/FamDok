@@ -90,6 +90,7 @@ export default async function questions(
 
       const questionInput = req.body;
       questionInput.survey = { connect: { id: surveyId as string } };
+      console.log(questionInput);
 
       const question = await prisma.question
         .create({

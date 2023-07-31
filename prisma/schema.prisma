@@ -84,6 +84,7 @@ model Question {
   defaultAnswerInt           Int?
   defaultAnswerNum           Float?
   defaultAnswerDate          DateTime?
+  numberInSurvey             Int
 }
 
 model SelectOption {

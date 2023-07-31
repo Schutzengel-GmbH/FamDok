@@ -4,7 +4,11 @@ import ListItemQuestion from "@/components/editSurvey/listItemQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
-import { FullSurvey } from "@/types/prismaHelperTypes";
+import {
+  IMoveQuestion,
+  IMoveQuestionInput,
+} from "@/pages/api/surveys/[survey]/moveQuestion";
+import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { Add, Edit } from "@mui/icons-material";
 import {
@@ -71,11 +75,53 @@ export default function EditSurveyComponent({
       addAlert({ message: "Änderungen gespeichert.", severity: "success" });
       setUnsavedChanges(false);
     }
+    onChange();
+  }
+
+  async function moveUp(question: FullQuestion) {
+    const res = await apiPostJson<IMoveQuestion>(
+      `/api/surveys/${survey.id}/moveQuestion`,
+      {
+        newPosition: question.numberInSurvey - 1,
+        questionId: question.id,
+      } as IMoveQuestionInput
+    );
+    onChange();
+
+    if (res.error) {
+      if (res.error === "NEW_POSITION_OUT_OF_RANGE")
+        addAlert({
+          message: "Frage schon am Ende/Anfang",
+          severity: "warning",
+        });
+      else addAlert({ message: `Fehler: ${res.error}`, severity: "error" });
+    } else addAlert({ message: "Frage verschoben", severity: "success" });
+  }
+
+  async function moveDown(question: FullQuestion) {
+    const res = await apiPostJson<IMoveQuestion>(
+      `/api/surveys/${survey.id}/moveQuestion`,
+      {
+        newPosition: question.numberInSurvey + 1,
+        questionId: question.id,
+      } as IMoveQuestionInput
+    );
+
+    onChange();
+    if (res.error) {
+      if (res.error === "NEW_POSITION_OUT_OF_RANGE")
+        addAlert({
+          message: "Frage schon am Ende/Anfang",
+          severity: "warning",
+        });
+      else addAlert({ message: `Fehler: ${res.error}`, severity: "error" });
+    } else addAlert({ message: "Frage verschoben", severity: "success" });
   }
 
   function handleCancelChanges() {
     setName(survey.name);
     setDescription(survey.description);
+    setHasFamily(survey.hasFamily);
     setUnsavedChanges(false);
   }
 
@@ -120,14 +166,19 @@ export default function EditSurveyComponent({
       <List sx={{ width: "100%" }}>
         {survey.questions &&
           survey.questions
-            .sort((q1, q2) =>
-              compareAsc(new Date(q1.createdAt), new Date(q2.createdAt))
-            )
-            .map((q) => (
+            .sort((a, b) => {
+              if (a.numberInSurvey && b.numberInSurvey)
+                return a.numberInSurvey - b.numberInSurvey;
+              else
+                return compareAsc(new Date(a.createdAt), new Date(b.createdAt));
+            })
+            .map((q, i) => (
               <ListItemQuestion
-                key={q.id}
+                key={i}
+                moveUp={() => moveUp(q)}
+                moveDown={() => moveDown(q)}
                 question={q}
-                surveyId={survey.id}
+                survey={survey}
                 onDataChange={onChange}
               />
             ))}
@@ -140,7 +191,7 @@ export default function EditSurveyComponent({
       </List>
 
       <EditQuestionDialog
-        surveyId={survey.id}
+        survey={survey}
         open={addOpen}
         onClose={() => {
           onChange();

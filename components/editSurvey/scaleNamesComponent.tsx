@@ -1,80 +1,50 @@
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
-import { SelectOption } from "@prisma/client";
-import { useEffect, useState } from "react";
 
-export type SelectOptionState = Partial<SelectOption> & {
-  updated?: boolean;
-  delete?: boolean;
-  create?: boolean;
-};
-
-export interface ScaleNamesComponentProps {
-  value: SelectOptionState[];
-  onChange: (selectOptions: { value: string }[]) => void;
+export interface SelectOptionsComponentProps {
+  value: { value: string; isOpen?: boolean }[];
+  onChange: (value: { value: string; isOpen?: boolean }[]) => void;
 }
 
-export default function ScaleNamesComponent({
+export default function SelectOptionsComponent({
   value,
   onChange,
-}: ScaleNamesComponentProps) {
-  const [selectOptionsState, updateState] =
-    useState<SelectOptionState[]>(value);
-
-  useEffect(
-    () =>
-      onChange(
-        selectOptionsState
-          .filter((o) => !o.delete)
-          .map((o) => ({ value: o.value || "" }))
-      ),
-    //! Maybe look into this more, but it looks like I should ignore this warning
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectOptionsState]
-  );
-
+}: SelectOptionsComponentProps) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Typography>
-        <strong>Schritte und Bezeichnung:</strong>
+        <strong>Schritte und Bezeichnungen:</strong>
       </Typography>
-      {selectOptionsState.map((option, i) => (
-        <TextField
-          key={i}
-          value={option.value}
-          onChange={(e) => {
-            updateState(
-              selectOptionsState.map((s, index) => {
-                if (index === i)
-                  return { ...s, value: e.currentTarget.value, updated: true };
-                return s;
-              })
-            );
-          }}
-          InputProps={{
-            endAdornment: (
-              <IconButton
-                onClick={() => {
-                  updateState(
-                    selectOptionsState.map((s, index) => {
-                      if (index === i) return { ...s, delete: !s.delete };
-                      return s;
-                    })
-                  );
-                }}
-              >
-                <Delete
-                  color={selectOptionsState[i].delete ? "warning" : "secondary"}
-                />
-              </IconButton>
-            ),
-          }}
-        />
-      ))}
-
+      {value.map((option, i) => {
+        let v = [...value];
+        return (
+          <TextField
+            label={`Schritt ${i + 1}`}
+            sx={{ mt: ".5rem" }}
+            key={i}
+            value={v[i].value}
+            onChange={(e) => {
+              v[i] = { ...v[i], value: e.target.value };
+              onChange(v);
+            }}
+            InputProps={{
+              endAdornment: (
+                <IconButton
+                  onClick={() => {
+                    v.splice(i, 1);
+                    onChange(v);
+                  }}
+                >
+                  <Delete />
+                </IconButton>
+              ),
+            }}
+          />
+        );
+      })}
       <Button
         onClick={() => {
-          updateState([...selectOptionsState, { value: "", create: true }]);
+          onChange([...value, { value: "", isOpen: false }]);
         }}
       >
         <Add />

@@ -21,10 +21,11 @@ import SelectOptionsComponent from "./selectOptionsComponent";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
+import { FullSurvey } from "@/types/prismaHelperTypes";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
-  surveyId: string;
+  survey: FullSurvey;
   open: boolean;
   onClose: () => void;
 }
@@ -49,6 +50,7 @@ interface QuestionState {
   defaultAnswerNum?: number | null;
   defaultAnswerDate?: Date | null;
   defaultAnswerBool?: boolean | null;
+  numberInSurvey?: number | null;
 }
 
 const initialQuestionState: QuestionState = {
@@ -70,21 +72,40 @@ const initialQuestionState: QuestionState = {
   defaultAnswerNum: undefined,
   defaultAnswerDate: undefined,
   defaultAnswerBool: undefined,
+  numberInSurvey: undefined,
 };
 
 export default function EditQuestionDialog({
   question,
-  surveyId,
+  survey,
   open,
   onClose,
 }: EditQuestionDialogProps) {
   const { addAlert } = useNotification();
 
   const [loading, setLoading] = useState(false);
+  const [questionReady, setQuestionReady] = useState<boolean>(false);
 
   const [questionState, updateQuestionState] = useState<QuestionState>(
     question || initialQuestionState
   );
+
+  useEffect(() => {
+    const hasText =
+      questionState.questionText && questionState.questionText !== "";
+
+    const selectHasOption =
+      questionState.type === QuestionType.Select
+        ? questionState.selectOptions?.length > 0
+        : true;
+
+    const scaleHasOption =
+      questionState.type === QuestionType.Scale
+        ? questionState.selectOptions?.length > 0
+        : true;
+
+    setQuestionReady(hasText && selectHasOption && scaleHasOption);
+  }, [questionState]);
 
   useEffect(
     () => updateQuestionState(question || initialQuestionState),
@@ -100,8 +121,11 @@ export default function EditQuestionDialog({
     setLoading(true);
     if (!question) {
       const res = await apiPostJson<IQuestions>(
-        `/api/surveys/${surveyId}/questions`,
-        getCreateInputFromState(questionState, surveyId)
+        `/api/surveys/${survey.id}/questions`,
+        getCreateInputFromState(
+          { ...questionState, numberInSurvey: survey.questions.length + 1 },
+          survey.id
+        )
       );
       if (res instanceof FetchError)
         addAlert({
@@ -121,8 +145,8 @@ export default function EditQuestionDialog({
       setLoading(false);
     } else {
       const res = await apiPostJson<IQuestions>(
-        `/api/surveys/${surveyId}/questions/${question.id}`,
-        getUpdateInputFromState(questionState, surveyId)
+        `/api/surveys/${survey.id}/questions/${question.id}`,
+        getUpdateInputFromState(questionState, survey.id)
       );
       if (res instanceof FetchError)
         addAlert({
@@ -160,7 +184,7 @@ export default function EditQuestionDialog({
       </DialogTitle>
 
       <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-        {/* <TextField
+        <TextField
           sx={{ mt: ".5rem" }}
           value={questionState.questionTitle || ""}
           onChange={(e) =>
@@ -169,8 +193,8 @@ export default function EditQuestionDialog({
               questionTitle: e.currentTarget.value,
             })
           }
-          label="Titel"
-        /> */}
+          label="Titel (optional)"
+        />
 
         <TextField
           sx={{ mt: ".5rem" }}
@@ -349,7 +373,7 @@ export default function EditQuestionDialog({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSave}>
+        <Button onClick={handleSave} disabled={!questionReady}>
           <Save /> Speichern
         </Button>
         <Button onClick={handleClose}>
@@ -391,6 +415,7 @@ function getCreateInputFromState(
     defaultAnswerDate: state.defaultAnswerDate,
     defaultAnswerInt: state.defaultAnswerInt,
     defaultAnswerNum: state.defaultAnswerNum,
+    numberInSurvey: state.numberInSurvey,
   };
 }
 
@@ -431,5 +456,6 @@ function getUpdateInputFromState(
     defaultAnswerDate: state.defaultAnswerDate,
     defaultAnswerInt: state.defaultAnswerInt,
     defaultAnswerNum: state.defaultAnswerNum,
+    numberInSurvey: state.numberInSurvey,
   };
 }

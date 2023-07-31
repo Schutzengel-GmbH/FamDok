@@ -1,5 +1,15 @@
-import { Delete, Edit, ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
+  ArrowCircleDown,
+  ArrowCircleUp,
+  Delete,
+  Edit,
+  ExpandLess,
+  ExpandMore,
+  MoveDown,
+  MoveUp,
+} from "@mui/icons-material";
+import {
+  Box,
   Button,
   Collapse,
   List,
@@ -16,16 +26,21 @@ import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { IQuestion } from "@/pages/api/surveys/[survey]/questions/[question]";
+import { FullSurvey } from "@/types/prismaHelperTypes";
 
 export interface ListItemQuestionProps {
   question: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
-  surveyId: string;
+  survey: FullSurvey;
+  moveUp: () => void;
+  moveDown: () => void;
   onDataChange: () => void;
 }
 
 export default function ListItemQuestion({
   question,
-  surveyId,
+  survey,
+  moveDown,
+  moveUp,
   onDataChange,
 }: ListItemQuestionProps) {
   const { addAlert } = useNotification();
@@ -48,7 +63,7 @@ export default function ListItemQuestion({
 
   async function deleteQ() {
     const res = await apiDelete<IQuestion>(
-      `/api/surveys/${surveyId}/questions/${question.id}`
+      `/api/surveys/${survey.id}/questions/${question.id}`
     );
     if (res instanceof FetchError)
       addAlert({
@@ -70,7 +85,7 @@ export default function ListItemQuestion({
   }
 
   return (
-    <>
+    <Box>
       <ListItemButton onClick={handleOpen}>
         <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
         <ListItemText
@@ -80,6 +95,22 @@ export default function ListItemQuestion({
               : question.questionText
           }
         />
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            moveUp();
+          }}
+        >
+          <ArrowCircleUp />
+        </Button>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            moveDown();
+          }}
+        >
+          <ArrowCircleDown />
+        </Button>
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List sx={{ pl: "1rem", bgcolor: "lightgray" }}>
@@ -156,7 +187,7 @@ export default function ListItemQuestion({
       </Collapse>
 
       <EditQuestionDialog
-        surveyId={surveyId}
+        survey={survey}
         question={question}
         open={editOpen}
         onClose={() => {
@@ -174,6 +205,6 @@ export default function ListItemQuestion({
         onConfirm={deleteQ}
         onCancel={() => setDelOpen(false)}
       />
-    </>
+    </Box>
   );
 }
