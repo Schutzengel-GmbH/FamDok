@@ -87,7 +87,7 @@ export function getRowsForResponses(
             : "";
           break;
         case QuestionType.Scale:
-          resRow[a.question.questionText] = a.answerInt
+          resRow[a.question.questionText] = Number.isInteger(a.answerInt)
             ? a.answerInt +
               ` (${a.question.selectOptions[a.answerInt - 1]?.value || ""})`
             : "";

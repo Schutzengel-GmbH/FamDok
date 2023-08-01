@@ -1,42 +1,37 @@
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
-import { Typography, Box, Slider } from "@mui/material";
+import ScaleItemComponent from "@/components/response/questionTypes/scaleItemComponent";
+import { Box, RadioGroup } from "@mui/material";
+import { ChangeEvent } from "react";
 
 export default function AnswerScaleComponent({
   question,
   answer,
   onChange,
 }: AnswerComponentProps) {
-  const marks = [
-    ...question.selectOptions.map((option, i) => ({
-      value: i,
-      label: <Typography>{option.value}</Typography>,
-    })),
-  ];
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    console.log(e.target.value);
+    onChange({ ...answer, answerInt: parseInt(e.target.value) });
+  }
+
+  function isChecked(i: number): boolean {
+    return Number.isInteger(answer?.answerInt) && answer.answerInt === i;
+  }
 
   return (
     <Box sx={{ m: "1rem" }}>
-      <Slider
-        sx={{
-          '& .MuiSlider-markLabel[data-index="0"]': {
-            transform: "translateX(0%)",
-          },
-          [`& .MuiSlider-markLabel[data-index="${
-            question.selectOptions.length - 1
-          }"]`]: {
-            transform: "translateX(-100%)",
-          },
-        }}
-        value={answer?.answerInt ?? question.defaultAnswerInt ?? 0}
-        onChange={(_, value) =>
-          onChange({ ...answer, answerInt: value as number })
-        }
-        valueLabelDisplay="off"
-        step={1}
-        track={false}
-        marks={marks}
-        min={0}
-        max={question.selectOptions.length - 1}
-      />
+      <RadioGroup
+        sx={{ display: "flex", flexDirection: "row" }}
+        onChange={handleChange}
+      >
+        {question.selectOptions.map((option, i) => (
+          <ScaleItemComponent
+            key={i}
+            index={i}
+            checked={isChecked(i)}
+            label={option.value}
+          />
+        ))}
+      </RadioGroup>
     </Box>
   );
 }
