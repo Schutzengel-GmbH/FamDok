@@ -11,16 +11,16 @@ export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
 
   if (survey.hasFamily)
     optionalFields.push(
-      { field: "Familiennummer", width: 200, description: "Familiennummer" },
+      { field: "family.number", width: 200, headerName: "Familiennummer" },
       {
-        field: "Familie aufgenommen am",
+        field: "family.beginOfCare",
         width: 200,
-        description: "Familie aufgenommen am",
+        headerName: "Familie aufgenommen am",
       },
       {
-        field: "Betreuung beendet am",
+        field: "family.endOfCare",
         width: 200,
-        description: "Betreuung beendet am",
+        headerName: "Betreuung beendet am",
       }
     );
 
@@ -29,12 +29,12 @@ export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
   columns.push(
     ...survey.questions.map((q) => {
       return {
-        field: q.questionText,
+        field: q.id,
         width: 200,
-        description: q.questionText,
+        headerName: q.questionText,
       };
     }),
-    { field: "Erstellt durch", width: 200, description: "Erstellt durch" },
+    { field: "Erstellt durch", width: 200, headerName: "Erstellt durch" },
     ...optionalFields
   );
 
@@ -53,16 +53,16 @@ export function getRowsForResponses(
     response.answers.map((a) => {
       switch (a.question.type) {
         case QuestionType.Bool:
-          resRow[a.question.questionText] = a.answerBool;
+          resRow[a.question.id] = a.answerBool;
           break;
         case QuestionType.Int:
-          resRow[a.question.questionText] = a.answerInt;
+          resRow[a.question.id] = a.answerInt;
           break;
         case QuestionType.Num:
-          resRow[a.question.questionText] = a.answerNum;
+          resRow[a.question.id] = a.answerNum;
           break;
         case QuestionType.Select:
-          resRow[a.question.questionText] = a.answerSelect.reduce(
+          resRow[a.question.id] = a.answerSelect.reduce(
             (prev, curr, i) =>
               (prev += curr.isOpen
                 ? curr.value +
@@ -76,21 +76,22 @@ export function getRowsForResponses(
           );
           break;
         case QuestionType.Text:
-          resRow[a.question.questionText] = a.answerText;
+          resRow[a.question.id] = a.answerText;
           break;
         case QuestionType.Date:
-          resRow[a.question.questionText] = a.answerDate
+          resRow[a.question.id] = a.answerDate
             ? new Date(a.answerDate).toLocaleDateString()
             : "";
           break;
         case QuestionType.Scale:
-          resRow[a.question.questionText] = Number.isInteger(a.answerInt)
-            ? a.answerInt +
-              ` (${a.question.selectOptions[a.answerInt - 1]?.value || ""})`
-            : "";
+          resRow[a.question.id] = `${a.answerSelect[0].value} (${
+            a.question.selectOptions.findIndex(
+              (o) => o.id === a.answerSelect[0].id
+            ) + 1
+          })`;
           break;
         default:
-          resRow[a.question.questionText] = undefined;
+          resRow[a.question.id] = undefined;
       }
     });
 
@@ -100,11 +101,11 @@ export function getRowsForResponses(
       response.user?.name || response.user?.email || "";
 
     if (survey.hasFamily) {
-      resRow["Familiennummer"] = response.family?.number || "";
-      resRow["Familie aufgenommen am"] = response.family?.beginOfCare
+      resRow["family.number"] = response.family?.number || "";
+      resRow["family.beginOfCare"] = response.family?.beginOfCare
         ? new Date(response.family?.beginOfCare).toLocaleDateString()
         : "";
-      resRow["Betreuung beendet am"] = response.family?.endOfCare
+      resRow["family.endOfCare"] = response.family?.endOfCare
         ? new Date(response.family?.beginOfCare).toLocaleDateString()
         : "";
     }

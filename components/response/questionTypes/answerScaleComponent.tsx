@@ -1,6 +1,7 @@
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import ScaleItemComponent from "@/components/response/questionTypes/scaleItemComponent";
 import { Box, RadioGroup } from "@mui/material";
+import { SelectOption } from "@prisma/client";
 import { ChangeEvent } from "react";
 
 export default function AnswerScaleComponent({
@@ -9,11 +10,17 @@ export default function AnswerScaleComponent({
   onChange,
 }: AnswerComponentProps) {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    onChange({ ...answer, answerInt: parseInt(e.target.value) });
+    onChange({
+      ...answer,
+      answerSelect: [question.selectOptions[parseInt(e.target.value)]],
+    });
   }
 
-  function isChecked(i: number): boolean {
-    return Number.isInteger(answer?.answerInt) && answer.answerInt === i;
+  function isChecked(o: Partial<SelectOption>): boolean {
+    return answer
+      ? answer.answerSelect.findIndex((a) => a.id === o.id) >= 0
+      : question.defaultAnswerSelectOptions.findIndex((a) => a.id === o.id) >=
+          0 || false;
   }
 
   return (
@@ -26,7 +33,7 @@ export default function AnswerScaleComponent({
           <ScaleItemComponent
             key={i}
             index={i}
-            checked={isChecked(i)}
+            checked={isChecked(option)}
             label={option.value}
           />
         ))}

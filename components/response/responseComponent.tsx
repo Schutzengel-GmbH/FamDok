@@ -67,6 +67,7 @@ export default function ResponseComponent({
         else {
           setResponse(res.response);
           submitAnswers(res.response.id);
+          onChange();
         }
       }
     } else {
@@ -88,10 +89,10 @@ export default function ResponseComponent({
         else {
           setResponse(response);
           submitAnswers(response.id);
+          onChange();
         }
       }
     }
-    onChange();
   }
 
   async function submitAnswers(responseId: string) {
@@ -114,7 +115,7 @@ export default function ResponseComponent({
         addAlert({ message: `Antworten gespeichert`, severity: "success" });
       }
     }
-
+    onChange();
     setUnsavedChanges(false);
   }
 
@@ -223,3 +224,4 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
+

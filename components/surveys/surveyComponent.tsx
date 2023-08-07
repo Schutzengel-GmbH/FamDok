@@ -70,3 +70,4 @@ export default function SurveyComponent({ survey }: SurveyComponentProps) {
     </Paper>
   );
 }
+
