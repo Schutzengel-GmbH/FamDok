@@ -129,7 +129,6 @@ export default async function response(
       return res.status(200).json({ response });
 
     case "POST":
-      console.log(req.body);
       const responseUpdate = await prisma.response
         .update({
           data: {
@@ -168,3 +167,4 @@ export default async function response(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

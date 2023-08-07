@@ -28,8 +28,6 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
 
   if (data?.responses) rows = getRowsForResponses(data.responses, survey);
 
-  console.log(columns, rows);
-
   return (
     <DataGrid
       columns={columns}
@@ -50,3 +48,4 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     />
   );
 }
+

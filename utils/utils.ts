@@ -121,6 +121,6 @@ export function answerHasNoValues(answer: PartialAnswer) {
 
 export function range(start: number, end: number) {
   let arr = new Array(end - start + 1).fill(undefined).map((_, i) => i + start);
-  console.log(arr);
   return arr;
 }
+

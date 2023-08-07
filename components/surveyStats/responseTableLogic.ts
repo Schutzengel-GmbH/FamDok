@@ -28,7 +28,6 @@ export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
 
   columns.push(
     ...survey.questions.map((q) => {
-      console.log(q);
       return {
         field: q.questionText,
         width: 200,
@@ -38,8 +37,6 @@ export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
     { field: "Erstellt durch", width: 200, description: "Erstellt durch" },
     ...optionalFields
   );
-
-  console.log(columns);
 
   return columns;
 }
@@ -117,3 +114,4 @@ export function getRowsForResponses(
 
   return rows;
 }
+

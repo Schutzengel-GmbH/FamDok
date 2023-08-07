@@ -9,7 +9,6 @@ export default function AnswerScaleComponent({
   onChange,
 }: AnswerComponentProps) {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    console.log(e.target.value);
     onChange({ ...answer, answerInt: parseInt(e.target.value) });
   }
 
@@ -35,3 +34,4 @@ export default function AnswerScaleComponent({
     </Box>
   );
 }
+

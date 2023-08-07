@@ -445,10 +445,13 @@ function getUpdateInputFromState(
     survey: { connect: { id: surveyId } },
     selectOptions: selectOptions
       ? {
-          connectOrCreate: selectOptions.map((s) => ({
-            where: { id: s.id || "" },
-            create: s,
-          })),
+          deleteMany: selectOptions.map((s) => ({ id: s.id })),
+          createMany: {
+            data: selectOptions.map((s) => ({
+              value: s.value,
+              isOpen: s.isOpen,
+            })),
+          },
         }
       : undefined,
     defaultAnswerText: state.defaultAnswerText,
@@ -459,3 +462,4 @@ function getUpdateInputFromState(
     numberInSurvey: state.numberInSurvey,
   };
 }
+
