@@ -39,7 +39,6 @@ export default function FamilyDialog({
   initialFamily,
 }: FamilyDialogProps) {
   const [family, setFamily] = useState<PartialFamily>({});
-  const [answersChanged, setAnswersChanged] = useState<boolean>(false);
   const [famNumberCreated, setFamNumberCreated] = useState<number>();
 
   const { user } = useUserData();
@@ -84,7 +83,7 @@ export default function FamilyDialog({
         message: `Familie ${res.family.number} erstellt`,
         severity: "success",
       });
-      onClose();
+      onClose(res.family);
     }
   }
 

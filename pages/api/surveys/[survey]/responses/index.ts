@@ -137,9 +137,15 @@ export default async function responses(
         .create({
           data: {
             name: req.body.name,
-            child: req.body.child,
-            caregiver: req.body.caregiver,
-            family: req.body.family,
+            child: req.body.child?.id
+              ? { connect: { id: req.body.child.id } }
+              : undefined,
+            caregiver: req.body.caregiver?.id
+              ? { connect: { id: req.body.caregiver.id } }
+              : undefined,
+            family: req.body.family?.id
+              ? { connect: { id: req.body.family.id } }
+              : undefined,
             survey: { connect: { id: survey.id } },
             user: { connect: { id: user.id } },
           },
@@ -167,3 +173,4 @@ export default async function responses(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

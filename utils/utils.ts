@@ -109,8 +109,6 @@ export function answerHasNoValues(answer: PartialAnswer) {
     answerText,
   } = answer;
 
-  console.log(answerSelect);
-
   return (
     !answerBool &&
     !answerDate &&

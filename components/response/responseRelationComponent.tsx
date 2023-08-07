@@ -88,6 +88,7 @@ export default function ResponseRelationComponent({
         initialFamily={undefined}
         open={createFamilyOpen}
         onClose={(family) => {
+          console.log(family);
           onChange({ ...relation, family });
           setCreateFamilyOpen(false);
         }}
@@ -95,33 +96,38 @@ export default function ResponseRelationComponent({
 
       <Paper sx={{ p: ".5rem" }} elevation={3}>
         {relation.family && (
-          <RadioGroup
-            sx={{ m: "1rem" }}
-            value={currentRelationId}
-            onChange={handleRelationChange}
-          >
-            <FormControlLabel
-              value={"none"}
-              control={<Radio />}
-              label={"Ganze Familie"}
-            />
-            {relation.family.caregivers.map((c, i) => (
+          <>
+            <Typography variant={"h6"}>
+              Familie {relation.family.number}
+            </Typography>
+            <RadioGroup
+              sx={{ m: "1rem" }}
+              value={currentRelationId}
+              onChange={handleRelationChange}
+            >
               <FormControlLabel
-                value={c.id}
+                value={"none"}
                 control={<Radio />}
-                label={`Bezugsperson ${c.number}, Alter: ${getAge(
-                  c.dateOfBirth
-                )}`}
+                label={"Ganze Familie"}
               />
-            ))}
-            {relation.family.children.map((c, i) => (
-              <FormControlLabel
-                value={c.id}
-                control={<Radio />}
-                label={`Kind ${c.number}, Alter: ${getAge(c.dateOfBirth)}`}
-              />
-            ))}
-          </RadioGroup>
+              {relation.family.caregivers?.map((c, i) => (
+                <FormControlLabel
+                  value={c.id}
+                  control={<Radio />}
+                  label={`Bezugsperson ${c.number}, Alter: ${getAge(
+                    c.dateOfBirth
+                  )}`}
+                />
+              ))}
+              {relation.family.children?.map((c, i) => (
+                <FormControlLabel
+                  value={c.id}
+                  control={<Radio />}
+                  label={`Kind ${c.number}, Alter: ${getAge(c.dateOfBirth)}`}
+                />
+              ))}
+            </RadioGroup>
+          </>
         )}
 
         <Typography variant="h6">
