@@ -81,9 +81,10 @@ export default function FamilyDialog({
         });
 
       addAlert({
-        message: `Familie ${res.familiy.number} erstellt`,
+        message: `Familie ${res.family.number} erstellt`,
         severity: "success",
       });
+      onClose();
     }
   }
 
@@ -197,3 +198,4 @@ export default function FamilyDialog({
     </>
   );
 }
+

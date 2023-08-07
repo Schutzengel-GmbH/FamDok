@@ -1,4 +1,10 @@
-import { Caregiver, Child } from "@prisma/client";
+import {
+  Caregiver,
+  Child,
+  Disability,
+  Education,
+  Gender,
+} from "@prisma/client";
 import {
   Button,
   FormControlLabel,
@@ -11,6 +17,8 @@ import { ChangeEvent, useState } from "react";
 import FindFamilyDialog from "@/components/family/findFamilyDialog";
 import { getAge } from "@/utils/utils";
 import { FullFamily } from "@/types/prismaHelperTypes";
+import FamilyDialog from "@/components/family/familyDialog";
+import { GetResult } from "@prisma/client/runtime";
 
 export type ResponseRelation = {
   family: FullFamily;
@@ -28,6 +36,7 @@ export default function ResponseRelationComponent({
   onChange,
 }: ResponseRelationComponentProps) {
   const [findFamilyOpen, setFindFamilyOpen] = useState<boolean>(false);
+  const [createFamilyOpen, setCreateFamilyOpen] = useState<boolean>(false);
   const [currentRelationId, setCurrentRelationId] = useState<string>(
     relation.caregiver?.id || relation.child?.id || "none"
   );
@@ -35,7 +44,9 @@ export default function ResponseRelationComponent({
   function handleFindClick() {
     setFindFamilyOpen(true);
   }
-  function handleCreateClick() {}
+  function handleCreateClick() {
+    setCreateFamilyOpen(true);
+  }
   function handleRemoveClick() {
     onChange({ family: undefined, caregiver: undefined, child: undefined });
   }
@@ -71,6 +82,15 @@ export default function ResponseRelationComponent({
         open={findFamilyOpen}
         onConfirm={handleSelectFamily}
         onCancel={() => setFindFamilyOpen(false)}
+      />
+
+      <FamilyDialog
+        initialFamily={undefined}
+        open={createFamilyOpen}
+        onClose={(family) => {
+          onChange({ ...relation, family });
+          setCreateFamilyOpen(false);
+        }}
       />
 
       <Paper sx={{ p: ".5rem" }} elevation={3}>
@@ -116,3 +136,4 @@ export default function ResponseRelationComponent({
     </>
   );
 }
+

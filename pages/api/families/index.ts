@@ -15,7 +15,7 @@ export interface IFamilies {
   families?: Prisma.FamilyGetPayload<{
     include: { caregivers: true; children: true };
   }>[];
-  familiy?: Prisma.FamilyGetPayload<{
+  family?: Prisma.FamilyGetPayload<{
     include: { caregivers: true; children: true };
   }>;
   error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED";
@@ -78,3 +78,4 @@ export default async function families(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+
