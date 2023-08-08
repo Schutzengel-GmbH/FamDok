@@ -48,6 +48,8 @@ export class SurveyExport {
             })),
           },
         },
+        numberInSurvey: question.numberInSurvey,
+        survey: { connect: { id: this.survey.id } },
       });
     }
 
@@ -58,3 +60,4 @@ export class SurveyExport {
     return JSON.stringify(this.surveyCreateInput);
   }
 }
+

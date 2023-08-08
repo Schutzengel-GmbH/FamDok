@@ -21,8 +21,9 @@ export default function DatePickerComponent({
         onChange={(date) => {
           if (date) onChange(date, false);
         }}
-        value={currentAnswer || null}
+        value={currentAnswer ? new Date(currentAnswer) : null}
       />
     </FormControl>
   );
 }
+

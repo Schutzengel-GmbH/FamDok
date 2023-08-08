@@ -1,4 +1,4 @@
-import { PartialAnswer } from "@/types/prismaHelperTypes";
+import { FullFamily, PartialAnswer } from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
@@ -123,5 +123,19 @@ export function answerHasNoValues(answer: PartialAnswer) {
 export function range(start: number, end: number) {
   let arr = new Array(end - start + 1).fill(undefined).map((_, i) => i + start);
   return arr;
+}
+
+export function getFamilyString(family: FullFamily) {
+  return `Familiennummer: ${family.number} (${
+    family.caregivers.length
+  } Bezugspersonen, Kinder (${family.childrenInHousehold || "keine"})${
+    family.children?.length > 0 ? ": " : ""
+  }${family.children
+    .map((c) => {
+      if (!c.dateOfBirth) return "unbekanntes Alter";
+      const age = getAge(new Date(c.dateOfBirth));
+      return `${age} Jahre`;
+    })
+    .join(", ")})`;
 }
 

@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Caregiver, Child, Family, Prisma } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import ChildrenComponent from "@/components/family/childrenComponent";
 import CaregiversComponent from "@/components/family/caregiversComponent";
 import FamilyNumberDialog from "@/components/family/familyNumberDialog";
@@ -20,6 +20,7 @@ import useNotification from "@/components/utilityComponents/notificationContext"
 import { FullFamily } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
+import { IFamily } from "@/pages/api/families/[family]";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
@@ -48,42 +49,69 @@ export default function FamilyDialog({
     setFamily(initialFamily || {});
   }, [initialFamily]);
 
-  function handleCancel() {
+  function handleCancel(e: MouseEvent) {
+    e.stopPropagation();
     setFamily(initialFamily || {});
     onClose(initialFamily);
   }
 
-  async function handleSave() {
-    const update = getAddFamilyInput(family, user.id);
-    if (update.error || !update.familyCreate) {
-      addAlert({
-        message:
-          update.errorMessage || "Es ist ein unerwarteter Fehler aufgetreten",
-        severity: "error",
-      });
-      return;
-    }
-    const res = await apiPostJson<IFamilies>(
-      "/api/families",
-      update.familyCreate
-    );
-    if (res instanceof FetchError)
-      addAlert({
-        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
-        severity: "error",
-      });
-    else {
-      if (res.error)
+  async function handleSave(e: MouseEvent) {
+    e.stopPropagation();
+    if (!initialFamily) {
+      const update = getAddFamilyInput(family, user.id);
+      if (update.error || !update.familyCreate) {
         addAlert({
-          message: `Fehler: ${res.error}`,
+          message:
+            update.errorMessage || "Es ist ein unerwarteter Fehler aufgetreten",
           severity: "error",
         });
+        return;
+      }
+      const res = await apiPostJson<IFamilies>(
+        "/api/families",
+        update.familyCreate
+      );
+      if (res instanceof FetchError)
+        addAlert({
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+          severity: "error",
+        });
+      else {
+        if (res.error)
+          addAlert({
+            message: `Fehler: ${res.error}`,
+            severity: "error",
+          });
 
-      addAlert({
-        message: `Familie ${res.family.number} erstellt`,
-        severity: "success",
-      });
-      onClose(res.family);
+        addAlert({
+          message: `Familie ${res.family.number} erstellt`,
+          severity: "success",
+        });
+        onClose(res.family);
+      }
+    } else {
+      const res = await apiPostJson<IFamily>(
+        `/api/families/${initialFamily.id}`,
+        {}
+      );
+      if (res instanceof FetchError)
+        addAlert({
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+          severity: "error",
+        });
+      else {
+        if (res.error)
+          addAlert({
+            message: `Fehler: ${res.error}`,
+            severity: "error",
+          });
+
+        addAlert({
+          message: `Familie ${res.family.number} geändert`,
+          severity: "success",
+        });
+        onClose(res.family);
+      }
     }
   }
 
@@ -197,4 +225,3 @@ export default function FamilyDialog({
     </>
   );
 }
-

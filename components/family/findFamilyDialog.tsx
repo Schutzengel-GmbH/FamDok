@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import { useState, useEffect } from "react";
-import { getAge } from "@/utils/utils";
+import { getAge, getFamilyString } from "@/utils/utils";
 import { IFamilies } from "@/pages/api/families";
 import useNotification from "@/components/utilityComponents/notificationContext";
 import { FullFamily } from "@/types/prismaHelperTypes";
@@ -67,18 +67,6 @@ export default function FindFamilyDialog({
     setSearching(false);
   }, [searchStart]);
 
-  function getOptionsString(family: FullFamily) {
-    return `Familiennummer: ${family.number} (${
-      family.caregivers.length
-    } Bezugspersonen, Kinder (${family.childrenInHousehold}): ${family.children
-      .map((c) => {
-        if (!c.dateOfBirth) return "unbekanntes Alter";
-        const age = getAge(new Date(c.dateOfBirth));
-        return `${age}`;
-      })
-      .join(", ")})`;
-  }
-
   function handleChange(_: any, value: FullFamily | null) {
     setFamily(value ?? undefined);
   }
@@ -108,7 +96,7 @@ export default function FindFamilyDialog({
           isOptionEqualToValue={(option, value) =>
             option.number === option.number
           }
-          getOptionLabel={(family) => getOptionsString(family)}
+          getOptionLabel={(family) => getFamilyString(family)}
           value={family ?? null}
           onChange={handleChange}
           renderInput={(params) => (
@@ -128,3 +116,4 @@ export default function FindFamilyDialog({
     </Dialog>
   );
 }
+

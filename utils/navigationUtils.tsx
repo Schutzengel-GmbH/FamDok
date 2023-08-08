@@ -3,6 +3,7 @@ import {
   AccountBox,
   Poll,
   Edit,
+  FamilyRestroom,
 } from "@mui/icons-material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -46,4 +47,11 @@ export const navigationList: {
     url: "/surveys",
     canAccess: (user) => (user ? true : false),
   },
+  {
+    title: "Familien",
+    icon: <FamilyRestroom />,
+    url: "/families",
+    canAccess: (user) => (user ? true : false),
+  },
 ];
+
