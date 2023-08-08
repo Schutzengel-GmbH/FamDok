@@ -112,6 +112,7 @@ export default function ResponseRelationComponent({
               />
               {relation.family.caregivers?.map((c, i) => (
                 <FormControlLabel
+                  key={c.id}
                   value={c.id}
                   control={<Radio />}
                   label={`Bezugsperson ${c.number}, Alter: ${getAge(
@@ -121,6 +122,7 @@ export default function ResponseRelationComponent({
               ))}
               {relation.family.children?.map((c, i) => (
                 <FormControlLabel
+                  key={c.id}
                   value={c.id}
                   control={<Radio />}
                   label={`Kind ${c.number}, Alter: ${getAge(c.dateOfBirth)}`}

@@ -28,7 +28,7 @@ export function FamiliesPageComponent({
         onChange={setFilter}
       />
       {families?.filter(fncFilter).map((f) => (
-        <FamilyCard family={f} onChange={onChange} />
+        <FamilyCard key={f.id} family={f} onChange={onChange} />
       ))}
     </Box>
   );

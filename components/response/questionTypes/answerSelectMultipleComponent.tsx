@@ -2,7 +2,7 @@ import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
 import { TextField, Checkbox, List, ListItem } from "@mui/material";
 import { SelectOption } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AnswerSelectMultipleComponent({
   question,
@@ -14,15 +14,18 @@ export default function AnswerSelectMultipleComponent({
   );
 
   function handleChange(checked: boolean, selectOption: SelectOption) {
-    const selectOptions = answer?.answerSelect || [];
-    const indexOfOption = selectOptions.findIndex(
-      (o) => selectOption.id === o.id
-    );
-
-    if (checked) selectOptions.push(selectOption);
-    if (!checked) selectOptions.splice(indexOfOption, 1);
-
-    onChange({ ...answer, answerSelect: selectOptions });
+    if (checked)
+      onChange({
+        ...answer,
+        answerSelect: [...answer.answerSelect, selectOption],
+      });
+    else
+      onChange({
+        ...answer,
+        answerSelect: answer.answerSelect.filter(
+          (o) => o.id !== selectOption.id
+        ),
+      });
   }
 
   function updateOtherValues(id: string, value: string) {
@@ -69,3 +72,4 @@ export default function AnswerSelectMultipleComponent({
     </List>
   );
 }
+

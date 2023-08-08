@@ -62,7 +62,7 @@ export function getRowsForResponses(
           resRow[a.question.id] = a.answerNum;
           break;
         case QuestionType.Select:
-          resRow[a.question.id] = a.answerSelect.reduce(
+          resRow[a.question.id] = a.answerSelect?.reduce(
             (prev, curr, i) =>
               (prev += curr.isOpen
                 ? curr.value +
@@ -84,9 +84,9 @@ export function getRowsForResponses(
             : "";
           break;
         case QuestionType.Scale:
-          resRow[a.question.id] = `${a.answerSelect[0].value} (${
+          resRow[a.question.id] = `${a.answerSelect[0]?.value} (${
             a.question.selectOptions.findIndex(
-              (o) => o.id === a.answerSelect[0].id
+              (o) => o.id === a.answerSelect[0]?.id
             ) + 1
           })`;
           break;

@@ -1,10 +1,10 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import {
   FullResponse,
   FullSurvey,
   PartialAnswer,
 } from "@/types/prismaHelperTypes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ResponseRelationComponent, {
   ResponseRelation,
 } from "@/components/response/responseRelationComponent";
@@ -65,9 +65,7 @@ export default function ResponseComponent({
             severity: "error",
           });
         else {
-          setResponse(res.response);
           submitAnswers(res.response.id);
-          onChange();
         }
       }
     } else {
@@ -87,9 +85,7 @@ export default function ResponseComponent({
             severity: "error",
           });
         else {
-          setResponse(response);
           submitAnswers(response.id);
-          onChange();
         }
       }
     }
@@ -116,7 +112,9 @@ export default function ResponseComponent({
       }
     }
     onChange();
+    setAnswersState(getDefaultAnswerstate(survey));
     setUnsavedChanges(false);
+    router.push("/surveys");
   }
 
   function handleCancel() {
@@ -177,6 +175,9 @@ export default function ResponseComponent({
         gap: "1rem",
       }}
     >
+      <Button onClick={() => setAnswersState(getDefaultAnswerstate(survey))}>
+        TEST
+      </Button>
       <Box
         sx={{
           position: "sticky",
@@ -220,7 +221,7 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerBool: q.defaultAnswerBool || undefined,
     answerInt: q.defaultAnswerInt || undefined,
     answerNum: q.defaultAnswerNum || undefined,
-    answerSelect: q.defaultAnswerSelectOptions || undefined,
+    answerSelect: q.defaultAnswerSelectOptions || [],
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
