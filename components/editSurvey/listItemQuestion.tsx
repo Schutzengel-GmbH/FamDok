@@ -100,6 +100,7 @@ export default function ListItemQuestion({
             e.stopPropagation();
             moveUp();
           }}
+          disabled={question.numberInSurvey === 1}
         >
           <ArrowCircleUp />
         </Button>
@@ -108,6 +109,7 @@ export default function ListItemQuestion({
             e.stopPropagation();
             moveDown();
           }}
+          disabled={question.numberInSurvey === survey.questions.length}
         >
           <ArrowCircleDown />
         </Button>
