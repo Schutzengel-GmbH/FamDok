@@ -1,31 +1,32 @@
 {
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start"
-    },
-    "dependencies": {
-        "@emotion/react": "^11.11.1",
-        "@emotion/styled": "^11.11.0",
-        "@mui/icons-material": "^5.11.16",
-        "@mui/material": "^5.13.6",
-        "@mui/x-data-grid": "^6.9.0",
-        "@mui/x-date-pickers": "^6.9.0",
-        "@prisma/client": "^4.16.1",
-        "date-fns": "^2.30.0",
-        "next": "latest",
-        "pino": "^8.14.1",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "supertokens-auth-react": "latest",
-        "supertokens-node": "latest",
-        "swr": "^2.2.0"
-    },
-    "devDependencies": {
-        "@types/node": "18.7.13",
-        "@types/react": "18.0.17",
-        "prisma": "^4.16.1",
-        "typescript": "^4.8.2"
-    }
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "npx prisma migrate deploy & next start"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.6",
+    "@mui/x-data-grid": "^6.9.0",
+    "@mui/x-date-pickers": "^6.9.0",
+    "@prisma/client": "^4.16.1",
+    "date-fns": "^2.30.0",
+    "next": "latest",
+    "pino": "^8.14.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "supertokens-auth-react": "latest",
+    "supertokens-node": "latest",
+    "swr": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.7.13",
+    "@types/react": "18.0.17",
+    "prisma": "^4.16.1",
+    "typescript": "^4.8.2"
+  }
 }
+
