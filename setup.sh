@@ -2,7 +2,7 @@
 source .env
 
 echo "creating a user in the app with the admin credentials..."
-curl --location --request POST "http://localhost:3567/recipe/dashboard/user" --header "rid: dashboard" --header "api-key: ${API_KEY}" --header "Content-Type: application/json" --data-raw "{\"email\": \"${ADMIN_EMAIL}\",\"password\": \"${ADMIN_PASSWORD}\"}"
+curl --location --request POST "http://localhost:3567/recipe/signup" --header "rid: emailpassword" --header "api-key: ${API_KEY}" --header "Content-Type: application/json" --data-raw "{\"email\": \"${ADMIN_EMAIL}\",\"password\": \"${ADMIN_PASSWORD}\"}"
 
 echo "creating admin role in supertokens..."
 curl --location --request PUT "http://localhost:3567/recipe/role" --header "api-key: ${API_KEY}" --header "Content-Type: application/json; charset=utf-8" --data-raw "{"role": "admin", "permissions": []}"
