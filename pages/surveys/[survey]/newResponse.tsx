@@ -2,11 +2,10 @@ import SessionReact from "supertokens-auth-react/recipe/session";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import { fetcher } from "../../../utils/swrConfig";
-import survey, { ISurvey } from "../../api/surveys/[survey]";
+import { ISurvey } from "../../api/surveys/[survey]";
 import ErrorPage from "../../../components/utilityComponents/error";
 import Loading from "../../../components/utilityComponents/loadingMainContent";
 import ResponseComponent from "../../../components/response/responseComponent";
-import { useEffect } from "react";
 
 function ProtectedPage() {
   const router = useRouter();
@@ -15,8 +14,6 @@ function ProtectedPage() {
     `/api/surveys/${id}`,
     fetcher
   );
-
-  useEffect(() => console.log(data), [data]);
 
   if (isLoading) return <Loading />;
 
@@ -32,4 +29,3 @@ export default function EditSurveyPage() {
     </SessionReact.SessionAuth>
   );
 }
-

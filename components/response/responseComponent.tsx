@@ -175,9 +175,6 @@ export default function ResponseComponent({
         gap: "1rem",
       }}
     >
-      <Button onClick={() => setAnswersState(getDefaultAnswerstate(survey))}>
-        TEST
-      </Button>
       <Box
         sx={{
           position: "sticky",

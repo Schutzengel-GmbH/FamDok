@@ -78,7 +78,6 @@ export default async function importSurvey(
     const q = await prisma.question.create({
       data: { ...question, survey: { connect: { id: newSurvey.id } } },
     });
-    console.log(q);
     if (!q) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 

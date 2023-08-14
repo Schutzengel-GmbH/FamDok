@@ -88,7 +88,6 @@ export default function ResponseRelationComponent({
         initialFamily={undefined}
         open={createFamilyOpen}
         onClose={(family) => {
-          console.log(family);
           onChange({ ...relation, family });
           setCreateFamilyOpen(false);
         }}
@@ -144,4 +143,3 @@ export default function ResponseRelationComponent({
     </>
   );
 }
-
