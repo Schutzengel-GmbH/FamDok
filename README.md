@@ -9,7 +9,7 @@ Die Software besteht aus einer in Next.js geschriebenen Frontend- und Backend-An
 Um die Software installieren und nutzen zu können, müssen folgende Voraussetzungen erfüllt sein:
 
 - Ein Linux Server mit einer Docker-Installation
-- Der Server muss als Webserver erreichbar und für die App als Proxy konfiguriert sein
+- Der Server muss als Webserver erreichbar und für die App als Proxy konfiguriert sein (Standardmäßig läuft die Software lokal auf Port 3030)
 - Ein über SMTP AUTH erreichbares E-Mail-Postfach
 
 ## Installation auf einem Linux-Server
