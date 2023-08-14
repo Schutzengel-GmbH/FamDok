@@ -1,5 +1,4 @@
 import useSWR from "swr";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import {
   CircularProgress,
   IconButton,
@@ -16,9 +15,10 @@ import UserDetailComponent from "@/components/adminDashboard/userDetailComponent
 import { IUsers } from "@/pages/api/user";
 import { fetcher } from "@/utils/swrConfig";
 import AddUserComponent from "@/components/adminDashboard/addUserComponent";
+import useToast from "@/components/notifications/notificationContext";
 
 export default function AdminDashboard() {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
   const [addUser, setAddUser] = useState<boolean>(false);
 
   const { data, mutate, error, isLoading, isValidating } = useSWR<IUsers>(
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   }
 
   if (error)
-    addAlert({
+    addToast({
       message: `Fehler beim Laden der Nutzerdaten: ${error}`,
       severity: "error",
     });

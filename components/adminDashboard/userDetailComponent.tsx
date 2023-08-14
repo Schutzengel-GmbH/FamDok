@@ -9,13 +9,13 @@ import {
 import { Prisma, Role } from "@prisma/client";
 import { useState } from "react";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { IUser } from "@/pages/api/user/[id]";
 import OrgSelect from "@/components/adminDashboard/orgSelect";
 import RoleSelect from "@/components/adminDashboard/roleSelect";
 import { isValidEmail } from "@/utils/validationUtils";
 import { useUserData } from "@/utils/authUtils";
 import { FetchError, apiDelete, apiPostJson } from "@/utils/fetchApiUtils";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;
@@ -36,7 +36,7 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
 
   const emailValid = isValidEmail(email);
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   function userChanged() {
     return (
@@ -58,18 +58,18 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
       role,
     });
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler beim Update eines Users: ${res.error}}`,
           severity: "error",
         });
 
-      addAlert({
+      addToast({
         message: `${res.user.name || res.user.email} aktualisiert`,
         severity: "success",
       });
@@ -80,18 +80,18 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   async function handleDelete() {
     const res = await apiDelete<IUser>(`/api/user/${user.id}`);
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Benutzer konnte nicht gelöscht werden: ${res.error}`,
           severity: "error",
         });
 
-      addAlert({
+      addToast({
         message: "Benutzer gelöscht",
         severity: "success",
       });

@@ -12,13 +12,13 @@ import ResponseAnswerQuestionsComponent from "@/components/response/responseAnsw
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
-import useNotification from "../utilityComponents/notificationContext";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]/submitAnswers";
 import { InputErrors } from "@/components/response/answerQuestion";
 import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
+import useToast from "@/components/notifications/notificationContext";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
@@ -32,7 +32,7 @@ export default function ResponseComponent({
   onChange,
 }: ResponseComponentProps) {
   const router = useRouter();
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
   const [response, setResponse] = useState<FullResponse>(initialResponse);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [currentRelation, setCurrentRelation] = useState<ResponseRelation>({
@@ -54,13 +54,13 @@ export default function ResponseComponent({
         { ...currentRelation }
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
@@ -74,13 +74,13 @@ export default function ResponseComponent({
         { ...currentRelation }
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
@@ -97,18 +97,18 @@ export default function ResponseComponent({
       { answersState }
     );
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler: ${res.error}`,
           severity: "error",
         });
       else {
-        addAlert({ message: `Antworten gespeichert`, severity: "success" });
+        addToast({ message: `Antworten gespeichert`, severity: "success" });
       }
     }
     onChange();
@@ -225,4 +225,3 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
-

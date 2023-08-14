@@ -10,11 +10,11 @@ import {
   TextField,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { Prisma } from "@prisma/client";
 import { ISurveys } from "@/pages/api/surveys";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import React from "react";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface AddSurveyDialogProps {
   open: boolean;
@@ -29,7 +29,7 @@ export default function AddSurveyDialog({
   const [description, setDescription] = useState("");
   const [hasFamily, setHasFamily] = useState(false);
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   function handleName(e: ChangeEvent<HTMLInputElement>) {
     setName(e.currentTarget.value);
@@ -59,18 +59,18 @@ export default function AddSurveyDialog({
 
     const res = await apiPostJson<ISurveys>("/api/surveys", createInput);
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler: ${res.error}`,
           severity: "error",
         });
 
-      addAlert({
+      addToast({
         message: `Survey ${res.survey.name} hinzugefügt`,
         severity: "success",
       });

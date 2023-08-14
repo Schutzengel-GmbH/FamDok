@@ -2,14 +2,14 @@ import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { useUserData } from "@/utils/authUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import { useEffect, useState } from "react";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IUserMe } from "@/pages/api/user/me";
+import useToast from "@/components/notifications/notificationContext";
 
 export default function EditMe() {
   const { user, isLoading, error, mutate } = useUserData();
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   const [name, setName] = useState("");
 
@@ -37,14 +37,14 @@ export default function EditMe() {
   async function handleSave() {
     const res = await apiPostJson<IUserMe>("/api/user/me", { name });
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({ message: "Fehler beim Speichern", severity: "error" });
-      else addAlert({ message: "Änderungen gespeichert", severity: "success" });
+        addToast({ message: "Fehler beim Speichern", severity: "error" });
+      else addToast({ message: "Änderungen gespeichert", severity: "success" });
       mutate();
     }
   }

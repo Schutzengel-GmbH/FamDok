@@ -18,10 +18,10 @@ import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
 import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
 import { FullSurvey } from "@/types/prismaHelperTypes";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -81,7 +81,7 @@ export default function EditQuestionDialog({
   open,
   onClose,
 }: EditQuestionDialogProps) {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [questionReady, setQuestionReady] = useState<boolean>(false);
@@ -128,18 +128,18 @@ export default function EditQuestionDialog({
         )
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
         else {
-          addAlert({ message: "Frage hinzugefügt", severity: "success" });
+          addToast({ message: "Frage hinzugefügt", severity: "success" });
         }
       }
       setLoading(false);
@@ -149,18 +149,18 @@ export default function EditQuestionDialog({
         getUpdateInputFromState(questionState, survey.id)
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
         else {
-          addAlert({ message: "Frage geändert", severity: "success" });
+          addToast({ message: "Frage geändert", severity: "success" });
         }
         setLoading(false);
       }
@@ -462,4 +462,3 @@ function getUpdateInputFromState(
     numberInSurvey: state.numberInSurvey,
   };
 }
-

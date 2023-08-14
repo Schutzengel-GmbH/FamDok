@@ -23,10 +23,10 @@ import { useState } from "react";
 import EditQuestionDialog from "./editQuestion";
 import { getQuestionTypeString } from "@/utils/utils";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { IQuestion } from "@/pages/api/surveys/[survey]/questions/[question]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface ListItemQuestionProps {
   question: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -43,7 +43,7 @@ export default function ListItemQuestion({
   moveUp,
   onDataChange,
 }: ListItemQuestionProps) {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   const [open, setOpen] = useState<boolean>(false);
   const [delOpen, setDelOpen] = useState<boolean>(false);
@@ -66,18 +66,18 @@ export default function ListItemQuestion({
       `/api/surveys/${survey.id}/questions/${question.id}`
     );
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler: ${res.error}`,
           severity: "error",
         });
       else {
-        addAlert({ message: "Frage gelöscht", severity: "success" });
+        addToast({ message: "Frage gelöscht", severity: "success" });
         onDataChange();
       }
     }

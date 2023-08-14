@@ -1,3 +1,4 @@
+import useToast from "@/components/notifications/notificationContext";
 import { IImportSurvey } from "@/pages/api/surveys/import";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { Check, Error } from "@mui/icons-material";
@@ -11,7 +12,6 @@ import {
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
 import { ChangeEvent, useState } from "react";
-import useNotification from "../utilityComponents/notificationContext";
 
 export interface ImportSurveyDialogProps {
   open: boolean;
@@ -19,7 +19,7 @@ export interface ImportSurveyDialogProps {
 }
 
 const ImportSurveyDialog = ({ open, onClose }: ImportSurveyDialogProps) => {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
   const [createInput, updateCreateInput] = useState<
     Prisma.SurveyCreateInput | undefined
   >();

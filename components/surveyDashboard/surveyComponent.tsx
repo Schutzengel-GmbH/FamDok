@@ -7,10 +7,10 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { SurveyExport } from "@/utils/importExport";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { ISurveys } from "@/pages/api/surveys";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface SurveyComponentProps {
   survey: Prisma.SurveyGetPayload<{
@@ -23,7 +23,7 @@ export default function SurveyComponent({
   survey,
   onChange,
 }: SurveyComponentProps) {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
 
   const router = useRouter();
@@ -39,18 +39,18 @@ export default function SurveyComponent({
   async function deleteThisSurvey() {
     const res = await apiDelete<ISurvey>(`/api/surveys/${survey.id}`);
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler beim Löschen: ${res.error}`,
           severity: "error",
         });
       else
-        addAlert({
+        addToast({
           message: `${res.survey.name || "Survey"} gelöscht`,
           severity: "success",
         });

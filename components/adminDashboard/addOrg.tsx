@@ -7,9 +7,9 @@ import {
   TextField,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { IOrganizations } from "@/pages/api/organizations";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface AddOrgMenuProps {
   open: boolean;
@@ -18,25 +18,25 @@ export interface AddOrgMenuProps {
 
 const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
   const [name, updateName] = useState<string>("");
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   async function handleSave() {
     const res = await apiPostJson<IOrganizations>("/api/organizations", {
       name,
     });
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler beim Hinzufügen der Organisation: ${res.error}}`,
           severity: "error",
         });
 
-      addAlert({
+      addToast({
         message: `${res.organization.name} hinzugefügt`,
         severity: "success",
       });

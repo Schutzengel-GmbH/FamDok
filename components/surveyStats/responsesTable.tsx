@@ -1,10 +1,10 @@
+import useToast from "@/components/notifications/notificationContext";
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
 import {
   getColumnsForSurvey,
   getRowsForResponses,
 } from "@/components/surveyStats/responseTableLogic";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
@@ -30,7 +30,7 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     fetcher
   );
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   async function deleteResponses() {
     for (let id of selectedIds) {
@@ -38,10 +38,10 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
         `/api/surveys/${survey.id}/responses/${id}`
       );
       if (res instanceof FetchError)
-        addAlert({ message: res.error || "Fehler", severity: "error" });
-      else if (res.error) addAlert({ message: res.error, severity: "error" });
+        addToast({ message: res.error || "Fehler", severity: "error" });
+      else if (res.error) addToast({ message: res.error, severity: "error" });
       else
-        addAlert({
+        addToast({
           message: `${res.response.id} gelöscht`,
           severity: "success",
         });
@@ -74,4 +74,3 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     </>
   );
 }
-

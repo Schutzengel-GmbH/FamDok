@@ -1,8 +1,8 @@
 import EditQuestionDialog from "@/components/editSurvey/editQuestion";
 import EditStringDialog from "@/components/editSurvey/editStringDialog";
 import ListItemQuestion from "@/components/editSurvey/listItemQuestion";
+import useToast from "@/components/notifications/notificationContext";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import {
   IMoveQuestion,
@@ -35,7 +35,7 @@ export default function EditSurveyComponent({
   survey,
   onChange,
 }: EditSurveyComponentProps) {
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   const [error, setError] = useState<string>("");
   const [name, setName] = useState<string>(survey.name);
@@ -59,20 +59,20 @@ export default function EditSurveyComponent({
       hasFamily,
     });
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error) {
-        addAlert({
+        addToast({
           message: `Beim Speichern ist ein Fehler aufgetreten: ${res.error}`,
           severity: "error",
         });
         handleCancelChanges();
         return;
       }
-      addAlert({ message: "Änderungen gespeichert.", severity: "success" });
+      addToast({ message: "Änderungen gespeichert.", severity: "success" });
       setUnsavedChanges(false);
     }
     onChange();
@@ -90,12 +90,12 @@ export default function EditSurveyComponent({
 
     if (res.error) {
       if (res.error === "NEW_POSITION_OUT_OF_RANGE")
-        addAlert({
+        addToast({
           message: "Frage schon am Ende/Anfang",
           severity: "warning",
         });
-      else addAlert({ message: `Fehler: ${res.error}`, severity: "error" });
-    } else addAlert({ message: "Frage verschoben", severity: "success" });
+      else addToast({ message: `Fehler: ${res.error}`, severity: "error" });
+    } else addToast({ message: "Frage verschoben", severity: "success" });
   }
 
   async function moveDown(question: FullQuestion) {
@@ -110,12 +110,12 @@ export default function EditSurveyComponent({
     onChange();
     if (res.error) {
       if (res.error === "NEW_POSITION_OUT_OF_RANGE")
-        addAlert({
+        addToast({
           message: "Frage schon am Ende/Anfang",
           severity: "warning",
         });
-      else addAlert({ message: `Fehler: ${res.error}`, severity: "error" });
-    } else addAlert({ message: "Frage verschoben", severity: "success" });
+      else addToast({ message: `Fehler: ${res.error}`, severity: "error" });
+    } else addToast({ message: "Frage verschoben", severity: "success" });
   }
 
   function handleCancelChanges() {

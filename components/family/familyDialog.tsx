@@ -16,11 +16,11 @@ import FamilyNumberDialog from "@/components/family/familyNumberDialog";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import { getAddFamilyInput } from "@/utils/utils";
 import { useUserData } from "@/utils/authUtils";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
 import { IFamily } from "@/pages/api/families/[family]";
+import useToast from "@/components/notifications/notificationContext";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
@@ -43,7 +43,7 @@ export default function FamilyDialog({
   const [famNumberCreated, setFamNumberCreated] = useState<number>();
 
   const { user } = useUserData();
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   useEffect(() => {
     setFamily(initialFamily || {});
@@ -60,7 +60,7 @@ export default function FamilyDialog({
     if (!initialFamily) {
       const update = getAddFamilyInput(family, user.id);
       if (update.error || !update.familyCreate) {
-        addAlert({
+        addToast({
           message:
             update.errorMessage || "Es ist ein unerwarteter Fehler aufgetreten",
           severity: "error",
@@ -72,18 +72,18 @@ export default function FamilyDialog({
         update.familyCreate
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
 
-        addAlert({
+        addToast({
           message: `Familie ${res.family.number} erstellt`,
           severity: "success",
         });
@@ -95,18 +95,18 @@ export default function FamilyDialog({
         {}
       );
       if (res instanceof FetchError)
-        addAlert({
+        addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
           severity: "error",
         });
       else {
         if (res.error)
-          addAlert({
+          addToast({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
 
-        addAlert({
+        addToast({
           message: `Familie ${res.family.number} geändert`,
           severity: "success",
         });

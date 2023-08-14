@@ -13,8 +13,8 @@ import { Prisma } from "@prisma/client";
 import { useState, useEffect } from "react";
 import { getAge, getFamilyString } from "@/utils/utils";
 import { IFamilies } from "@/pages/api/families";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { FullFamily } from "@/types/prismaHelperTypes";
+import useToast from "@/components/notifications/notificationContext";
 
 type FindFamilyDialogProps = {
   open: boolean;
@@ -37,7 +37,7 @@ export default function FindFamilyDialog({
   const [searching, setSearching] = useState<boolean>(false);
   const [searchStart, setSearchStart] = useState<string>("");
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   function handleConfirm() {
     onConfirm(family);
@@ -54,7 +54,7 @@ export default function FindFamilyDialog({
         `/api/families?number=${start}&number=${start + 8}`
       );
       if (res.status !== 200) {
-        addAlert({
+        addToast({
           message: `Fehler beim Abrufen der Familien: Status ${res.status}`,
           severity: "error",
         });
@@ -116,4 +116,3 @@ export default function FindFamilyDialog({
     </Dialog>
   );
 }
-

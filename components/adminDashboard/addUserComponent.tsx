@@ -6,11 +6,11 @@ import ErrorDialog from "@/components/utilityComponents/errorDialog";
 import RoleSelect from "@/components/adminDashboard/roleSelect";
 import OrgSelect from "@/components/adminDashboard/orgSelect";
 import { isValidEmail } from "@/utils/validationUtils";
-import useNotification from "@/components/utilityComponents/notificationContext";
 import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
+import useToast from "@/components/notifications/notificationContext";
 
 export interface AddUserProps {
   onSave: () => void;
@@ -21,7 +21,7 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
   const { user } = useUserData();
   const isAdmin = user?.role === Role.ADMIN;
 
-  const { addAlert } = useNotification();
+  const { addToast } = useToast();
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -44,18 +44,18 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
       organization,
     } as Prisma.UserCreateInput);
     if (res instanceof FetchError)
-      addAlert({
+      addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
     else {
       if (res.error)
-        addAlert({
+        addToast({
           message: `Fehler beim Hinzufügen eines Users: ${res.error}}`,
           severity: "error",
         });
 
-      addAlert({
+      addToast({
         message: `${res.user.name || res.user.email} hinzugefügt`,
         severity: "success",
       });
