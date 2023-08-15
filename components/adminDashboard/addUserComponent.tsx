@@ -101,9 +101,11 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
         <TableCell>
           {isAdmin && (
             <OrgSelect
-              onChange={(organizationId) =>
-                setOrganization({ connect: { id: organizationId } })
-              }
+              onChange={(organizationId) => {
+                if (organizationId === "none" || !organizationId)
+                  setOrganization(undefined);
+                else setOrganization({ connect: { id: organizationId } });
+              }}
             />
           )}
         </TableCell>
@@ -125,3 +127,4 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
     </>
   );
 }
+
