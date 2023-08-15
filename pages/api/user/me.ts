@@ -5,7 +5,10 @@ import { backendConfig } from "@/config/backendConfig";
 import { prisma } from "@/db/prisma";
 import { Prisma, User } from "@prisma/client";
 import { isValidEmail } from "@/utils/validationUtils";
-import EmailPassword from "supertokens-node/recipe/emailpassword";
+import { logger as _logger } from "@/config/logger";
+import { Response } from "express";
+import { NextApiRequest, NextApiResponse } from "next";
+import { SessionRequest } from "supertokens-node/framework/express";
 
 supertokens.init(backendConfig());
 
@@ -19,7 +22,18 @@ export interface IUserMe {
     | "EMAIL_ALREADY_EXISTS_ERROR";
 }
 
-export default async function me(req, res) {
+export default async function me(
+  req: NextApiRequest & SessionRequest,
+  res: NextApiResponse & Response
+) {
+  const logger = _logger.child({
+    endpoint: "/user/me",
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
+  logger.info({}, "/user/me logging for testing REMOVE ME");
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -41,7 +55,7 @@ export default async function me(req, res) {
     )
       return res.status(404).json({ error: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -73,18 +87,22 @@ export default async function me(req, res) {
       //         .status(400)
       //         .json({ error: "EMAIL_ALREADY_EXISTS_ERROR" });
       //     default:
-      //       console.error(resp);
+      //       logger.error(resp);
       //       return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       //   }
       // }
 
-      const update = await prisma.user.update({
-        data: userUpdate,
-        where: { id: user.id },
-      });
+      const update = await prisma.user
+        .update({
+          data: userUpdate,
+          where: { id: user.id },
+        })
+        .catch((e) => logger.error(e));
 
-      if (!update)
+      if (!update) {
+        logger.error(update, `something went wrong updating user ${user.id}`);
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+      }
 
       return res.status(200).json({ user: update });
 
@@ -92,3 +110,4 @@ export default async function me(req, res) {
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

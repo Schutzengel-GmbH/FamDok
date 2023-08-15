@@ -7,6 +7,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma } from "@prisma/client";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -23,6 +24,13 @@ export default async function organizations(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/organizations/${req.query.id}`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -37,7 +45,7 @@ export default async function organizations(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -55,7 +63,7 @@ export default async function organizations(
         )
           return res.status(404).json({ error: "NOT_FOUND" });
 
-        console.error(err);
+        logger.error(err);
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       }
 
@@ -67,7 +75,7 @@ export default async function organizations(
 
       const newOrg = await prisma.organization
         .create({ data: req.body })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!newOrg)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -80,7 +88,7 @@ export default async function organizations(
 
       const deletedOrg = await prisma.organization
         .delete({ where: { id: id as string } })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!deletedOrg)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -91,3 +99,4 @@ export default async function organizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

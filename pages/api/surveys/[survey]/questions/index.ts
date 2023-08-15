@@ -7,6 +7,7 @@ import { Response } from "express";
 import { Prisma, Role } from "@prisma/client";
 import supertokens from "supertokens-node/lib/build/supertokens";
 import { backendConfig } from "@/config/backendConfig";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -28,6 +29,13 @@ export default async function questions(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/${req.query.survey}/questions`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -43,7 +51,7 @@ export default async function questions(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -70,7 +78,7 @@ export default async function questions(
     )
       return res.status(404).json({ error: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -96,7 +104,7 @@ export default async function questions(
           data: questionInput,
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!question)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -107,3 +115,4 @@ export default async function questions(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

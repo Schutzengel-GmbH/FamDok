@@ -47,3 +47,4 @@ certbot/
 
 # logging
 logfile.log
+app.log

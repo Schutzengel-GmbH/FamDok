@@ -9,6 +9,7 @@ import { Response } from "express";
 import { Prisma, Role } from "@prisma/client";
 import { getUserWhereInput } from "@/utils/backendUtils";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -27,6 +28,13 @@ export default async function users(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/user`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -41,7 +49,7 @@ export default async function users(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!reqUser || reqUser.role === Role.USER)
     return res.status(403).json({ error: "FORBIDDEN" });
@@ -61,7 +69,7 @@ export default async function users(
           },
           include: { organization: true },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!users)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -71,13 +79,15 @@ export default async function users(
       let signUpResult = await EmailPassword.signUp(
         req.body.email,
         FAKE_PASSWORD
-      ).catch((err) => console.log(err));
+      ).catch((err) => logger.error(err));
 
       if (!signUpResult)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
       if (signUpResult.status === "EMAIL_ALREADY_EXISTS_ERROR")
         return res.status(400).json({ error: "EMAIL_ALREADY_EXISTS_ERROR" });
+
+      logger.info(req.body, "body");
 
       const newUser = await prisma.user
         .create({
@@ -88,7 +98,7 @@ export default async function users(
           },
           include: { organization: true },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!newUser)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -99,7 +109,7 @@ export default async function users(
       );
 
       if (passwordResetToken.status === "UNKNOWN_USER_ID_ERROR") {
-        console.error("error: " + passwordResetToken.status);
+        logger.error("error: " + passwordResetToken.status);
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       }
 
@@ -123,3 +133,4 @@ export default async function users(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

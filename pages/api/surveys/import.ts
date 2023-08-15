@@ -7,6 +7,7 @@ import { prisma } from "@/db/prisma";
 import supertokens from "supertokens-node/lib/build/supertokens";
 import { backendConfig } from "@/config/backendConfig";
 import { Response } from "express";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -18,6 +19,13 @@ export default async function importSurvey(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/import`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -32,7 +40,7 @@ export default async function importSurvey(
     .findUnique({
       where: { authId: session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -69,7 +77,7 @@ export default async function importSurvey(
         },
       },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!newSurvey)
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -83,3 +91,4 @@ export default async function importSurvey(
 
   return res.status(200).json({});
 }
+

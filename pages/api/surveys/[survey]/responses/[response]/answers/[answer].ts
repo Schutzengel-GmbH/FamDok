@@ -7,6 +7,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -33,6 +34,13 @@ export default async function organizations(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/${req.query.survey}/responses/${req.query.response}/answers/${req.query.answer}`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -51,13 +59,13 @@ export default async function organizations(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const survey = await prisma.survey
     .findUnique({ where: { id: surveyId as string } })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!survey) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -77,7 +85,7 @@ export default async function organizations(
     )
       return res.status(404).json({ error: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -116,7 +124,7 @@ export default async function organizations(
     )
       return res.status(404).json({ message: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -138,7 +146,7 @@ export default async function organizations(
             answerSelectOtherValues: req.body.answerSelectOtherValues,
           },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!answerUpdate)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -149,3 +157,4 @@ export default async function organizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

@@ -7,6 +7,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -36,6 +37,13 @@ export default async function response(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/${req.query.survey}/responses/${req.query.response}`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -52,13 +60,13 @@ export default async function response(
     .findUnique({
       where: { authId: session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const survey = await prisma.survey
     .findUnique({ where: { id: surveyId as string } })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!survey) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -120,7 +128,7 @@ export default async function response(
     )
       return res.status(404).json({ message: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -146,7 +154,7 @@ export default async function response(
           },
           where: { id: responseId as string },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!responseUpdate)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -156,7 +164,7 @@ export default async function response(
     case "DELETE":
       const responseDelete = await prisma.response
         .delete({ where: { id: responseId as string } })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!responseDelete)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });

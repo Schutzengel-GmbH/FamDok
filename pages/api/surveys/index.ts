@@ -7,6 +7,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -38,6 +39,13 @@ export default async function surveys(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -52,7 +60,7 @@ export default async function surveys(
     .findUnique({
       where: { authId: session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -83,7 +91,7 @@ export default async function surveys(
             },
           },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!surveys)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -112,7 +120,7 @@ export default async function surveys(
             },
           },
         })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!newSurvey)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -123,3 +131,4 @@ export default async function surveys(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

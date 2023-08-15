@@ -7,6 +7,7 @@ import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -14,6 +15,13 @@ export default async function createTestData(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/createTestData`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -22,8 +30,11 @@ export default async function createTestData(
     res
   );
 
+  logger.info("someone accessed /api/createTestData");
+
   // remove this line to enable this endpoint
   return res.json({ message: "Endpoint disabled" });
+  logger.info("creating random family  data for testing...");
 
   const userAuthId = req.session.getUserId();
   const user = await prisma.user.findUnique({ where: { authId: userAuthId } });
@@ -172,7 +183,7 @@ export default async function createTestData(
           ]),
         },
       })
-      .catch((err) => console.log(err));
+      .catch((err) => logger.error(err));
   }
 
   return res.status(200).json({ message: "Success" });
@@ -217,3 +228,4 @@ function randomEndOfCareDate() {
 export async function yeetData() {
   return await prisma.family.deleteMany({});
 }
+

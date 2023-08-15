@@ -8,6 +8,7 @@ import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma } from "@prisma/client";
 import { getFamilyWhereInput } from "@/utils/backendUtils";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -25,6 +26,13 @@ export default async function families(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: "/families",
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -39,7 +47,7 @@ export default async function families(
     .findUnique({
       where: { authId: session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -53,7 +61,7 @@ export default async function families(
           where,
         })
         .catch((err) => {
-          console.log(err);
+          logger.error(err);
         });
 
       if (!families)
@@ -68,7 +76,7 @@ export default async function families(
 
       const newFamily = await prisma.family
         .create({ data: familyInput })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!newFamily)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });

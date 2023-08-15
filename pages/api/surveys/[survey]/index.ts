@@ -7,6 +7,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -32,6 +33,13 @@ export default async function survey(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/${req.query.survey}`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -47,7 +55,7 @@ export default async function survey(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -68,7 +76,7 @@ export default async function survey(
     )
       return res.status(404).json({ error: "NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -89,7 +97,7 @@ export default async function survey(
 
       const updatedSurvey = await prisma.survey
         .update({ where: { id: surveyId as string }, data: req.body })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!updatedSurvey)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -101,7 +109,7 @@ export default async function survey(
 
       const deletedSurvey = await prisma.survey
         .delete({ where: { id: surveyId as string } })
-        .catch((err) => console.log(err));
+        .catch((err) => logger.error(err));
 
       if (!deletedSurvey)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -111,3 +119,4 @@ export default async function survey(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

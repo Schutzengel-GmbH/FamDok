@@ -8,6 +8,7 @@ import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { Response } from "express";
 import { PartialAnswer } from "@/types/prismaHelperTypes";
+import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
@@ -25,6 +26,13 @@ export default async function survey(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
+  const logger = _logger.child({
+    endpoint: `/surveys/${req.query.survey}/responses/${req.query.response}/submitAnswers`,
+    method: req.method,
+    query: req.query,
+    cookie: req.headers.cookie,
+  });
+
   // we first verify the session
   await superTokensNextWrapper(
     async (next) => {
@@ -40,7 +48,7 @@ export default async function survey(
     .findUnique({
       where: { authId: req.session.getUserId() },
     })
-    .catch((err) => console.log(err));
+    .catch((err) => logger.error(err));
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -61,7 +69,7 @@ export default async function survey(
     )
       return res.status(404).json({ error: "SURVEY_NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -85,7 +93,7 @@ export default async function survey(
     )
       return res.status(404).json({ error: "RESPONSE_NOT_FOUND" });
 
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
@@ -135,3 +143,4 @@ export default async function survey(
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   else return res.status(200).json({});
 }
+
