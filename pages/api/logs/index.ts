@@ -7,13 +7,14 @@ import { Response } from "express";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { logger as _logger, logger } from "@/config/logger";
 import { prisma } from "@/db/prisma";
-import { Role } from "@prisma/client";
+import { LogEntry, Role } from "@prisma/client";
 import { sub } from "date-fns";
 
 supertokens.init(backendConfig());
 
-export interface IImportSurvey {
-  error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED";
+export interface ILogs {
+  error?: "FORBIDDEN";
+  logs?: LogEntry[];
 }
 
 export default async function getLogs(
@@ -34,7 +35,11 @@ export default async function getLogs(
   if (!user || user.role !== Role.ADMIN)
     return res.status(403).json({ error: "FORBIDDEN" });
 
-  const { from, til } = req.query as { from: string; til: string };
+  const { level, from, til } = req.query as {
+    level: string;
+    from: string;
+    til: string;
+  };
 
   let fromDate: Date;
   let tilDate: Date;
@@ -49,10 +54,10 @@ export default async function getLogs(
 
   const logs = await prisma.logEntry.findMany({
     where: {
+      level: { gte: parseInt(level) ?? 40 },
       AND: [{ time: { gte: fromDate } }, { time: { lte: tilDate } }],
     },
   });
 
   res.status(200).json({ logs });
 }
-

@@ -36,7 +36,10 @@ export default async function moveQuestion(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   // we first verify the session
   await superTokensNextWrapper(
@@ -134,4 +137,3 @@ export default async function moveQuestion(
     res.status(200).json({ update, update2 });
   }
 }
-

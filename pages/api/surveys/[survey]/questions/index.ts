@@ -34,7 +34,10 @@ export default async function questions(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   // we first verify the session
   await superTokensNextWrapper(
@@ -115,4 +118,3 @@ export default async function questions(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

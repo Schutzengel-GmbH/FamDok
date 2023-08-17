@@ -31,7 +31,10 @@ export default async function survey(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   // we first verify the session
   await superTokensNextWrapper(
@@ -143,4 +146,3 @@ export default async function survey(
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   else return res.status(200).json({});
 }
-

@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import {
+  Box,
   CircularProgress,
   IconButton,
   Table,
@@ -16,6 +17,7 @@ import { IUsers } from "@/pages/api/user";
 import { fetcher } from "@/utils/swrConfig";
 import AddUserComponent from "@/components/adminDashboard/addUserComponent";
 import useToast from "@/components/notifications/notificationContext";
+import { LogsComponent } from "@/components/adminDashboard/logs";
 
 export default function AdminDashboard() {
   const { addToast } = useToast();
@@ -41,69 +43,73 @@ export default function AdminDashboard() {
     });
 
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>E-Mail</TableCell>
-
-            <TableCell>Erstellt am</TableCell>
-            <TableCell>Rolle</TableCell>
-            <TableCell>Organisation</TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data &&
-            data.users?.map((user) => (
-              <UserDetailComponent
-                key={user.id}
-                user={user}
-                onChange={handleDataUpdate}
-              />
-            ))}
-          {addUser && (
-            <AddUserComponent
-              onCancel={() => {
-                setAddUser(false);
-              }}
-              onSave={() => {
-                handleDataUpdate();
-                setAddUser(false);
-              }}
-            />
-          )}
-          {isLoading && (
+    <Box>
+      <TableContainer>
+        <Table>
+          <TableHead>
             <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>E-Mail</TableCell>
+
+              <TableCell>Erstellt am</TableCell>
+              <TableCell>Rolle</TableCell>
+              <TableCell>Organisation</TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data &&
+              data.users?.map((user) => (
+                <UserDetailComponent
+                  key={user.id}
+                  user={user}
+                  onChange={handleDataUpdate}
+                />
+              ))}
+            {addUser && (
+              <AddUserComponent
+                onCancel={() => {
+                  setAddUser(false);
+                }}
+                onSave={() => {
+                  handleDataUpdate();
+                  setAddUser(false);
+                }}
+              />
+            )}
+            {isLoading && (
+              <TableRow>
+                <TableCell>
+                  <CircularProgress size={20} />
+                </TableCell>
+                <TableCell>
+                  <CircularProgress size={20} />
+                </TableCell>
+                <TableCell>
+                  <CircularProgress size={20} />
+                </TableCell>
+                <TableCell>
+                  <CircularProgress size={20} />
+                </TableCell>
+              </TableRow>
+            )}
+            <TableRow sx={{ m: 2, display: addUser ? "none" : "" }}>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
+              <TableCell></TableCell>
               <TableCell>
-                <CircularProgress size={20} />
-              </TableCell>
-              <TableCell>
-                <CircularProgress size={20} />
-              </TableCell>
-              <TableCell>
-                <CircularProgress size={20} />
-              </TableCell>
-              <TableCell>
-                <CircularProgress size={20} />
+                <IconButton onClick={handleAddUser}>
+                  <PersonAdd />
+                </IconButton>
               </TableCell>
             </TableRow>
-          )}
-          <TableRow sx={{ m: 2, display: addUser ? "none" : "" }}>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell>
-              <IconButton onClick={handleAddUser}>
-                <PersonAdd />
-              </IconButton>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <LogsComponent />
+    </Box>
   );
 }

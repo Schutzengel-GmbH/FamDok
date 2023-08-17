@@ -24,7 +24,10 @@ export default async function importSurvey(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   // we first verify the session
   await superTokensNextWrapper(
@@ -91,4 +94,3 @@ export default async function importSurvey(
 
   return res.status(200).json({});
 }
-

@@ -35,7 +35,10 @@ export default async function user(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   await superTokensNextWrapper(
     async (next) => {
@@ -144,4 +147,3 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
