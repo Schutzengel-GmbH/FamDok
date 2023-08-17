@@ -1,16 +1,4 @@
 import pino from "pino";
+import databaseTransport from "@/config/databaseTransport";
 
-const transport = pino.transport({
-  targets: [
-    {
-      level: "info",
-      target: "pino/file",
-      options: { destination: `./app.log` },
-    },
-  ],
-});
-
-export const logger = pino(transport);
-
-logger.info("Logger initialized.");
-
+export const logger = pino(databaseTransport());

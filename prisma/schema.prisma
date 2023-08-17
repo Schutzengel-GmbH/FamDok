@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model LogEntry {
+  id    String   @id @default(cuid())
+  level Int
+  time  DateTime
+  data  Json
+}
+
 model User {
   id             String        @id @default(cuid())
   createdAt      DateTime      @default(now())

@@ -20,8 +20,10 @@ export default async function createTestData(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
 
+  logger.info("accessed endpoint");
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
@@ -228,4 +230,3 @@ function randomEndOfCareDate() {
 export async function yeetData() {
   return await prisma.family.deleteMany({});
 }
-

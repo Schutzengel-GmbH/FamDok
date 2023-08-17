@@ -6,7 +6,6 @@ declare const global: Global & { prisma?: PrismaClient };
 export let prisma: PrismaClient;
 
 if (typeof window === "undefined") {
-  logger.info("Initializing database connection.");
   if (process.env["NODE_ENV"] === "production") {
     prisma = new PrismaClient();
   } else {
@@ -16,4 +15,3 @@ if (typeof window === "undefined") {
     prisma = global.prisma;
   }
 }
-

@@ -1,4 +1,5 @@
 import { IFamilies } from "@/pages/api/families";
+import { ILogs } from "@/pages/api/logs";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
 import useSWR from "swr";
@@ -29,3 +30,14 @@ export function useFamilies() {
     };
 }
 
+export function useLogs(level?: number, from?: Date, til?: Date) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ILogs>(
+    `/api/logs?level=${
+      level ?? 40
+    }&from=${from?.toISOString()}?til=${til?.toISOString()}`,
+    fetcher,
+    { refreshInterval: 1000 }
+  );
+
+  return { logs: data?.logs, error, isLoading, isValidating, mutate };
+}

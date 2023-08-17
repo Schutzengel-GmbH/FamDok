@@ -20,7 +20,10 @@ export default async function createAdminUser(req: SessionRequest, res: any) {
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   await superTokensNextWrapper(
     async (next) => {
@@ -53,4 +56,3 @@ export default async function createAdminUser(req: SessionRequest, res: any) {
 
   return res.status(200).json({ user });
 }
-

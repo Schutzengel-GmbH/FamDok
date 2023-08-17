@@ -44,7 +44,10 @@ export default async function surveys(
     method: req.method,
     query: req.query,
     cookie: req.headers.cookie,
+    body: req.body,
   });
+
+  logger.info("accessed endpoint");
 
   // we first verify the session
   await superTokensNextWrapper(
@@ -131,4 +134,3 @@ export default async function surveys(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
