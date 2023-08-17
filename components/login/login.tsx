@@ -1,4 +1,5 @@
 import { Alert, Box, Button, TextField } from "@mui/material";
+import Link from "next/link";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { signIn } from "supertokens-auth-react/recipe/emailpassword";
 
@@ -60,9 +61,9 @@ export function LoginComponent() {
           onChange={handlePasswordInput}
           type="password"
         />
+        <Link href={"/requestPassword"}>Passwort vergessen? Hier klicken.</Link>
         <Button type="submit">Anmelden</Button>
       </Box>
     </form>
   );
 }
-
