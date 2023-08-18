@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
-import { Prisma } from "@prisma/client";
+import { Caregiver, Child, Family, Prisma } from "@prisma/client";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import { logger as _logger } from "@/config/logger";
 
@@ -21,6 +21,16 @@ export interface IFamily {
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
     | "FORBIDDEN";
+}
+
+export interface IFamilyUpdate {
+  familyUpdate?: Prisma.FamilyUpdateInput;
+  childrenToUpdate?: Prisma.ChildUpdateInput[];
+  caregiversToUpdate?: Prisma.CaregiverUpdateInput[];
+  childrenToDelete?: Prisma.ChildWhereUniqueInput[];
+  caregiverIdsToDelete?: Prisma.CaregiverWhereUniqueInput[];
+  childrenToAdd?: Prisma.ChildCreateManyInput[];
+  caregiversToAdd?: Prisma.CaregiverCreateManyInput[];
 }
 
 export default async function families(
@@ -78,7 +88,7 @@ export default async function families(
     case "GET":
       return res.status(200).json({ family });
     case "POST":
-      const familyUpdate = req.body as Prisma.FamilyUpdateInput;
+      const update = req.body as IFamilyUpdate;
 
       if (user.role.includes("USER")) {
         if (family.userId !== user.id) {
@@ -89,13 +99,82 @@ export default async function families(
         }
       }
 
-      const newFamily = await prisma.family
-        .update({ where: { id: familyId as string }, data: familyUpdate })
+      if (update.childrenToDelete)
+        await prisma.child
+          .deleteMany({
+            where: {
+              OR: [
+                { id: { in: update.childrenToDelete.map((u) => u.id) } },
+                {
+                  number: { in: update.childrenToDelete.map((u) => u.number) },
+                },
+              ],
+            },
+          })
+          .catch((err) => logger.error(err));
+
+      if (update.caregiverIdsToDelete)
+        await prisma.caregiver
+          .deleteMany({
+            where: {
+              OR: [
+                { id: { in: update.caregiverIdsToDelete.map((u) => u.id) } },
+                {
+                  number: {
+                    in: update.caregiverIdsToDelete.map((u) => u.number),
+                  },
+                },
+              ],
+            },
+          })
+          .catch((err) => logger.error(err));
+
+      if (update.childrenToUpdate)
+        for (let child of update.childrenToUpdate) {
+          const id = child.id as string;
+
+          delete child.createdAt;
+          delete child.updatedAt;
+          delete child.id;
+
+          await prisma.child.update({
+            where: { id },
+            data: child,
+          });
+        }
+
+      if (update.caregiversToUpdate)
+        for (let caregiver of update.caregiversToUpdate) {
+          const id = caregiver.id as string;
+
+          delete caregiver.createdAt;
+          delete caregiver.updatedAt;
+          delete caregiver.id;
+
+          await prisma.caregiver.update({
+            where: { id },
+            data: caregiver,
+          });
+        }
+
+      if (update.childrenToAdd)
+        await prisma.child
+          .createMany({ data: update.childrenToAdd })
+          .catch((err) => logger.error(err));
+
+      if (update.caregiversToAdd)
+        await prisma.caregiver
+          .createMany({ data: update.caregiversToAdd })
+          .catch((err) => logger.error(err));
+
+      const updatedFamily = await prisma.family
+        .update({
+          where: { id: familyId as string },
+          data: update.familyUpdate || {},
+        })
         .catch((err) => logger.error(err));
 
-      if (!newFamily)
-        return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-      else return res.status(200).json({ family: newFamily });
+      return res.status(200).json({ family: updatedFamily ?? family });
 
     case "DELETE":
       if (user.role.includes("USER")) {

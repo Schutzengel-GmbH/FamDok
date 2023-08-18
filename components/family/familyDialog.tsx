@@ -19,7 +19,7 @@ import { useUserData } from "@/utils/authUtils";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
-import { IFamily } from "@/pages/api/families/[family]";
+import { IFamily, IFamilyUpdate } from "@/pages/api/families/[family]";
 import useToast from "@/components/notifications/notificationContext";
 
 export type PartialFamily = Partial<
@@ -53,6 +53,48 @@ export default function FamilyDialog({
     e.stopPropagation();
     setFamily(initialFamily || {});
     onClose(initialFamily);
+  }
+
+  function getUpdateInput() {
+    let update: IFamilyUpdate = {};
+
+    update.childrenToDelete = initialFamily.children
+      .filter((c) => family.children.findIndex((cu) => cu.id === c.id) < 0)
+      .map((c) => ({ id: c.id }));
+
+    update.caregiverIdsToDelete = initialFamily.caregivers
+      .filter((c) => family.caregivers.findIndex((cu) => cu.id === c.id) < 0)
+      .map((c) => ({ id: c.id }));
+
+    update.childrenToAdd = family.children
+      .filter((c) => c.id === undefined)
+      .map((c) => ({ ...c, familyId: initialFamily.id }));
+
+    update.caregiversToAdd = family.caregivers
+      .filter((c) => c.id === undefined)
+      .map((c) => ({ ...c, familyId: initialFamily.id }));
+
+    update.childrenToUpdate = family.children.filter((c) => c.id !== undefined);
+
+    update.caregiversToUpdate = family.caregivers.filter(
+      (c) => c.id !== undefined
+    );
+
+    const fields = Object.keys(initialFamily);
+    update.familyUpdate = {};
+
+    for (let field of fields) {
+      if (initialFamily[field] !== family[field])
+        update.familyUpdate[field] = family[field];
+    }
+
+    delete update.familyUpdate.children;
+    delete update.familyUpdate.caregivers;
+    delete update.familyUpdate.createdAt;
+    delete update.familyUpdate.updatedAt;
+    delete update.familyUpdate.Response;
+
+    return update;
   }
 
   async function handleSave(e: MouseEvent) {
@@ -92,8 +134,9 @@ export default function FamilyDialog({
     } else {
       const res = await apiPostJson<IFamily>(
         `/api/families/${initialFamily.id}`,
-        {}
+        getUpdateInput()
       );
+
       if (res instanceof FetchError)
         addToast({
           message: `Fehler bei der Verbindung zum Server: ${res.error}`,
@@ -107,7 +150,7 @@ export default function FamilyDialog({
           });
 
         addToast({
-          message: `Familie ${res.family.number} geändert`,
+          message: `Familie ${res.family?.number} geändert`,
           severity: "success",
         });
         onClose(res.family);
