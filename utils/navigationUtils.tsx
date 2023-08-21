@@ -4,6 +4,7 @@ import {
   Poll,
   Edit,
   FamilyRestroom,
+  Article,
 } from "@mui/icons-material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -25,6 +26,16 @@ export const navigationList: {
     title: "Admin Dashboard",
     icon: <AdminPanelSettings />,
     url: "/adminDashboard",
+    canAccess: (user) =>
+      user &&
+      (user.role === Role.ADMIN ||
+        user.role === Role.CONTROLLER ||
+        user.role === Role.ORGCONTROLLER),
+  },
+  {
+    title: "Footer-Seiten",
+    icon: <Article />,
+    url: "/footerPages",
     canAccess: (user) =>
       user &&
       (user.role === Role.ADMIN ||
