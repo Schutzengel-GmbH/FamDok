@@ -180,6 +180,17 @@ model Caregiver {
   Response            Response[]
 }
 
+model FooterPage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title String
+  uri   String @unique
+
+  markdown String?
+}
+
 model Child {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

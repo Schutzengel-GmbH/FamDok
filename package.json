@@ -19,6 +19,7 @@
     "pino-abstract-transport": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^8.0.7",
     "supertokens-auth-react": "latest",
     "supertokens-node": "latest",
     "swr": "^2.2.0"

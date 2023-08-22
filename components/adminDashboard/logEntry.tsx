@@ -20,7 +20,6 @@ type LogEntryProps = {
 
 export default function LogEntry({ logEntry }: LogEntryProps) {
   const data = logEntry.data as unknown as ILogEntryData;
-  console.log(logger.levels);
   return (
     <div>
       <p>
@@ -40,3 +39,4 @@ export default function LogEntry({ logEntry }: LogEntryProps) {
     </div>
   );
 }
+

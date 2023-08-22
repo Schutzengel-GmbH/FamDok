@@ -1,4 +1,6 @@
 import { IFamilies } from "@/pages/api/families";
+import { IFooters } from "@/pages/api/footer";
+import { IFooter } from "@/pages/api/footer/[uri]";
 import { ILogs } from "@/pages/api/logs";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
@@ -30,6 +32,37 @@ export function useFamilies() {
     };
 }
 
+export function useFooterUris() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IFooters>(
+    "/api/footer?getPageInfoOnly=true",
+    fetcher
+  );
+
+  return {
+    pages:
+      data?.footerPages?.map((f) => ({ uri: f.uri, title: f.title })) || [],
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useFooterPageContent(uri: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IFooter>(
+    uri ? `/api/footer/${uri}` : null,
+    fetcher
+  );
+
+  return {
+    page: data?.footerPage,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
 export function useLogs(level?: number, from?: Date, til?: Date) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ILogs>(
     `/api/logs?level=${
@@ -41,3 +74,4 @@ export function useLogs(level?: number, from?: Date, til?: Date) {
 
   return { logs: data?.logs, error, isLoading, isValidating, mutate };
 }
+

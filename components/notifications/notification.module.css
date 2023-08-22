@@ -13,6 +13,7 @@
   padding-right: 0.5rem;
   position: relative;
   border-radius: 5px;
+  z-index: 999999999;
 }
 
 .messageWrapper {
@@ -53,3 +54,4 @@
 .toastError {
   background-color: rgb(255, 186, 186);
 }
+

@@ -47,7 +47,7 @@ export default function MainAppBar() {
   if (sessionContext.loading) return null;
 
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar>
         <IconButton color="inherit" onClick={handleNavMenu}>
           <MenuIcon />
@@ -92,3 +92,4 @@ export default function MainAppBar() {
     </AppBar>
   );
 }
+
