@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { backendConfig } from "@/config/backendConfig";
 import supertokens from "supertokens-node/lib/build/supertokens";
 import { prisma } from "@/db/prisma";
-import { superTokensNextWrapper } from "supertokens-node/nextjs";
-import Session from "supertokens-node/recipe/session";
 import { logger } from "@/config/logger";
 import { FooterPage, Prisma } from "@prisma/client";
+import { superTokensNextWrapper } from "supertokens-node/nextjs";
+import Session from "supertokens-node/recipe/session";
+import { SessionRequest } from "supertokens-node/framework/express";
 
 supertokens.init(backendConfig());
 
@@ -34,7 +34,7 @@ export default async function footerPages(
   );
 
   let user = undefined;
-  if (req.session)
+  if (session)
     user = await prisma.user
       .findUnique({
         where: { authId: session.getUserId() },

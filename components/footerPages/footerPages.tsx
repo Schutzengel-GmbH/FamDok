@@ -16,7 +16,7 @@ export default function FooterPages() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {pages.map((p) => (
-        <FooterPageComponent page={p} onChange={mutate} />
+        <FooterPageComponent key={p.uri} page={p} onChange={mutate} />
       ))}
       <Button
         onClick={handleNew}

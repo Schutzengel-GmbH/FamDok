@@ -33,8 +33,10 @@ export default function EditPage() {
                 message: `Unerwarteter Fehler: ${v.error}`,
                 severity: "error",
               });
-            if (v.footerPage) setPage(v.footerPage);
-            else
+            if (v.footerPage) {
+              setPage(v.footerPage);
+              setNavTouched(true);
+            } else
               addToast({
                 message: "Keine Seite",
                 severity: "error",

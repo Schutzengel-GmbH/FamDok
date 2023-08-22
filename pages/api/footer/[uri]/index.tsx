@@ -31,7 +31,7 @@ export default async function footerPage(
   );
 
   let user = undefined;
-  if (req.session)
+  if (session)
     user = await prisma.user
       .findUnique({
         where: { authId: session.getUserId() },
