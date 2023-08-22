@@ -15,12 +15,12 @@ export default function Pages() {
   else if (error)
     if (error === "Not Found")
       return <ErrorPage message="Diese Seite konnte nicht gefunden werden" />;
-    else return <ErrorPage message="Ein unerwarteter Fehler ist aufgetreten" />;
-  else
-    return (
-      <Box>
-        <ReactMarkdown>{page?.markdown}</ReactMarkdown>
-      </Box>
-    );
+    else
+      return (
+        <ErrorPage
+          message={`Ein unerwarteter Fehler ist aufgetreten: ${error}`}
+        />
+      );
+  else return <ReactMarkdown>{page?.markdown}</ReactMarkdown>;
 }
 

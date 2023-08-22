@@ -21,7 +21,9 @@ export default function Footer() {
       }}
     >
       {pages.map((page) => (
-        <Link href={`/pages/${page.uri}`}>{page.title}</Link>
+        <Link key={page.uri} href={`/pages/${page.uri}`}>
+          {page.title}
+        </Link>
       ))}
     </Box>
   );

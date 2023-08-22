@@ -34,7 +34,7 @@ export function useFamilies() {
 
 export function useFooterUris() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFooters>(
-    "/api/footers?getPageInfoOnly=true",
+    "/api/footer?getPageInfoOnly=true",
     fetcher
   );
 
@@ -50,7 +50,7 @@ export function useFooterUris() {
 
 export function useFooterPageContent(uri: string) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFooter>(
-    uri ? `/api/footers/${uri}` : null,
+    uri ? `/api/footer/${uri}` : null,
     fetcher
   );
 

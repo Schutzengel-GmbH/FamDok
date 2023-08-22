@@ -28,8 +28,6 @@ export function LoginComponent() {
         ],
       });
 
-      console.log(response);
-
       if (response.status === "FIELD_ERROR") {
         setError("E-Mail oder Passwort ungültig.");
       } else if (response.status === "WRONG_CREDENTIALS_ERROR") {
@@ -67,3 +65,4 @@ export function LoginComponent() {
     </form>
   );
 }
+

@@ -7,12 +7,13 @@ import { prisma } from "@/db/prisma";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import Session from "supertokens-node/recipe/session";
 import { logger } from "@/config/logger";
-import { FooterPage } from "@prisma/client";
+import { FooterPage, Prisma } from "@prisma/client";
 
 supertokens.init(backendConfig());
 
 export interface IFooters {
   footerPages?: Partial<FooterPage>[];
+  page?: FooterPage;
   error?: "INTERNAL_SERVER_ERROR" | "FORBIDDEN" | "METHOD_NOT_ALLOWED";
 }
 
@@ -26,26 +27,28 @@ export default async function footerPages(
 
   let session = await superTokensNextWrapper(
     async (next) => {
-      return await Session.getSession(req, res);
+      return await Session.getSession(req, res, { sessionRequired: false });
     },
     req,
     res
   );
 
-  const user = await prisma.user
-    .findUnique({
-      where: { authId: session.getUserId() },
-    })
-    .catch((err) =>
-      logger.error(err, "error getting user on /footer/[id].tsx")
-    );
+  let user = undefined;
+  if (req.session)
+    user = await prisma.user
+      .findUnique({
+        where: { authId: session.getUserId() },
+      })
+      .catch((err) =>
+        logger.error(err, "error getting user on /footer/[id].tsx")
+      );
 
   switch (req.method) {
     case "GET":
       const footerPages = await prisma.footerPage.findMany({
         select: getPageInfoOnly ? { uri: true, title: true } : undefined,
       });
-      res.status(200).json({ footerPages });
+      return res.status(200).json({ footerPages });
     case "POST":
       if (!user || user.role !== "ADMIN")
         return res.status(403).json({ error: "FORBIDDEN" });
@@ -58,7 +61,7 @@ export default async function footerPages(
 
         if (!newPage)
           return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-        else return res.status(200).json({});
+        else return res.status(200).json({ page: newPage });
       }
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });

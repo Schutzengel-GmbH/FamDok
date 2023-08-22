@@ -7,7 +7,7 @@ import { prisma } from "@/db/prisma";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import Session from "supertokens-node/recipe/session";
 import { logger } from "@/config/logger";
-import { FooterPage } from "@prisma/client";
+import { FooterPage, User } from "@prisma/client";
 
 supertokens.init(backendConfig());
 
@@ -20,30 +20,32 @@ export default async function footerPage(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
-  const { id: uri } = req.query;
+  const { uri } = req.query;
 
   let session = await superTokensNextWrapper(
     async (next) => {
-      return await Session.getSession(req, res);
+      return await Session.getSession(req, res, { sessionRequired: false });
     },
     req,
     res
   );
 
-  const user = await prisma.user
-    .findUnique({
-      where: { authId: session.getUserId() },
-    })
-    .catch((err) =>
-      logger.error(err, "error getting user on /footer/[id].tsx")
-    );
+  let user = undefined;
+  if (req.session)
+    user = await prisma.user
+      .findUnique({
+        where: { authId: session.getUserId() },
+      })
+      .catch((err) =>
+        logger.error(err, "error getting user on /footer/[id].tsx")
+      );
 
   switch (req.method) {
     case "GET":
       const footerPage = await prisma.footerPage.findUnique({
         where: { uri: uri as string },
       });
-      res.status(200).json({ footerPage });
+      return res.status(200).json({ footerPage });
     case "POST":
       if (!user || user.role !== "ADMIN")
         return res.status(403).json({ error: "FORBIDDEN" });
@@ -56,6 +58,20 @@ export default async function footerPage(
           .catch((err) => logger.error(err, "error updating a footer page"));
 
         if (!updatedPage)
+          return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+        else return res.status(200).json({ page: updatedPage });
+      }
+    case "DELETE":
+      if (!user || user.role !== "ADMIN")
+        return res.status(403).json({ error: "FORBIDDEN" });
+      else {
+        const deletedPage = await prisma.footerPage
+          .delete({
+            where: { uri: uri as string },
+          })
+          .catch((err) => logger.error(err));
+
+        if (!deletedPage)
           return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
         else return res.status(200).json({});
       }
