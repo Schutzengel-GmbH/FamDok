@@ -32,3 +32,8 @@ export function passwordValidator(password: string): PasswordValidation {
 
   return validation;
 }
+
+export function isUriLegal(str: string) {
+  return str.search(/[^a-zA-Z0-9-_]/) < 0;
+}
+

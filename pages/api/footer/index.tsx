@@ -8,13 +8,18 @@ import { FooterPage, Prisma } from "@prisma/client";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import Session from "supertokens-node/recipe/session";
 import { SessionRequest } from "supertokens-node/framework/express";
+import { isUriLegal } from "@/utils/validationUtils";
 
 supertokens.init(backendConfig());
 
 export interface IFooters {
   footerPages?: Partial<FooterPage>[];
   page?: FooterPage;
-  error?: "INTERNAL_SERVER_ERROR" | "FORBIDDEN" | "METHOD_NOT_ALLOWED";
+  error?:
+    | "INTERNAL_SERVER_ERROR"
+    | "FORBIDDEN"
+    | "METHOD_NOT_ALLOWED"
+    | "ILLEGAL_URI";
 }
 
 export default async function footerPages(
@@ -53,6 +58,9 @@ export default async function footerPages(
       if (!user || user.role !== "ADMIN")
         return res.status(403).json({ error: "FORBIDDEN" });
       else {
+        if (!isUriLegal(req.body.uri))
+          return res.status(422).json({ error: "ILLEGAL_URI" });
+
         const newPage = await prisma.footerPage
           .create({
             data: req.body,

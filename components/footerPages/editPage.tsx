@@ -3,6 +3,8 @@ import Loading from "@/components/utilityComponents/loadingMainContent";
 import { IFooters } from "@/pages/api/footer";
 import { useFooterPageContent, useFooterUris } from "@/utils/apiHooks";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import { makeUriLegal } from "@/utils/utils";
+import { isUriLegal } from "@/utils/validationUtils";
 import { Title } from "@mui/icons-material";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { FooterPage } from "@prisma/client";
@@ -62,7 +64,7 @@ export default function EditPage() {
   }
 
   function generateNav(str: string) {
-    return str.toLowerCase().replaceAll(" ", "-");
+    return makeUriLegal(str);
   }
 
   function setUri(e: ChangeEvent<HTMLInputElement>) {
@@ -122,7 +124,7 @@ export default function EditPage() {
   }
 
   function shouldDisable() {
-    return !uriUnique() || uriEmpty() || titleEmpty();
+    return !uriUnique() || uriEmpty() || titleEmpty() || !isUriLegal(page.uri);
   }
 
   if (loading) return <Loading />;
@@ -165,7 +167,7 @@ export default function EditPage() {
         <TextField
           value={`/pages/${page.uri}`}
           onChange={setUri}
-          error={!uriUnique() || uriEmpty()}
+          error={!uriUnique() || uriEmpty() || !isUriLegal(page.uri)}
         />
         <TextField
           label={"Seiteninhalt"}
@@ -187,6 +189,11 @@ export default function EditPage() {
             {!uriUnique() && (
               <Typography variant="body1" color="red">
                 Link muss einzigartig sein.
+              </Typography>
+            )}
+            {!isUriLegal(page.uri) && (
+              <Typography variant="body1" color="red">
+                Für URI bitte nur Buchstaben, Ziffern und - oder _ verwenden.
               </Typography>
             )}
             {titleEmpty() && (
