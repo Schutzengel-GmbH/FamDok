@@ -139,3 +139,14 @@ export function getFamilyString(family: FullFamily) {
     .join(", ")})`;
 }
 
+export function makeUriLegal(str: string) {
+  return str
+    .toLowerCase()
+    .replaceAll(/[\s]/g, "-")
+    .replaceAll("ä", "ae")
+    .replaceAll("ö", "oe")
+    .replaceAll("ü", "ue")
+    .replaceAll("ß", "ss")
+    .replaceAll(/[^a-zA-Z0-9-_]/g, "");
+}
+
