@@ -79,4 +79,3 @@ export default async function footerPage(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
