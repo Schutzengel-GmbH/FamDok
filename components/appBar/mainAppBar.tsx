@@ -49,11 +49,9 @@ export default function MainAppBar() {
   return (
     <AppBar position="sticky">
       <Toolbar>
-        {sessionContext.doesSessionExist && (
-          <IconButton color="inherit" onClick={handleNavMenu}>
-            <MenuIcon />
-          </IconButton>
-        )}
+        <IconButton color="inherit" onClick={handleNavMenu}>
+          <MenuIcon />
+        </IconButton>
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Dokumentation
@@ -80,19 +78,18 @@ export default function MainAppBar() {
         anchorEl={userMenuAnchorEl}
       />
 
-      {sessionContext.doesSessionExist && (
-        <SwipeableDrawer
-          anchor="left"
-          open={navMenuOpen}
+      <SwipeableDrawer
+        anchor="left"
+        open={navMenuOpen}
+        onClose={() => setNavMenuOpen(false)}
+        onOpen={() => setNavMenuOpen(true)}
+      >
+        <NavMenuComponent
+          router={router}
           onClose={() => setNavMenuOpen(false)}
-          onOpen={() => setNavMenuOpen(true)}
-        >
-          <NavMenuComponent
-            router={router}
-            onClose={() => setNavMenuOpen(false)}
-          />
-        </SwipeableDrawer>
-      )}
+        />
+      </SwipeableDrawer>
     </AppBar>
   );
 }
+
