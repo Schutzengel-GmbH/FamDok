@@ -20,7 +20,7 @@ export let backendConfig = (): AuthConfig => {
     recipeList: [
       EmailPasswordNode.init(emailConfig()),
       UserRoles.init(),
-      SessionNode.init(),
+      SessionNode.init({ antiCsrf: "VIA_TOKEN" }),
       Dashboard.init(),
     ],
     isInServerlessEnv: true,
