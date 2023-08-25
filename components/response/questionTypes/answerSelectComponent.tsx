@@ -1,5 +1,7 @@
+import SelectOptionInfo from "@/components/editSurvey/selectOptionInfo";
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
+import { Info } from "@mui/icons-material";
 import {
   FormControl,
   RadioGroup,
@@ -56,19 +58,22 @@ export default function AnswerSelectComponent({
             value={o.id}
             control={<Radio checked={isChecked(o)} />}
             label={
-              o.isOpen ? (
-                <TextField
-                  value={
-                    otherValues?.find((v) => v.selectOptionId === o.id)
-                      ?.value || ""
-                  }
-                  onChange={(e) => {
-                    updateOtherValues(o.id, e.currentTarget.value);
-                  }}
-                />
-              ) : (
-                o.value
-              )
+              <>
+                {o.isOpen ? (
+                  <TextField
+                    value={
+                      otherValues?.find((v) => v.selectOptionId === o.id)
+                        ?.value || ""
+                    }
+                    onChange={(e) => {
+                      updateOtherValues(o.id, e.currentTarget.value);
+                    }}
+                  />
+                ) : (
+                  o.value
+                )}
+                {o.info ? <SelectOptionInfo info={o.info} /> : null}
+              </>
             }
           />
         ))}
@@ -76,3 +81,4 @@ export default function AnswerSelectComponent({
     </FormControl>
   );
 }
+
