@@ -1,15 +1,27 @@
-import { Add, Delete } from "@mui/icons-material";
+import EditSelectOptionInfo from "@/components/editSurvey/editSelectOptionInfo";
+import { Add, Delete, Info } from "@mui/icons-material";
 import { Box, Button, IconButton, TextField, Typography } from "@mui/material";
+import { useState } from "react";
 
 export interface SelectOptionsComponentProps {
-  value: { value: string; isOpen?: boolean }[];
-  onChange: (value: { value: string; isOpen?: boolean }[]) => void;
+  value: { value: string; isOpen?: boolean; info?: string }[];
+  onChange: (
+    value: { value: string; isOpen?: boolean; info?: string }[]
+  ) => void;
 }
 
 export default function SelectOptionsComponent({
   value,
   onChange,
 }: SelectOptionsComponentProps) {
+  const [infoOpen, setInfoOpen] = useState<boolean[]>(value.map((_) => false));
+
+  function toggleInfoOpen(i: number) {
+    let _infoOpen = [...infoOpen];
+    _infoOpen[i] = !_infoOpen[i];
+    setInfoOpen(_infoOpen);
+  }
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Typography>
@@ -29,14 +41,32 @@ export default function SelectOptionsComponent({
             }}
             InputProps={{
               endAdornment: (
-                <IconButton
-                  onClick={() => {
-                    v.splice(i, 1);
-                    onChange(v);
-                  }}
-                >
-                  <Delete />
-                </IconButton>
+                <>
+                  <IconButton
+                    onClick={() => {
+                      v.splice(i, 1);
+                      onChange(v);
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                  <IconButton>
+                    <Info
+                      onClick={() => toggleInfoOpen(i)}
+                      color={v[i].info ? "primary" : "disabled"}
+                    />
+                  </IconButton>
+
+                  <EditSelectOptionInfo
+                    initialInfo={v[i].info}
+                    open={infoOpen[i]}
+                    onClose={() => toggleInfoOpen(i)}
+                    onSave={(info) => {
+                      v[i] = { ...v[i], info };
+                      onChange(v);
+                    }}
+                  />
+                </>
               ),
             }}
           />
@@ -60,3 +90,4 @@ export default function SelectOptionsComponent({
     </Box>
   );
 }
+

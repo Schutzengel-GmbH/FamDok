@@ -102,6 +102,7 @@ model SelectOption {
   questionId String
   questions  Question[] @relation(name: "DefaultSelectOptionQuestion")
   answer     Answer[]
+  info       String?
 }
 
 model Response {

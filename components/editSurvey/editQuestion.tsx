@@ -37,7 +37,12 @@ interface QuestionState {
   type: QuestionType;
   required?: boolean;
   questionDescription?: string | null;
-  selectOptions?: { id?: string; value: string; isOpen?: boolean }[];
+  selectOptions?: {
+    id?: string;
+    value: string;
+    isOpen?: boolean;
+    info?: string;
+  }[];
   selectMultiple?: boolean | null;
   intRange?: boolean | null;
   intRangeHigh?: number | null;
@@ -427,6 +432,7 @@ function getUpdateInputFromState(
     id: o.id,
     value: o.value,
     isOpen: o.isOpen,
+    info: o.info,
   }));
 
   return {
@@ -450,6 +456,7 @@ function getUpdateInputFromState(
             data: selectOptions.map((s) => ({
               value: s.value,
               isOpen: s.isOpen,
+              info: s.info,
             })),
           },
         }
@@ -462,3 +469,4 @@ function getUpdateInputFromState(
     numberInSurvey: state.numberInSurvey,
   };
 }
+
