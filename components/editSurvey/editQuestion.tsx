@@ -151,7 +151,14 @@ export default function EditQuestionDialog({
     } else {
       const res = await apiPostJson<IQuestions>(
         `/api/surveys/${survey.id}/questions/${question.id}`,
-        getUpdateInputFromState(questionState, survey.id)
+        {
+          updateInput: getUpdateInputFromState(questionState, survey.id),
+          selectOptionsToDelete: question.selectOptions
+            .map((o) => o.id)
+            .filter(
+              (id) => !questionState.selectOptions.map((o) => o.id).includes(id)
+            ),
+        }
       );
       if (res instanceof FetchError)
         addToast({

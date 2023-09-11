@@ -85,7 +85,9 @@ export default async function organizations(
 
     case "POST":
       let questionUpdate;
-      const updateInput = req.body as Prisma.QuestionUpdateInput;
+      let deletion;
+      const updateInput = req.body.updateInput as Prisma.QuestionUpdateInput;
+      const selectOptionsToDelete = req.body.selectOptionsToDelete as string[];
 
       if (
         user.role === Role.USER ||
@@ -95,6 +97,11 @@ export default async function organizations(
         return res.status(403).json({ error: "FORBIDDEN" });
 
       try {
+        if (selectOptionsToDelete?.length > 0)
+          deletion = await prisma.selectOption.deleteMany({
+            where: { id: { in: selectOptionsToDelete } },
+          });
+
         questionUpdate = await prisma.question.update({
           data: updateInput,
           where: { id: questionId as string },
@@ -107,7 +114,7 @@ export default async function organizations(
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       }
 
-      return res.status(200).json({ question: questionUpdate });
+      return res.status(200).json({ question: questionUpdate, deletion });
 
     case "DELETE":
       let deletedQuestion;
@@ -141,3 +148,4 @@ export default async function organizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+
