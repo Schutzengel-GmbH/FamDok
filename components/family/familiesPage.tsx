@@ -41,9 +41,12 @@ export function FamiliesPageComponent({
           <Add />
           Neue Familie
         </Button>
-        {families?.filter(fncFilter).map((f) => (
-          <FamilyCard key={f.id} family={f} onChange={onChange} />
-        ))}
+        {families
+          ?.filter(fncFilter)
+          .sort((f1, f2) => f1.number - f2.number)
+          .map((f) => (
+            <FamilyCard key={f.id} family={f} onChange={onChange} />
+          ))}
       </Box>
       <FamilyDialog
         initialFamily={undefined}
