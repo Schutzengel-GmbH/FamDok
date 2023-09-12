@@ -81,12 +81,12 @@ export default async function moveQuestion(
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
-  if (
-    survey.organizationId &&
-    (user.role === Role.USER || user.role === Role.ORGCONTROLLER) &&
-    survey.organizationId !== user.organizationId
-  )
+  if (user.role === Role.USER)
     return res.status(403).json({ error: "FORBIDDEN" });
+
+  if (user.role === Role.ORGCONTROLLER)
+    if (user.organizationId !== survey.organizationId)
+      return res.status(403).json({ error: "FORBIDDEN" });
 
   const input = req.body as IMoveQuestionInput;
 
@@ -137,3 +137,4 @@ export default async function moveQuestion(
     res.status(200).json({ update, update2 });
   }
 }
+

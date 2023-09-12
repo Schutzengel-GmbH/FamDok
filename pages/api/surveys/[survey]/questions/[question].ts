@@ -89,12 +89,12 @@ export default async function organizations(
       const updateInput = req.body.updateInput as Prisma.QuestionUpdateInput;
       const selectOptionsToDelete = req.body.selectOptionsToDelete as string[];
 
-      if (
-        user.role === Role.USER ||
-        (user.role === Role.ORGCONTROLLER &&
-          user.organizationId !== survey.organizationId)
-      )
+      if (user.role === Role.USER)
         return res.status(403).json({ error: "FORBIDDEN" });
+
+      if (user.role === Role.ORGCONTROLLER)
+        if (user.organizationId !== survey.organizationId)
+          return res.status(403).json({ error: "FORBIDDEN" });
 
       try {
         if (selectOptionsToDelete?.length > 0)

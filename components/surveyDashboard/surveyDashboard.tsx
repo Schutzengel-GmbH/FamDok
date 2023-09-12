@@ -8,11 +8,15 @@ import SurveyComponent from "@/components/surveyDashboard/surveyComponent";
 import AddSurveyDialog from "@/components/surveyDashboard/addSurveyDialog";
 import ImportSurveyDialog from "@/components/surveyDashboard/importSurveyDialog";
 import Loading from "@/components/utilityComponents/loadingMainContent";
+import { useUserData } from "@/utils/authUtils";
+import { Role } from "@prisma/client";
 
 export default function SurveyDashboard() {
   const [addSurveyOpen, setAddSurveyOpen] = useState<boolean>(false);
   const [importOpen, setImportOpen] = useState<boolean>(false);
   const { data, isLoading, mutate } = useSWR<ISurveys>("/api/surveys", fetcher);
+
+  const { user } = useUserData();
 
   function handleImport() {
     setImportOpen(true);
@@ -23,9 +27,15 @@ export default function SurveyDashboard() {
   return (
     <Box>
       {data &&
-        data.surveys?.map((s) => (
-          <SurveyComponent onChange={mutate} survey={s} key={s.id} />
-        ))}
+        data.surveys
+          ?.filter((s) => {
+            if (user.role === Role.ORGCONTROLLER)
+              return s.organizationId === user.organizationId;
+            else return true;
+          })
+          .map((s) => (
+            <SurveyComponent onChange={mutate} survey={s} key={s.id} />
+          ))}
       <Button
         onClick={() => setAddSurveyOpen(true)}
         startIcon={<Add />}
@@ -62,3 +72,4 @@ export default function SurveyDashboard() {
     </Box>
   );
 }
+

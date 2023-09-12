@@ -36,11 +36,7 @@ export const navigationList: {
     title: "Footer-Seiten",
     icon: <Article />,
     url: "/footerPages",
-    canAccess: (user) =>
-      user &&
-      (user.role === Role.ADMIN ||
-        user.role === Role.CONTROLLER ||
-        user.role === Role.ORGCONTROLLER),
+    canAccess: (user) => user && user.role === Role.ADMIN,
   },
   {
     title: "Survey Dashboard",
