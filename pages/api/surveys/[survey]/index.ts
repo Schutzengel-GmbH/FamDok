@@ -98,6 +98,10 @@ export default async function survey(
       if (user.role === Role.USER)
         return res.status(403).json({ error: "FORBIDDEN" });
 
+      if (user.role === Role.ORGCONTROLLER)
+        if (user.organizationId !== survey.organizationId)
+          return res.status(403).json({ error: "FORBIDDEN" });
+
       const updatedSurvey = await prisma.survey
         .update({ where: { id: surveyId as string }, data: req.body })
         .catch((err) => logger.error(err));
@@ -122,3 +126,4 @@ export default async function survey(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

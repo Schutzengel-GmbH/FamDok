@@ -8,7 +8,7 @@ import FooterPages from "@/components/footerPages/footerPages";
 function ProtectedPage() {
   const { user } = useUserData();
 
-  if (!user || user.role === Role.USER)
+  if (!user || user.role !== Role.ADMIN)
     return <Error statusCode={403} title="Forbidden" />;
 
   return <FooterPages />;
