@@ -2,6 +2,8 @@ import { FormControl, TextField } from "@mui/material";
 import { AnswerComponentProps, InputErrors } from "../answerQuestion";
 import { ChangeEvent, useState } from "react";
 import { isInt } from "@/utils/utils";
+import { Answer, Question } from "@prisma/client";
+import { PartialAnswer } from "@/types/prismaHelperTypes";
 
 export default function AnswerIntComponent({
   question,
@@ -33,14 +35,12 @@ export default function AnswerIntComponent({
 
     const _value = parseInt(_valueString);
 
-    if (
-      question.intRange &&
-      (_value < question.intRangeLow || _value > question.intRangeHigh)
-    ) {
-      setError("");
-      onChange(answer, InputErrors.NUM_OUT_OF_RANGE);
-      return;
-    }
+    if (question.intRange)
+      if (isOutOfRange(_value, question)) {
+        setError("Zahl zu groß oder zu klein");
+        onChange(answer, InputErrors.NUM_OUT_OF_RANGE);
+        return;
+      }
 
     setError("");
     onChange({ ...answer, answerInt: _value });
@@ -58,7 +58,7 @@ export default function AnswerIntComponent({
           question.intRange
             ? {
                 inputProps: {
-                  min: question.intRangeLow || 0,
+                  min: question.intRangeLow,
                   max: question.intRangeHigh,
                 },
               }
@@ -68,3 +68,14 @@ export default function AnswerIntComponent({
     </FormControl>
   );
 }
+
+function isOutOfRange(value: number, question: Question) {
+  if (question.intRangeLow != null && question.intRangeHigh != null)
+    return value < question.intRangeLow || value > question.intRangeHigh;
+  else if (question.intRangeLow != null && question.intRangeHigh == null)
+    return value < question.intRangeLow;
+  else if (question.intRangeLow == null && question.intRangeHigh != null)
+    return value > question.intRangeHigh;
+  return false;
+}
+
