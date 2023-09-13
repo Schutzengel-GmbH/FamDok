@@ -133,7 +133,7 @@ export default function ResponseComponent({
       (e) => e.questionId === newAnswer.questionId
     );
 
-    if (error && indexOfError >= 0)
+    if (error !== undefined && indexOfError >= 0)
       setInputErrors(
         inputErrors.map((e) =>
           e.questionId === newAnswer.questionId
@@ -141,7 +141,7 @@ export default function ResponseComponent({
             : e
         )
       );
-    else if (error && indexOfError < 0)
+    else if (error !== undefined && indexOfError < 0)
       setInputErrors([
         ...inputErrors,
         { questionId: newAnswer.questionId, error },
@@ -222,3 +222,4 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
+

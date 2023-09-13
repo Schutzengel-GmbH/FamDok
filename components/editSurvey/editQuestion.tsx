@@ -64,20 +64,20 @@ const initialQuestionState: QuestionState = {
   type: QuestionType.Text,
   required: false,
   questionDescription: "",
-  selectOptions: undefined,
-  selectMultiple: undefined,
-  intRange: undefined,
-  intRangeHigh: undefined,
-  intRangeLow: undefined,
-  numRange: undefined,
-  numRangeHigh: undefined,
-  numRangeLow: undefined,
-  defaultAnswerText: undefined,
-  defaultAnswerInt: undefined,
-  defaultAnswerNum: undefined,
-  defaultAnswerDate: undefined,
-  defaultAnswerBool: undefined,
-  numberInSurvey: undefined,
+  selectOptions: null,
+  selectMultiple: null,
+  intRange: null,
+  intRangeHigh: null,
+  intRangeLow: null,
+  numRange: null,
+  numRangeHigh: null,
+  numRangeLow: null,
+  defaultAnswerText: null,
+  defaultAnswerInt: null,
+  defaultAnswerNum: null,
+  defaultAnswerDate: null,
+  defaultAnswerBool: null,
+  numberInSurvey: null,
 };
 
 export default function EditQuestionDialog({
@@ -290,8 +290,6 @@ export default function EditQuestionDialog({
                     updateQuestionState({
                       ...questionState,
                       intRange: e.target.checked,
-                      intRangeHigh: e.target.checked ? 0 : undefined,
-                      intRangeLow: e.target.checked ? 0 : undefined,
                     });
                   }}
                 />
@@ -322,11 +320,11 @@ export default function EditQuestionDialog({
               sx={{ mt: ".5rem" }}
               label={"Min"}
               type={"number"}
-              value={questionState.intRangeLow || 0}
+              value={questionState.intRangeLow || null}
               onChange={(e) => {
                 updateQuestionState({
                   ...questionState,
-                  intRangeLow: parseInt(e.target.value) || 0,
+                  intRangeLow: parseInt(e.target.value) || null,
                 });
               }}
             />
@@ -334,11 +332,11 @@ export default function EditQuestionDialog({
               sx={{ mt: ".5rem" }}
               label={"Max"}
               type={"number"}
-              value={questionState.intRangeHigh || 0}
+              value={questionState.intRangeHigh || null}
               onChange={(e) => {
                 updateQuestionState({
                   ...questionState,
-                  intRangeHigh: parseInt(e.target.value) || 0,
+                  intRangeHigh: parseInt(e.target.value) || null,
                 });
               }}
             />
