@@ -3,6 +3,7 @@ import { IResetPassword } from "@/pages/api/auth/reset-password";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { isValidEmail } from "@/utils/validationUtils";
 import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import Link from "next/link";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 export default function RequestPasswordComponent() {
@@ -39,7 +40,8 @@ export default function RequestPasswordComponent() {
         {done && (
           <Alert>
             Wenn die E-Mail-Adresse im System bekannt ist, wurde eine E-Mail zum
-            Zurücksetzen des Passworts versendet.
+            Zurücksetzen des Passworts versendet.{" "}
+            <Link href={"/auth"}>Zum Login</Link>
           </Alert>
         )}
         {error && (
@@ -71,3 +73,4 @@ export default function RequestPasswordComponent() {
     </form>
   );
 }
+
