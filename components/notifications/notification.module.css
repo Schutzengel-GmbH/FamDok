@@ -1,11 +1,12 @@
 .toastWrapper {
   padding: 0.5rem;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-width: 35%;
+  z-index: 100;
 }
 
 .toast {
@@ -13,7 +14,6 @@
   padding-right: 0.5rem;
   position: relative;
   border-radius: 5px;
-  z-index: 999999999;
 }
 
 .messageWrapper {

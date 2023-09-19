@@ -18,6 +18,7 @@ export default function Footer() {
         justifyContent: "center",
         gap: "1rem",
         backgroundColor: "#d9d9d9",
+        zIndex: "99",
       }}
     >
       {pages.map((page) => (
