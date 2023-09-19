@@ -140,6 +140,11 @@ model Answer {
   questionId              String
 }
 
+model PossibleLocation {
+  id   String @unique @default(cuid())
+  name String
+}
+
 model Family {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
