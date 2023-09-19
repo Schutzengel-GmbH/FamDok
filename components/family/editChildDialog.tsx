@@ -75,6 +75,12 @@ export default function EditChildDialog({
           value={child.isMultiple ?? undefined}
           onChange={(isMultiple) => setChild({ ...child, isMultiple })}
         />
+        <BooleanOrUndefinedPickComponent
+          sx={{ marginTop: "1rem" }}
+          title={"Frühgeburt"}
+          value={child.isPremature ?? undefined}
+          onChange={(isPremature) => setChild({ ...child, isPremature })}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleSave}>Speichern</Button>
@@ -83,3 +89,4 @@ export default function EditChildDialog({
     </Dialog>
   );
 }
+
