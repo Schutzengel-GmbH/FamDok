@@ -401,6 +401,7 @@ function getCreateInputFromState(
   const selectOptions = state.selectOptions?.map((o) => ({
     value: o.value,
     isOpen: o.isOpen,
+    info: o.info,
   }));
 
   return {

@@ -45,6 +45,7 @@ export class SurveyExport {
           createMany: {
             data: question.selectOptions.map((option) => ({
               value: option.value,
+              info: option.info,
             })),
           },
         },
