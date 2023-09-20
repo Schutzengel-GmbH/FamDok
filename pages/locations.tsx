@@ -1,8 +1,8 @@
 import SessionReact from "supertokens-auth-react/recipe/session";
-import AdminDashboard from "../components/adminDashboard/adminDashboard";
-import { useUserData } from "../utils/authUtils";
+import { useUserData } from "@/utils/authUtils";
 import Error from "next/error";
 import { Role } from "@prisma/client";
+import LocationsComponent from "@/components/adminDashboard/locationsComponent";
 
 function ProtectedPage() {
   const { user } = useUserData();
@@ -10,13 +10,14 @@ function ProtectedPage() {
   if (!user || user.role === Role.USER)
     return <Error statusCode={403} title="Forbidden" />;
 
-  return <AdminDashboard />;
+  return <LocationsComponent />;
 }
 
-export default function AdminDashboardPage() {
+export default function LocationsPage() {
   return (
     <SessionReact.SessionAuth>
       <ProtectedPage />
     </SessionReact.SessionAuth>
   );
 }
+

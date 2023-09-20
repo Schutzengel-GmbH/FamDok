@@ -1,115 +1,68 @@
-import useSWR from "swr";
-import {
-  Box,
-  CircularProgress,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
-import { useState } from "react";
-import { PersonAdd } from "@mui/icons-material";
-import UserDetailComponent from "@/components/adminDashboard/userDetailComponent";
-import { IUsers } from "@/pages/api/user";
-import { fetcher } from "@/utils/swrConfig";
-import AddUserComponent from "@/components/adminDashboard/addUserComponent";
-import useToast from "@/components/notifications/notificationContext";
-import { LogsComponent } from "@/components/adminDashboard/logs";
+import NavItem from "@/components/mainPage/navItem";
+import { useUserData } from "@/utils/authUtils";
+import { Article, Code, House, People } from "@mui/icons-material";
+import { Box } from "@mui/material";
+import { Prisma, Role } from "@prisma/client";
 
 export default function AdminDashboard() {
-  const { addToast } = useToast();
-  const [addUser, setAddUser] = useState<boolean>(false);
+  const { user } = useUserData();
 
-  const { data, mutate, error, isLoading, isValidating } = useSWR<IUsers>(
-    "api/user",
-    fetcher
-  );
-
-  function handleAddUser() {
-    setAddUser(true);
-  }
-
-  function handleDataUpdate() {
-    mutate();
-  }
-
-  if (error)
-    addToast({
-      message: `Fehler beim Laden der Nutzerdaten: ${error}`,
-      severity: "error",
-    });
-
+  const adminNavList: {
+    title: string;
+    icon: JSX.Element;
+    url: string;
+    canAccess: (
+      user: Prisma.UserGetPayload<{ include: { organization: true } }>
+    ) => boolean;
+  }[] = [
+    {
+      title: "Footer-Seiten",
+      icon: <Article />,
+      url: "/footerPages",
+      canAccess: (user) =>
+        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
+    },
+    {
+      title: "Benutzer*innen",
+      icon: <People />,
+      url: "/users",
+      canAccess: (user) =>
+        user &&
+        (user.role === Role.ADMIN ||
+          user.role === Role.CONTROLLER ||
+          user.role === Role.ORGCONTROLLER),
+    },
+    {
+      title: "Logs",
+      icon: <Code />,
+      url: "/logs",
+      canAccess: (user) => user && user.role === Role.ADMIN,
+    },
+    {
+      title: "Mögliche Wohnorte",
+      icon: <House />,
+      url: "/locations",
+      canAccess: (user) =>
+        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
+    },
+  ];
   return (
-    <Box>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>E-Mail</TableCell>
-
-              <TableCell>Erstellt am</TableCell>
-              <TableCell>Rolle</TableCell>
-              <TableCell>Organisation</TableCell>
-              <TableCell></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data &&
-              data.users?.map((user) => (
-                <UserDetailComponent
-                  key={user.id}
-                  user={user}
-                  onChange={handleDataUpdate}
-                />
-              ))}
-            {addUser && (
-              <AddUserComponent
-                onCancel={() => {
-                  setAddUser(false);
-                }}
-                onSave={() => {
-                  handleDataUpdate();
-                  setAddUser(false);
-                }}
-              />
-            )}
-            {isLoading && (
-              <TableRow>
-                <TableCell>
-                  <CircularProgress size={20} />
-                </TableCell>
-                <TableCell>
-                  <CircularProgress size={20} />
-                </TableCell>
-                <TableCell>
-                  <CircularProgress size={20} />
-                </TableCell>
-                <TableCell>
-                  <CircularProgress size={20} />
-                </TableCell>
-              </TableRow>
-            )}
-            <TableRow sx={{ m: 2, display: addUser ? "none" : "" }}>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
-              <TableCell>
-                <IconButton onClick={handleAddUser}>
-                  <PersonAdd />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <LogsComponent />
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "50% 50%",
+        gap: ".5rem",
+      }}
+    >
+      {adminNavList.map((i) => (
+        <NavItem
+          title={i.title}
+          icon={i.icon}
+          url={i.url}
+          canAccess={i.canAccess(user)}
+        />
+      ))}
     </Box>
   );
 }
+

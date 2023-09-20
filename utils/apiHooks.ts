@@ -1,6 +1,7 @@
 import { IFamilies } from "@/pages/api/families";
 import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
+import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
@@ -73,5 +74,14 @@ export function useLogs(level?: number, from?: Date, til?: Date) {
   );
 
   return { logs: data?.logs, error, isLoading, isValidating, mutate };
+}
+
+export function useLocations() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ILocations>(
+    "/api/locations",
+    fetcher
+  );
+
+  return { locations: data?.locations, error, isLoading, isValidating, mutate };
 }
 

@@ -150,3 +150,16 @@ export function makeUriLegal(str: string) {
     .replaceAll(/[^a-zA-Z0-9-_]/g, "");
 }
 
+export function sortByStringProperty(propName: string) {
+  return (
+    object1: { [x: string]: string },
+    object2: { [x: string]: string }
+  ) => {
+    if (!(propName in object1) || !(propName in object2))
+      throw new Error(`Property ${propName} does not exist in object`);
+    if (object1[propName] < object2[propName]) return -1;
+    if (object1[propName] > object2[propName]) return 1;
+    else return 0;
+  };
+}
+

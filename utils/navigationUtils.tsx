@@ -23,20 +23,14 @@ export const navigationList: {
     canAccess: (user) => (user ? true : false),
   },
   {
-    title: "Admin Dashboard",
+    title: "Administration",
     icon: <AdminPanelSettings />,
-    url: "/adminDashboard",
+    url: "/admin",
     canAccess: (user) =>
       user &&
       (user.role === Role.ADMIN ||
         user.role === Role.CONTROLLER ||
         user.role === Role.ORGCONTROLLER),
-  },
-  {
-    title: "Footer-Seiten",
-    icon: <Article />,
-    url: "/footerPages",
-    canAccess: (user) => user && user.role === Role.ADMIN,
   },
   {
     title: "Survey Dashboard",
