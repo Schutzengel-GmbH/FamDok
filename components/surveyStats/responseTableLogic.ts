@@ -69,8 +69,8 @@ export function getRowsForResponses(
                     ": " +
                     (
                       a.answerSelectOtherValues as IAnswerSelectOtherValues
-                    ).find((asov) => asov.selectOptionId === curr.id)?.value ||
-                  ""
+                    ).find((asov) => asov.selectOptionId === curr.id)?.value +
+                    (i === a.answerSelect.length - 1 ? "" : ", ") || ""
                 : curr.value + (i === a.answerSelect.length - 1 ? "" : ", ")),
             ""
           );
