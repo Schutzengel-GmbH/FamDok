@@ -1,5 +1,7 @@
 import {
-  Box,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -21,10 +23,10 @@ export default function LocationPicker({
   onChange,
 }: LocationPickerProps) {
   return (
-    <Box sx={sx}>
+    <FormControl sx={sx}>
       <Select
+        label={"Wohnort"}
         defaultValue={value || null}
-        displayEmpty
         onChange={(e: SelectChangeEvent<string | null>) =>
           onChange(e.target.value)
         }
@@ -36,7 +38,8 @@ export default function LocationPicker({
         ))}
         <MenuItem value={null}>Keine Angabe/Unbekannt</MenuItem>
       </Select>
-    </Box>
+      <InputLabel>Wohnort</InputLabel>
+    </FormControl>
   );
 }
 
