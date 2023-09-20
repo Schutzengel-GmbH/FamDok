@@ -1,6 +1,6 @@
 import NavItem from "@/components/mainPage/navItem";
 import { useUserData } from "@/utils/authUtils";
-import { Article } from "@mui/icons-material";
+import { Article, Code, House, People } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -24,7 +24,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Benutzer*innen",
-      icon: <Article />,
+      icon: <People />,
       url: "/users",
       canAccess: (user) =>
         user &&
@@ -34,9 +34,16 @@ export default function AdminDashboard() {
     },
     {
       title: "Logs",
-      icon: <Article />,
+      icon: <Code />,
       url: "/logs",
       canAccess: (user) => user && user.role === Role.ADMIN,
+    },
+    {
+      title: "Mögliche Wohnorte",
+      icon: <House />,
+      url: "/locations",
+      canAccess: (user) =>
+        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
     },
   ];
   return (

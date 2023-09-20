@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,6 +22,8 @@ import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
 import { IFamily, IFamilyUpdate } from "@/pages/api/families/[family]";
 import useToast from "@/components/notifications/notificationContext";
+import { useLocations } from "@/utils/apiHooks";
+import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
@@ -44,6 +47,7 @@ export default function FamilyDialog({
 
   const { user } = useUserData();
   const { addToast } = useToast();
+  const { isLoading, locations } = useLocations();
 
   useEffect(() => {
     setFamily(initialFamily || {});
@@ -206,14 +210,25 @@ export default function FamilyDialog({
                 }
               }}
             />
-            <TextField
-              sx={{ marginTop: "1rem" }}
-              label="Wohnort"
-              value={family.location}
-              onChange={(e) =>
-                setFamily({ ...family, location: e.currentTarget.value })
-              }
-            />
+            {isLoading && <CircularProgress />}
+            {!isLoading && locations.length == 0 && (
+              <TextField
+                sx={{ marginTop: "1rem" }}
+                label="Wohnort"
+                value={family.location}
+                onChange={(e) =>
+                  setFamily({ ...family, location: e.currentTarget.value })
+                }
+              />
+            )}
+            {!isLoading && locations?.length > 0 && (
+              <LocationPicker
+                sx={{ marginTop: "1rem" }}
+                locations={locations}
+                value={family.location}
+                onChange={(location) => setFamily({ ...family, location })}
+              />
+            )}
             <CaregiversComponent
               value={family.caregivers || []}
               onChange={(c) => setFamily({ ...family, caregivers: c })}
@@ -268,3 +283,4 @@ export default function FamilyDialog({
     </>
   );
 }
+
