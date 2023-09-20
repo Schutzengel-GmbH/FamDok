@@ -61,6 +61,16 @@ export default function ListItemQuestion({
     setDelOpen(true);
   }
 
+  function getIntRangeHint() {
+    if (question.intRangeLow != null && question.intRangeHigh != null)
+      return `Von ${question.intRangeLow} bis ${question.intRangeHigh}`;
+    else if (question.intRangeLow != null && question.intRangeHigh == null)
+      return `Mindestens ${question.intRangeLow}`;
+    else if (question.intRangeLow == null && question.intRangeHigh != null)
+      return `Höchstens ${question.intRangeHigh}`;
+    return "";
+  }
+
   async function deleteQ() {
     const res = await apiDelete<IQuestion>(
       `/api/surveys/${survey.id}/questions/${question.id}`
@@ -153,11 +163,7 @@ export default function ListItemQuestion({
           )}
           {question.type === QuestionType.Int && question.intRange && (
             <ListItem>
-              <ListItemText
-                primary={`Von ${question.intRangeLow || "0"} bis ${
-                  question.intRangeHigh || "0"
-                }`}
-              />
+              <ListItemText primary={getIntRangeHint()} />
             </ListItem>
           )}
           {question.type === QuestionType.Scale && (
@@ -210,3 +216,4 @@ export default function ListItemQuestion({
     </Box>
   );
 }
+
