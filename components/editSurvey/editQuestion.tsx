@@ -320,11 +320,11 @@ export default function EditQuestionDialog({
               sx={{ mt: ".5rem" }}
               label={"Min"}
               type={"number"}
-              value={questionState.intRangeLow || null}
+              value={questionState.intRangeLow ?? null}
               onChange={(e) => {
                 updateQuestionState({
                   ...questionState,
-                  intRangeLow: parseInt(e.target.value) || null,
+                  intRangeLow: parseInt(e.target.value) ?? null,
                 });
               }}
             />
@@ -332,11 +332,11 @@ export default function EditQuestionDialog({
               sx={{ mt: ".5rem" }}
               label={"Max"}
               type={"number"}
-              value={questionState.intRangeHigh || null}
+              value={questionState.intRangeHigh ?? null}
               onChange={(e) => {
                 updateQuestionState({
                   ...questionState,
-                  intRangeHigh: parseInt(e.target.value) || null,
+                  intRangeHigh: parseInt(e.target.value) ?? null,
                 });
               }}
             />
