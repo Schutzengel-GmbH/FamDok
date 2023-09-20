@@ -61,6 +61,7 @@ export default function AnswerSelectComponent({
               <>
                 {o.isOpen ? (
                   <TextField
+                    label={o.value}
                     value={
                       otherValues?.find((v) => v.selectOptionId === o.id)
                         ?.value || ""

@@ -59,6 +59,7 @@ export default function AnswerSelectMultipleComponent({
           {!s.isOpen && <>{s.value}</>}
           {s.isOpen && (
             <TextField
+              label={s.value}
               value={
                 otherValues?.find((v) => v.selectOptionId === s.id)?.value || ""
               }
