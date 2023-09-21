@@ -23,7 +23,7 @@ export default function LogEntry({ logEntry }: LogEntryProps) {
   return (
     <div>
       <p>
-        [{new Date(logEntry.time).toLocaleTimeString()}]{" "}
+        [{new Date(logEntry.time).toISOString()}]{" "}
         <span
           style={
             logEntry.level >= 50 ? { color: "red", fontWeight: "bold" } : {}
