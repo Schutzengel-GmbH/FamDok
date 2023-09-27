@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Response } from "express";
 import { backendConfig } from "@/config/backendConfig";
 import supertokens from "supertokens-node/lib/build/supertokens";
-import { PossibleLocation, Prisma } from "@prisma/client";
+import { ComingFromOption, PossibleLocation, Prisma } from "@prisma/client";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { SessionRequest } from "supertokens-node/framework/express";
@@ -11,12 +11,12 @@ import { logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
-export interface ILocations {
-  locations?: PossibleLocation[];
+export interface IComingFromOptions {
+  comingFromOptions?: ComingFromOption[];
   error?: "METHOD_NOT_ALLOWED" | "INTERNAL_SERVER_ERROR";
 }
 
-export default async function comingFromOptions(
+export default async function footerPages(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
@@ -38,17 +38,17 @@ export default async function comingFromOptions(
 
   switch (req.method) {
     case "GET":
-      const locations = await prisma.possibleLocation
+      const comingFromOptions = await prisma.comingFromOption
         .findMany()
         .catch((err) => logger.error(err));
 
-      return res.status(200).json({ locations });
+      return res.status(200).json({ comingFromOptions });
     case "POST":
       if (reqUser.role === "USER")
         return res.status(403).json({ error: "FORBIDDEN" });
 
-      let data = req.body as Prisma.PossibleLocationCreateInput;
-      const newLocation = await prisma.possibleLocation
+      let data = req.body as Prisma.ComingFromOptionCreateInput;
+      const newLocation = await prisma.comingFromOption
         .create({
           data,
         })

@@ -22,8 +22,9 @@ import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
 import { IFamily, IFamilyUpdate } from "@/pages/api/families/[family]";
 import useToast from "@/components/notifications/notificationContext";
-import { useLocations } from "@/utils/apiHooks";
+import { useComingFromOptions, useLocations } from "@/utils/apiHooks";
 import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
+import ComingFromOptionPicker from "@/components/family/pickComponents/comingFromPickComponent";
 
 export type PartialFamily = Partial<
   Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
@@ -48,6 +49,8 @@ export default function FamilyDialog({
   const { user } = useUserData();
   const { addToast } = useToast();
   const { isLoading, locations } = useLocations();
+  const { isLoading: comingFromIsLoading, comingFromOptions } =
+    useComingFromOptions();
 
   useEffect(() => {
     setFamily(initialFamily || {});
@@ -210,7 +213,7 @@ export default function FamilyDialog({
                 }
               }}
             />
-            {isLoading && <CircularProgress />}
+            {isLoading || (comingFromIsLoading && <CircularProgress />)}
             {!isLoading && locations.length == 0 && (
               <TextField
                 sx={{ marginTop: "1rem" }}
@@ -227,6 +230,32 @@ export default function FamilyDialog({
                 locations={locations}
                 value={family.location}
                 onChange={(location) => setFamily({ ...family, location })}
+              />
+            )}
+            {!comingFromIsLoading && comingFromOptions.length == 0 && (
+              <TextField
+                sx={{ marginTop: "1rem" }}
+                label="Zugang über"
+                value={family.comingFromOtherValue}
+                onChange={(e) =>
+                  setFamily({
+                    ...family,
+                    comingFromOtherValue: e.currentTarget.value,
+                  })
+                }
+              />
+            )}
+            {!comingFromIsLoading && comingFromOptions?.length > 0 && (
+              <ComingFromOptionPicker
+                sx={{ marginTop: "1rem" }}
+                comingFromOptions={comingFromOptions}
+                optionId={family.comingFromOptionId}
+                onChange={(comingFrom) =>
+                  setFamily({
+                    ...family,
+                    comingFromOptionId: comingFrom?.id || null,
+                  })
+                }
               />
             )}
             <CaregiversComponent

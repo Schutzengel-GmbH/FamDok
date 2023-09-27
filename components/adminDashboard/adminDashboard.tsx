@@ -1,6 +1,6 @@
 import NavItem from "@/components/mainPage/navItem";
 import { useUserData } from "@/utils/authUtils";
-import { Article, Code, House, People } from "@mui/icons-material";
+import { Article, Code, House, Merge, People } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -42,6 +42,13 @@ export default function AdminDashboard() {
       title: "Mögliche Wohnorte",
       icon: <House />,
       url: "/locations",
+      canAccess: (user) =>
+        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
+    },
+    {
+      title: "Optionen für Zugang Über",
+      icon: <Merge />,
+      url: "/comingFromOptions",
       canAccess: (user) =>
         user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
     },
