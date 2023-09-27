@@ -24,9 +24,11 @@ type FindFamilyDialogProps = {
     }>
   ) => void;
   onCancel: () => void;
+  hideClosedFamilies?: boolean;
 };
 
 export default function FindFamilyDialog({
+  hideClosedFamilies,
   open,
   onConfirm,
   onCancel,
@@ -106,7 +108,19 @@ export default function FindFamilyDialog({
           options={families}
         />
         {searching && <CircularProgress />}
-        {error && <Alert severity={"error"}>{error}</Alert>}
+        {error && (
+          <Alert sx={{ mt: ".5rem" }} severity={"error"}>
+            {error}
+          </Alert>
+        )}
+        {family?.endOfCare && (
+          <Alert
+            sx={{ mt: ".5rem" }}
+            severity="warning"
+          >{`Familie zum ${new Date(
+            family.endOfCare
+          ).toLocaleDateString()} abgeschlossen.`}</Alert>
+        )}
         {/* {family && <FamilyComponent family={family} />} */}
       </DialogContent>
       <DialogActions>
@@ -116,3 +130,4 @@ export default function FindFamilyDialog({
     </Dialog>
   );
 }
+
