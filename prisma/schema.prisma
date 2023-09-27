@@ -165,6 +165,16 @@ model Family {
 
   otherInstalledProfessionals String?
   Response                    Response[]
+
+  comingFrom           ComingFromOption? @relation(fields: [comingFromOptionId], references: [id])
+  comingFromOptionId   String?
+  comingFromOtherValue String?
+}
+
+model ComingFromOption {
+  id     String   @unique @default(cuid())
+  value  String
+  Family Family[]
 }
 
 model Caregiver {

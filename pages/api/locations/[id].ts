@@ -16,7 +16,7 @@ export interface ILocation {
   error?: "METHOD_NOT_ALLOWED" | "INTERNAL_SERVER_ERROR" | "FORBIDDEN";
 }
 
-export default async function footerPages(
+export default async function location(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
@@ -61,6 +61,9 @@ export default async function footerPages(
 
       return res.status(200).json({});
     case "DELETE":
+      if (reqUser.role !== Role.ADMIN)
+        return res.status(403).json({ error: "FORBIDDEN" });
+
       const deletion = await prisma.possibleLocation.delete({
         where: { id: id as string },
       });

@@ -1,3 +1,4 @@
+import { IComingFromOptions } from "@/pages/api/comingFromOptions";
 import { IFamilies } from "@/pages/api/families";
 import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
@@ -83,5 +84,18 @@ export function useLocations() {
   );
 
   return { locations: data?.locations, error, isLoading, isValidating, mutate };
+}
+
+export function useComingFromOptions() {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IComingFromOptions>("/api/comingFromOptions", fetcher);
+
+  return {
+    comingFromOptions: data?.comingFromOptions,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
 }
 
