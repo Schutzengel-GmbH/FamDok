@@ -136,6 +136,9 @@ export default function FamilyDialog({
           message: `Familie ${res.family.number} erstellt`,
           severity: "success",
         });
+
+        setFamNumberCreated(res.family.number);
+
         onClose(res.family);
       }
     } else {
