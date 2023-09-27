@@ -300,6 +300,9 @@ export default function FamilyDialog({
             //disabled={!answersChanged || inputErrors}
             onClick={handleSave}
             variant="outlined"
+            disabled={
+              initialFamily && user.role === "USER" && user.id !== family.userId
+            }
           >
             Speichern
           </Button>
