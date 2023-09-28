@@ -74,7 +74,7 @@ export function getAddFamilyInput(
       beginOfCare: family.beginOfCare,
       comingFrom: comingFromOptionId
         ? { connect: { id: comingFromOptionId } }
-        : null,
+        : undefined,
       caregivers: {
         createMany: {
           data:
