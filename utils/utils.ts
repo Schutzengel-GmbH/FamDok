@@ -64,10 +64,17 @@ export function getAddFamilyInput(
       error: true,
       errorMessage: "Betreuungsbeginn ist ein Pflichtfeld",
     };
+
+  let comingFromOptionId = family.comingFromOptionId;
+  delete family.comingFromOptionId;
+
   return {
     familyCreate: {
       ...family,
       beginOfCare: family.beginOfCare,
+      comingFrom: comingFromOptionId
+        ? { connect: { id: comingFromOptionId } }
+        : null,
       caregivers: {
         createMany: {
           data:
@@ -162,4 +169,3 @@ export function sortByStringProperty(propName: string) {
     else return 0;
   };
 }
-

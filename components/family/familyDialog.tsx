@@ -131,13 +131,14 @@ export default function FamilyDialog({
             message: `Fehler: ${res.error}`,
             severity: "error",
           });
+        else {
+          addToast({
+            message: `Familie ${res.family.number} erstellt`,
+            severity: "success",
+          });
 
-        addToast({
-          message: `Familie ${res.family.number} erstellt`,
-          severity: "success",
-        });
-
-        setFamNumberCreated(res.family.number);
+          setFamNumberCreated(res.family.number);
+        }
 
         onClose(res.family);
       }
@@ -318,4 +319,3 @@ export default function FamilyDialog({
     </>
   );
 }
-
