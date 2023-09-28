@@ -29,7 +29,11 @@ export default function MainAppBar() {
   const router = useRouter();
 
   function handleUserMenu(e: React.MouseEvent<HTMLButtonElement>) {
-    setUserMenuAnchorEl(e.currentTarget);
+    if (!sessionContext.doesSessionExist) {
+      router.push("/auth");
+    } else {
+      setUserMenuAnchorEl(e.currentTarget);
+    }
   }
 
   function handleCloseUserMenu() {
@@ -57,16 +61,7 @@ export default function MainAppBar() {
           Dokumentation
         </Typography>
 
-        <IconButton
-          size="large"
-          color="inherit"
-          onClick={handleUserMenu}
-          sx={
-            sessionContext.doesSessionExist
-              ? { display: "block" }
-              : { display: "none" }
-          }
-        >
+        <IconButton size="large" color="inherit" onClick={handleUserMenu}>
           <AccountCircle />
         </IconButton>
       </Toolbar>
@@ -92,4 +87,3 @@ export default function MainAppBar() {
     </AppBar>
   );
 }
-
