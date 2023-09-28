@@ -240,6 +240,7 @@ enum Disability {
 enum Education {
   None
   Unknown
+  Foerderschulabschluss
   Hauptschulabschluss
   Realschulabschluss
   Fachhochschulreife

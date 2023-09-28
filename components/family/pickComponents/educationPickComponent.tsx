@@ -5,8 +5,8 @@ import {
   Select,
   SelectChangeEvent,
   SxProps,
-} from '@mui/material';
-import { Education } from '@prisma/client';
+} from "@mui/material";
+import { Education } from "@prisma/client";
 
 interface EducationPickComponentProps {
   value: Education | undefined;
@@ -24,14 +24,17 @@ export default function EducationPickComponent({
   }
   return (
     <FormControl sx={sx}>
-      <InputLabel id='education-label'>Höchster Bildungsabschluss</InputLabel>
+      <InputLabel id="education-label">Höchster Bildungsabschluss</InputLabel>
       <Select
-        labelId='education-label'
-        label={'Höchster Bildungsabschluss'}
+        labelId="education-label"
+        label={"Höchster Bildungsabschluss"}
         value={education}
         onChange={handleChange}
         defaultValue={Education.Unknown}
       >
+        <MenuItem value={Education.Foerderschulabschluss}>
+          {"Förderschulabschluss"}
+        </MenuItem>
         <MenuItem value={Education.Hauptschulabschluss}>
           {Education.Hauptschulabschluss}
         </MenuItem>
@@ -42,8 +45,12 @@ export default function EducationPickComponent({
           {Education.Fachhochschulreife}
         </MenuItem>
         <MenuItem value={Education.Abitur}>{Education.Abitur}</MenuItem>
-        <MenuItem value={Education.Berufsausbildung}>{Education.Berufsausbildung}</MenuItem>
-        <MenuItem value={Education.UniversityDegree}>{'Universitätsabschluss'}</MenuItem>
+        <MenuItem value={Education.Berufsausbildung}>
+          {Education.Berufsausbildung}
+        </MenuItem>
+        <MenuItem value={Education.UniversityDegree}>
+          {"Universitätsabschluss"}
+        </MenuItem>
         <MenuItem value={Education.None}>Keine</MenuItem>
         <MenuItem value={Education.Other}>Anderes</MenuItem>
         <MenuItem value={Education.Unknown}>Unbekannt / Keine Angabe</MenuItem>
@@ -51,3 +58,4 @@ export default function EducationPickComponent({
     </FormControl>
   );
 }
+
