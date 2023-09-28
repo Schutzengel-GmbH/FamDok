@@ -52,6 +52,8 @@ export default function FamilyDialog({
   const { isLoading: comingFromIsLoading, comingFromOptions } =
     useComingFromOptions();
 
+  const { user: createdBy } = useUserData(family.userId);
+
   useEffect(() => {
     setFamily(initialFamily || {});
   }, [initialFamily]);
@@ -282,6 +284,11 @@ export default function FamilyDialog({
               value={family.children || []}
               onChange={(c) => setFamily({ ...family, children: c })}
             />
+            {createdBy?.name && (
+              <Typography sx={{ mt: "1rem" }}>
+                Verantwortlich: {createdBy.name}
+              </Typography>
+            )}
             <TextField
               sx={{ marginTop: "1rem" }}
               label="Andere installierte Fachkräfte"

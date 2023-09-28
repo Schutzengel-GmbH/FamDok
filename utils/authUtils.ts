@@ -2,9 +2,14 @@ import useSWR from "swr";
 import { IUserMe } from "../pages/api/user/me";
 import { fetcher } from "./swrConfig";
 
-export function useUserData() {
+/**
+ * Get user data, if no id is provided, uses /user/me
+ * @param id id of the user
+ * @returns user, isLoading, error, mutate
+ */
+export function useUserData(id?: string) {
   const { data, error, isLoading, mutate } = useSWR<IUserMe>(
-    "/api/user/me",
+    `/api/user/${id ? id : "me"}`,
     fetcher
   );
 

@@ -74,17 +74,20 @@ export default async function user(
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   }
 
-  if (!reqUser || reqUser.role === Role.USER)
-    return res.status(403).json({ error: "FORBIDDEN" });
+  // check user role if not just get
+  if (req.method !== "GET") {
+    if (!reqUser || reqUser.role === Role.USER)
+      return res.status(403).json({ error: "FORBIDDEN" });
 
-  if (
-    (reqUser.role === Role.ORGCONTROLLER &&
-      reqUser.organizationId !== user.organizationId) ||
-    (reqUser.role === Role.CONTROLLER &&
-      user.id !== reqUser.id &&
-      (user.role === Role.CONTROLLER || user.role === Role.ADMIN))
-  )
-    return res.status(403).json({ error: "FORBIDDEN" });
+    if (
+      (reqUser.role === Role.ORGCONTROLLER &&
+        reqUser.organizationId !== user.organizationId) ||
+      (reqUser.role === Role.CONTROLLER &&
+        user.id !== reqUser.id &&
+        (user.role === Role.CONTROLLER || user.role === Role.ADMIN))
+    )
+      return res.status(403).json({ error: "FORBIDDEN" });
+  }
 
   switch (req.method) {
     case "GET":
