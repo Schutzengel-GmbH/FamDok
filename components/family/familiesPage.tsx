@@ -51,9 +51,11 @@ export function FamiliesPageComponent({
       <FamilyDialog
         initialFamily={undefined}
         open={newFamOpen}
-        onClose={() => setNewFamOpen(false)}
+        onClose={() => {
+          setNewFamOpen(false);
+          onChange();
+        }}
       />
     </>
   );
 }
-
