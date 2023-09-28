@@ -20,6 +20,11 @@ export default async function requestPassword(
 
   logger.info("accessed endpoint");
 
+  res.status(200).json({
+    message:
+      "Reset Mail will be sent if the mail address exists in the system.",
+  });
+
   const { email } = req.body as { email: string };
 
   const user = await EmailPassword.getUserByEmail(email);
@@ -27,11 +32,6 @@ export default async function requestPassword(
   let passwordResetToken = await EmailPassword.createResetPasswordToken(
     user.id
   );
-
-  res.status(200).json({
-    message:
-      "Reset Mail will be sent if the mail address exists in the system.",
-  });
 
   if (!user) {
     logger.warn(`tried to reset password for non-existant email ${email}`);
