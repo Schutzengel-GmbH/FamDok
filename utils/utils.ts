@@ -120,7 +120,9 @@ export function answerHasNoValues(answer: PartialAnswer) {
     !answerBool &&
     !answerDate &&
     !answerInt &&
+    answerInt !== 0 &&
     !answerNum &&
+    answerNum !== 0 &&
     !answerText &&
     answerSelect &&
     answerSelect.length < 1
