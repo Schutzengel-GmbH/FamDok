@@ -40,7 +40,7 @@ export default function CaregiversComponent({
         variant="body2"
         sx={{ mt: ".25rem", fontSize: "medium", fontWeight: "bold" }}
       >
-        Bezugspersonen:
+        Bezugspersonen im Haushalt (Eltern):
       </Typography>
       <Paper sx={{ width: "100%" }}>
         {value.map((child, index) => (

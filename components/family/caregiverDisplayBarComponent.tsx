@@ -20,7 +20,8 @@ export default function CaregiverDisplayBar({
       }}
     >
       <Typography sx={{ ml: "1rem", fontWeight: "bold" }} variant="body1">
-        {`Bezugsperson ${caregiver.number}` || "ungespeicherte Bezugsperson"}
+        {`Bezugsperson (Id.Nr. ${caregiver.number})` ||
+          "ungespeicherte Bezugsperson"}
       </Typography>
       <Typography sx={{ ml: "1rem", fontWeight: "bold" }} variant="body1">
         {caregiver.dateOfBirth

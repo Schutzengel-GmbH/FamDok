@@ -18,7 +18,7 @@ export default function ChildDisplayBar({ child }: ChildDisplayBarProps) {
       }}
     >
       <Typography sx={{ ml: "1rem", fontWeight: "bold" }} variant="body1">
-        {`Kind ${child.number}` || "ungespeichertes Kind"}
+        {`Kind (Id.Nr. ${child.number})` || "ungespeichertes Kind"}
       </Typography>
       <Typography sx={{ ml: "1rem", fontWeight: "bold" }} variant="body1">
         {child.dateOfBirth
