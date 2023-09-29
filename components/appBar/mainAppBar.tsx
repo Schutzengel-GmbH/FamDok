@@ -15,6 +15,7 @@ import Session, {
 import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
 import { useRouter } from "next/router";
 import NavMenuComponent from "@/components/appBar/navMenu";
+import { env } from "process";
 
 export default function MainAppBar() {
   let sessionContext = Session.useSessionContext() as SessionContextType &
@@ -58,7 +59,7 @@ export default function MainAppBar() {
         </IconButton>
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Dokumentation
+          {process.env.NEXT_PUBLIC_APP_NAME}
         </Typography>
 
         <IconButton size="large" color="inherit" onClick={handleUserMenu}>
