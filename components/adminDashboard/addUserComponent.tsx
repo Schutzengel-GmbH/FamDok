@@ -100,7 +100,6 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
           />
         </TableCell>
         <TableCell></TableCell>
-        <TableCell></TableCell>
         <TableCell>
           <RoleSelect isAdmin={isAdmin} onChange={(role) => setRole(role)} />
         </TableCell>
