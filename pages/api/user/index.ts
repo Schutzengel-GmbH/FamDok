@@ -17,6 +17,7 @@ const FAKE_PASSWORD = "asokdA87fnf30efjoiOI**cwjkn";
 export interface IUsers {
   user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
   users?: Prisma.UserGetPayload<{ include: { organization: true } }>[];
+  inviteLink?: string;
   error?:
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
@@ -120,17 +121,22 @@ export default async function users(
         process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
       }/auth/set-password?token=${passwordResetToken.token}`;
 
-      await EmailPassword.sendEmail({
-        //@ts-ignore - this is a custom type
-        type: "INVITE_EMAIL",
-        passwordResetLink: inviteLink,
-        user: {
-          email: signUpResult.user.email,
-          id: signUpResult.user.id,
-        },
-      });
+      if (process.env.MANUAL_INVITATION !== "true")
+        await EmailPassword.sendEmail({
+          //@ts-ignore - this is a custom type
+          type: "INVITE_EMAIL",
+          passwordResetLink: inviteLink,
+          user: {
+            email: signUpResult.user.email,
+            id: signUpResult.user.id,
+          },
+        });
 
-      return res.status(200).json({ user: newUser });
+      return res.status(200).json({
+        user: newUser,
+        inviteLink:
+          process.env.MANUAL_INVITATION === "true" ? inviteLink : undefined,
+      });
 
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });

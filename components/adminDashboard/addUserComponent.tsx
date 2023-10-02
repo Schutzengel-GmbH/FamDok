@@ -11,6 +11,7 @@ import { useUserData } from "@/utils/authUtils";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import useToast from "@/components/notifications/notificationContext";
+import useInfoDialog from "@/components/infoDialog/infoDialogContext";
 
 export interface AddUserProps {
   onSave: () => void;
@@ -22,6 +23,7 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
   const isAdmin = user?.role === Role.ADMIN;
 
   const { addToast } = useToast();
+  const { showInfoDialog } = useInfoDialog();
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -54,11 +56,15 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
           message: `Fehler beim Hinzufügen eines Users: ${res.error}}`,
           severity: "error",
         });
-
-      addToast({
-        message: `${res.user.name || res.user.email} hinzugefügt`,
-        severity: "success",
-      });
+      else {
+        if (res.inviteLink) {
+          showInfoDialog({ title: "Einladungslink", body: res.inviteLink });
+        } else
+          addToast({
+            message: `${res.user.name || res.user.email} hinzugefügt`,
+            severity: "success",
+          });
+      }
     }
     onSave();
     setWorking(false);
@@ -127,4 +133,3 @@ export default function AddUserComponent({ onCancel, onSave }: AddUserProps) {
     </>
   );
 }
-

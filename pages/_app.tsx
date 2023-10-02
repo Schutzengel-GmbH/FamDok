@@ -9,6 +9,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
 import { ToastProvider } from "@/components/notifications/notificationContext";
+import { InfoDialogProvider } from "@/components/infoDialog/infoDialogContext";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -36,9 +37,11 @@ function MyApp({ Component, pageProps }): JSX.Element {
     <SuperTokensWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
         <Layout>
-          <ToastProvider>
-            <Component {...pageProps} />
-          </ToastProvider>
+          <InfoDialogProvider>
+            <ToastProvider>
+              <Component {...pageProps} />
+            </ToastProvider>
+          </InfoDialogProvider>
         </Layout>
       </LocalizationProvider>
     </SuperTokensWrapper>
