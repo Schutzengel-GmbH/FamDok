@@ -1,4 +1,4 @@
-import { Cancel, Delete, Save } from "@mui/icons-material";
+import { Cancel, Delete, Password, Save } from "@mui/icons-material";
 import {
   IconButton,
   TableCell,
@@ -16,6 +16,8 @@ import { isValidEmail } from "@/utils/validationUtils";
 import { useUserData } from "@/utils/authUtils";
 import { FetchError, apiDelete, apiPostJson } from "@/utils/fetchApiUtils";
 import useToast from "@/components/notifications/notificationContext";
+import useInfoDialog from "@/components/infoDialog/infoDialogContext";
+import { IPasswordResetLink } from "@/pages/api/auth/passwordResetLink";
 
 export interface UserEditProps {
   user: Prisma.UserGetPayload<{ include: { organization: true } }>;
@@ -37,6 +39,7 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
   const emailValid = isValidEmail(email);
 
   const { addToast } = useToast();
+  const { showInfoDialog } = useInfoDialog();
 
   function userChanged() {
     return (
@@ -98,6 +101,21 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
     }
     onChange();
     setConfirmDelOpen(false);
+  }
+
+  async function handlePassword() {
+    const res = await apiPostJson<IPasswordResetLink>(
+      "/api/auth/passwordResetLink",
+      {
+        email,
+      }
+    );
+    if (res instanceof FetchError || res.error) {
+      addToast({
+        message: `Etwas ist schiefgelaufen: ${res.error}`,
+        severity: "error",
+      });
+    } else showInfoDialog({ title: "Reset-Link", body: res.link });
   }
 
   function cantEdit() {
@@ -209,6 +227,15 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
               disabled={!userChanged()}
             >
               <Cancel />
+            </IconButton>
+          </span>
+        </Tooltip>
+
+        <Tooltip title={"Link für Passwort-Reset generieren"}>
+          {/* span because: A disabled element does not fire events. */}
+          <span>
+            <IconButton color="primary" onClick={handlePassword}>
+              <Password />
             </IconButton>
           </span>
         </Tooltip>
