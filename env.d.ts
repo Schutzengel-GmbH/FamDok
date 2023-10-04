@@ -101,6 +101,13 @@ declare namespace NodeJS {
 /**
      * @example
      * ```
+    process.env.MANUAL_INVITATION
+    ```
+     */
+    MANUAL_INVITATION: string
+/**
+     * @example
+     * ```
     process.env.SMTP_HOST
     ```
      */
