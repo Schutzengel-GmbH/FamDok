@@ -284,7 +284,7 @@ export default function FamilyDialog({
               value={family.children || []}
               onChange={(c) => setFamily({ ...family, children: c })}
             />
-            {createdBy?.name && (
+            {family.userId && createdBy?.name && (
               <Typography sx={{ mt: "1rem" }}>
                 Verantwortlich: {createdBy.name}
               </Typography>
@@ -326,3 +326,4 @@ export default function FamilyDialog({
     </>
   );
 }
+
