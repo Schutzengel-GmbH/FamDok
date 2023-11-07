@@ -47,7 +47,7 @@ export interface IResponses {
     | "FORBIDDEN";
 }
 
-export default async function responses(
+export default async function myResponses(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
@@ -107,16 +107,7 @@ export default async function responses(
   let where: Prisma.ResponseWhereInput = {
     survey: { id: surveyId as string },
   };
-  // if the user is USER, we need to filter the responses to only theirs,
-  // if the user is ORGCONTROLLER, we need to filter the responses to only their organization's
-  if (user.role === Role.USER) where.userId = user.id;
-  if (user.role === Role.ORGCONTROLLER) {
-    where.OR = [
-      { survey: { organizationId: null } },
-      { survey: { organizationId: user.organizationId } },
-    ];
-    where.user = { organizationId: user.organizationId };
-  }
+  where.userId = user.id;
 
   switch (req.method) {
     case "GET":
@@ -142,43 +133,6 @@ export default async function responses(
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
       return res.status(200).json({ responses });
-
-    case "POST":
-      const newResponse = await prisma.response
-        .create({
-          data: {
-            name: req.body.name,
-            child: req.body.child?.id
-              ? { connect: { id: req.body.child.id } }
-              : undefined,
-            caregiver: req.body.caregiver?.id
-              ? { connect: { id: req.body.caregiver.id } }
-              : undefined,
-            family: req.body.family?.id
-              ? { connect: { id: req.body.family.id } }
-              : undefined,
-            survey: { connect: { id: survey.id } },
-            user: { connect: { id: user.id } },
-          },
-          include: {
-            answers: {
-              include: {
-                answerSelect: true,
-                question: { include: { selectOptions: true } },
-              },
-            },
-            user: true,
-            family: { include: { caregivers: true, children: true } },
-            child: true,
-            caregiver: true,
-          },
-        })
-        .catch((err) => logger.error(err));
-
-      if (!newResponse)
-        return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-
-      return res.status(200).json({ response: newResponse });
 
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });

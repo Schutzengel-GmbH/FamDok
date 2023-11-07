@@ -27,7 +27,7 @@ export default function SurveyComponent({ survey }: SurveyComponentProps) {
   const router = useRouter();
 
   const { data, isLoading, error } = useSWR<IResponses>(
-    `/api/surveys/${survey.id}/responses`,
+    `/api/surveys/${survey.id}/responses/my`,
     fetcher
   );
 
