@@ -3,27 +3,15 @@ import {
   FullSurvey,
   IAnswerSelectOtherValues,
 } from "@/types/prismaHelperTypes";
+import { getAge, getEducationString, isHigherEducation } from "@/utils/utils";
 import { GridColDef } from "@mui/x-data-grid";
-import { QuestionType } from "@prisma/client";
+import { Caregiver, Child, Education, QuestionType } from "@prisma/client";
+import {
+  Fields,
+  optionalFields,
+} from "@/components/surveyStats/responseTableFields";
 
 export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
-  let optionalFields: GridColDef[] = [];
-
-  if (survey.hasFamily)
-    optionalFields.push(
-      { field: "family.number", width: 200, headerName: "Familiennummer" },
-      {
-        field: "family.beginOfCare",
-        width: 200,
-        headerName: "Familie aufgenommen am",
-      },
-      {
-        field: "family.endOfCare",
-        width: 200,
-        headerName: "Betreuung beendet am",
-      }
-    );
-
   let columns: GridColDef[] = [];
 
   columns.push(
@@ -79,9 +67,7 @@ export function getRowsForResponses(
           resRow[a.question.id] = a.answerText;
           break;
         case QuestionType.Date:
-          resRow[a.question.id] = a.answerDate
-            ? new Date(a.answerDate).toLocaleDateString()
-            : "";
+          resRow[a.question.id] = a.answerDate ? new Date(a.answerDate) : null;
           break;
         case QuestionType.Scale:
           resRow[a.question.id] = `${a.answerSelect[0]?.value} (${
@@ -101,13 +87,38 @@ export function getRowsForResponses(
       response.user?.name || response.user?.email || "";
 
     if (survey.hasFamily) {
-      resRow["family.number"] = response.family?.number || "";
-      resRow["family.beginOfCare"] = response.family?.beginOfCare
-        ? new Date(response.family?.beginOfCare).toLocaleDateString()
-        : "";
-      resRow["family.endOfCare"] = response.family?.endOfCare
-        ? new Date(response.family?.beginOfCare).toLocaleDateString()
-        : "";
+      resRow[Fields.number] = response.family?.number || "";
+      resRow[Fields.beginOfCare] = response.family?.beginOfCare
+        ? new Date(response.family?.beginOfCare)
+        : null;
+      resRow[Fields.endOfCare] = response.family?.endOfCare
+        ? new Date(response.family?.beginOfCare)
+        : null;
+      resRow[Fields.hasChildDisability] = response.family?.children?.reduce(
+        (n, c) =>
+          c.disability === "Yes" || c.disability === "Impending" ? n + 1 : n,
+        0
+      );
+      resRow[Fields.hasCaregiverDisability] =
+        response.family?.caregivers?.reduce(
+          (n, c) =>
+            c.disability === "Yes" || c.disability === "Impending" ? n + 1 : n,
+          0
+        );
+      resRow[Fields.hasMigrationBackground] = response.family?.caregivers?.find(
+        (c) => c.migrationBackground
+      );
+      resRow[Fields.highestEducation] = response.family?.caregivers?.reduce(
+        (prev, c, i, caregivers) => {
+          if (i === 0) return getEducationString(c.education);
+          else if (isHigherEducation(c.education, caregivers[i - 1].education))
+            return getEducationString(c.education);
+          else return prev;
+        },
+        ""
+      );
+      resRow[Fields.hasCaregiverPsychDiagnosis] =
+        response.family?.caregivers?.find((c) => c.psychDiagosis);
     }
 
     rows.push(resRow);

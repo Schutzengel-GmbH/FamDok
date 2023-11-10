@@ -2,6 +2,7 @@ import { FullFamily, PartialAnswer } from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
+  Education,
   Family,
   Gender,
   Prisma,
@@ -47,6 +48,53 @@ export function getGenderString(g: Gender) {
     case "Unknown":
       return "unbekannt";
   }
+}
+
+export function getEducationString(e: Education) {
+  switch (e) {
+    case "None":
+      return "Kein";
+    case "Unknown":
+      return "Unbekannt";
+    case "Other":
+      return "Andere";
+    case "Foerderschulabschluss":
+      return "Foerderschulabschluss";
+    case "Hauptschulabschluss":
+      return "Hauptschulabschluss";
+    case "Realschulabschluss":
+      return "Realschulabschluss";
+    case "Fachhochschulreife":
+      return "Fachhochschulreife";
+    case "Abitur":
+      return "Abitur";
+    case "Berufsausbildung":
+      return "Berufsausbildung";
+    case "UniversityDegree":
+      return "Hochschulabschluss";
+    case "Higher":
+      return "Höher";
+  }
+}
+
+export function isHigherEducation(ed: Education, comp: Education) {
+  const sortedEducationArray: Education[] = [
+    Education.None,
+    Education.Unknown,
+    Education.Other,
+    Education.Foerderschulabschluss,
+    Education.Hauptschulabschluss,
+    Education.Realschulabschluss,
+    Education.Fachhochschulreife,
+    Education.Abitur,
+    Education.UniversityDegree,
+    Education.Higher,
+  ];
+  if (!ed) return true;
+  else
+    return (
+      sortedEducationArray.indexOf(ed) > sortedEducationArray.indexOf(comp)
+    );
 }
 
 export function getAddFamilyInput(
@@ -171,3 +219,4 @@ export function sortByStringProperty(propName: string) {
     else return 0;
   };
 }
+
