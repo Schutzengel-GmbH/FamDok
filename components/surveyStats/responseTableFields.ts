@@ -10,6 +10,10 @@ export enum Fields {
   highestEducation = "highestEducation",
   hasCaregiverPsychDiagnosis = "hasCaregiverPsychDiagnosis",
   hasChildPsychDiagnosis = "hasChildPsychDiagnosis",
+  childrenInHousehold = "childrenInHousehold",
+  location = "location",
+  otherInstalledProfessionals = "otherInstalledProfessionals",
+  comingFrom = "comingFrom",
 }
 
 export const optionalFields: GridColDef[] = [
@@ -21,10 +25,16 @@ export const optionalFields: GridColDef[] = [
     type: "date",
   },
   {
-    field: Fields.endOfCare,
+    field: Fields.childrenInHousehold,
     width: 100,
-    headerName: "Betreuung beendet am",
-    type: "date",
+    headerName: "Anzahl Kinder",
+    type: "number",
+  },
+  {
+    field: Fields.location,
+    width: 100,
+    headerName: "Wohnort",
+    type: "string",
   },
   {
     field: Fields.hasChildDisability,
@@ -62,5 +72,22 @@ export const optionalFields: GridColDef[] = [
     headerName: "Höchster Abschluss",
     type: "string",
   },
+  {
+    field: Fields.otherInstalledProfessionals,
+    width: 100,
+    headerName: "Andere Fachkräfte",
+    type: "string",
+  },
+  {
+    field: Fields.comingFrom,
+    width: 100,
+    headerName: "Zugang über",
+    type: "string",
+  },
+  {
+    field: Fields.endOfCare,
+    width: 100,
+    headerName: "Betreuung beendet am",
+    type: "date",
+  },
 ];
-

@@ -119,6 +119,14 @@ export function getRowsForResponses(
       );
       resRow[Fields.hasCaregiverPsychDiagnosis] =
         response.family?.caregivers?.find((c) => c.psychDiagosis);
+      resRow[Fields.childrenInHousehold] =
+        response.family?.childrenInHousehold ??
+        response.family?.children?.length ??
+        0;
+      resRow[Fields.location] = response.family?.location || "";
+      resRow[Fields.otherInstalledProfessionals] =
+        response.family?.otherInstalledProfessionals || "";
+      resRow[Fields.comingFrom] = response.family.comingFrom?.value || "";
     }
 
     rows.push(resRow);
@@ -126,4 +134,3 @@ export function getRowsForResponses(
 
   return rows;
 }
-

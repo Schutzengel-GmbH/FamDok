@@ -14,7 +14,7 @@ supertokens.init(backendConfig());
 
 export interface IFamily {
   family?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true };
+    include: { caregivers: true; children: true; comingFrom: true };
   }>;
   error?:
     | "INTERNAL_SERVER_ERROR"
@@ -71,7 +71,7 @@ export default async function families(
   try {
     family = await prisma.family.findUniqueOrThrow({
       where: { id: familyId as string },
-      include: { caregivers: true, children: true },
+      include: { caregivers: true, children: true, comingFrom: true },
     });
   } catch (err) {
     if (

@@ -21,7 +21,9 @@ export interface IResponses {
         };
       };
       user: true;
-      family: { include: { caregivers: true; children: true } };
+      family: {
+        include: { caregivers: true; children: true; comingFrom: true };
+      };
       child: true;
       caregiver: true;
     };
@@ -35,7 +37,9 @@ export interface IResponses {
         };
       };
       user: true;
-      family: { include: { caregivers: true; children: true } };
+      family: {
+        include: { caregivers: true; children: true; comingFrom: true };
+      };
       child: true;
       caregiver: true;
     };
@@ -131,7 +135,9 @@ export default async function responses(
               },
             },
             user: true,
-            family: { include: { caregivers: true, children: true } },
+            family: {
+              include: { caregivers: true, children: true, comingFrom: true },
+            },
             child: true,
             caregiver: true,
           },
@@ -168,7 +174,9 @@ export default async function responses(
               },
             },
             user: true,
-            family: { include: { caregivers: true, children: true } },
+            family: {
+              include: { caregivers: true, children: true, comingFrom: true },
+            },
             child: true,
             caregiver: true,
           },
@@ -184,4 +192,3 @@ export default async function responses(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
