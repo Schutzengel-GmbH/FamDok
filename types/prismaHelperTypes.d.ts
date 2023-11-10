@@ -8,7 +8,7 @@ export type FullResponse = Prisma.ResponseGetPayload<{
         question: { include: { selectOptions: true } };
       };
     };
-    family: { include: { caregivers: true; children: true } };
+    family: { include: { caregivers: true; children: true; comingFrom: true } };
     caregiver: true;
     child: true;
     user: true;
@@ -20,7 +20,7 @@ export type FullQuestion = Prisma.QuestionGetPayload<{
 }>;
 
 export type FullFamily = Prisma.FamilyGetPayload<{
-  include: { caregivers: true; children: true };
+  include: { caregivers: true; children: true; comingFrom: true };
 }>;
 
 export type FullSurvey = Prisma.SurveyGetPayload<{
@@ -59,7 +59,9 @@ export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
             };
           };
         };
-        family: { include: { caregivers: true; children: true } };
+        family: {
+          include: { caregivers: true; children: true; comingFrom: true };
+        };
         caregiver: true;
         child: true;
         user: true;

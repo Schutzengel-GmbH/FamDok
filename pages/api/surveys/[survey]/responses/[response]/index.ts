@@ -21,7 +21,9 @@ export interface IResponse {
         };
       };
       user: true;
-      family: { include: { caregivers: true; children: true } };
+      family: {
+        include: { caregivers: true; children: true; comingFrom: true };
+      };
       caregiver: true;
       child: true;
     };
@@ -90,7 +92,9 @@ export default async function response(
         };
       };
       user: true;
-      family: { include: { children: true; caregivers: true } };
+      family: {
+        include: { children: true; caregivers: true; comingFrom: true };
+      };
       caregiver: true;
       child: true;
     };
@@ -107,7 +111,9 @@ export default async function response(
           },
         },
         user: true,
-        family: { include: { caregivers: true, children: true } },
+        family: {
+          include: { caregivers: true, children: true, comingFrom: true },
+        },
         caregiver: true,
         child: true,
       },

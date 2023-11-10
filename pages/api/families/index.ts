@@ -14,10 +14,10 @@ supertokens.init(backendConfig());
 
 export interface IFamilies {
   families?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true };
+    include: { caregivers: true; children: true; comingFrom: true };
   }>[];
   family?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true };
+    include: { caregivers: true; children: true; comingFrom: true };
   }>;
   error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED";
 }
@@ -60,7 +60,7 @@ export default async function families(
     case "GET":
       const families = await prisma.family
         .findMany({
-          include: { caregivers: true, children: true },
+          include: { caregivers: true, children: true, comingFrom: true },
           where,
         })
         .catch((err) => {
