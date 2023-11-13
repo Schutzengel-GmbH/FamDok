@@ -14,14 +14,29 @@ import {
 export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
   let columns: GridColDef[] = [];
 
+  for (let question of survey.questions) {
+    if (question.type === QuestionType.Select) {
+      columns.push(
+        ...question.selectOptions.map((option) => {
+          return {
+            field: option.id,
+            width: 100,
+            headerName: option.value,
+            type: option.isOpen ? "string" : "boolean",
+          };
+        })
+      );
+    } else {
+      columns.push({
+        field: question.id,
+        width: 100,
+        headerName: question.questionText,
+        type: getFieldType(question.type),
+      });
+    }
+  }
+
   columns.push(
-    ...survey.questions.map((q) => {
-      return {
-        field: q.id,
-        width: 200,
-        headerName: q.questionText,
-      };
-    }),
     { field: "Erstellt durch", width: 200, headerName: "Erstellt durch" },
     ...optionalFields
   );
@@ -50,18 +65,18 @@ export function getRowsForResponses(
           resRow[a.question.id] = a.answerNum;
           break;
         case QuestionType.Select:
-          resRow[a.question.id] = a.answerSelect?.reduce(
-            (prev, curr, i) =>
-              (prev += curr.isOpen
-                ? curr.value +
-                    ": " +
-                    (
-                      a.answerSelectOtherValues as IAnswerSelectOtherValues
-                    ).find((asov) => asov.selectOptionId === curr.id)?.value +
-                    (i === a.answerSelect.length - 1 ? "" : ", ") || ""
-                : curr.value + (i === a.answerSelect.length - 1 ? "" : ", ")),
-            ""
-          );
+          for (let option of a.question.selectOptions) {
+            if (option.isOpen)
+              resRow[option.id] = a.answerSelect.find((o) => o.id === option.id)
+                ? (a.answerSelectOtherValues as IAnswerSelectOtherValues).find(
+                    (v) => v.selectOptionId === option.id
+                  ).value
+                : "";
+            else
+              resRow[option.id] = a.answerSelect.find((o) => o.id === option.id)
+                ? true
+                : false;
+          }
           break;
         case QuestionType.Text:
           resRow[a.question.id] = a.answerText;
@@ -133,4 +148,23 @@ export function getRowsForResponses(
   }
 
   return rows;
+}
+
+function getFieldType(questionType: QuestionType) {
+  switch (questionType) {
+    case "Text":
+      return "string";
+    case "Bool":
+      return "boolean";
+    case "Int":
+      return "number";
+    case "Num":
+      return "number";
+    case "Select":
+      return "string";
+    case "Date":
+      return "date";
+    case "Scale":
+      return "string";
+  }
 }
