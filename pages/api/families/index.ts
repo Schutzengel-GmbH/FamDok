@@ -55,6 +55,8 @@ export default async function families(
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const where = getFamilyWhereInput(req.query);
+  if (user.role !== "ADMIN")
+    where.createdBy = { organizationId: user.organizationId };
 
   switch (req.method) {
     case "GET":
