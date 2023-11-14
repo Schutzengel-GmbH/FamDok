@@ -68,7 +68,7 @@ export function getRowsForResponses(
           for (let option of a.question.selectOptions) {
             if (option.isOpen)
               resRow[option.id] = a.answerSelect.find((o) => o.id === option.id)
-                ? (a.answerSelectOtherValues as IAnswerSelectOtherValues).find(
+                ? (a.answerSelectOtherValues as IAnswerSelectOtherValues)?.find(
                     (v) => v.selectOptionId === option.id
                   ).value
                 : "";
@@ -141,7 +141,7 @@ export function getRowsForResponses(
       resRow[Fields.location] = response.family?.location || "";
       resRow[Fields.otherInstalledProfessionals] =
         response.family?.otherInstalledProfessionals || "";
-      resRow[Fields.comingFrom] = response.family.comingFrom?.value || "";
+      resRow[Fields.comingFrom] = response.family?.comingFrom?.value || "";
     }
 
     rows.push(resRow);
@@ -168,3 +168,4 @@ function getFieldType(questionType: QuestionType) {
       return "string";
   }
 }
+
