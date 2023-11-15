@@ -85,14 +85,17 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
           updateSelectedIds(selectionModel)
         }
         slots={{
-          toolbar: () =>
-            CustomGridToolbar(
+          toolbar: () => {
+            return CustomGridToolbar(
               survey.name + "_" + new Date().toISOString() ||
-                "data_" + new Date().toISOString()
-            ),
+                "data_" + new Date().toISOString(),
+              survey
+            );
+          },
         }}
         localeText={GRID_LOCALE_TEXT}
       />
     </>
   );
 }
+
