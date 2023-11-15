@@ -1,3 +1,4 @@
+import { getJson } from "@/components/surveyStats/getJson";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { FullResponse, FullSurvey } from "@/types/prismaHelperTypes";
 import { fetcher } from "@/utils/swrConfig";
@@ -62,10 +63,6 @@ const JsonExportMenuItem = (props) => {
       JSON Exportieren
     </MenuItem>
   );
-};
-
-const getJson = (data: FullResponse[]) => {
-  return JSON.stringify(data, null, 2);
 };
 
 const exportBlob = (blob, filename) => {

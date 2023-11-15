@@ -2,6 +2,7 @@ import { FullFamily, PartialAnswer } from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
+  Disability,
   Education,
   Family,
   Gender,
@@ -36,6 +37,33 @@ export const getAge = (birthDate: Date) => {
   const age = differenceInYears(today, new Date(birthDate));
   return Number.isNaN(age) ? undefined : age;
 };
+
+export function getBoolString(b: boolean | undefined | null) {
+  switch (b) {
+    case true:
+      return "Ja";
+    case false:
+      return "Nein";
+    case undefined:
+    case null:
+      return "Unbekannt/Keine Angabe";
+  }
+}
+
+export function getDisabilityString(disability: Disability) {
+  switch (disability) {
+    case "Yes":
+      return "Ja";
+    case "No":
+      return "Nein";
+    case "Impending":
+      return "Drohend";
+    case "None":
+      return "Keine Angabe";
+    case "Unknown":
+      return "Unbekannt";
+  }
+}
 
 export function getGenderString(g: Gender) {
   switch (g) {
