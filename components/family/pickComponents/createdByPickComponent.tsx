@@ -46,7 +46,11 @@ export default function CreatedByPickComponent({
 
   return (
     <Box sx={sx}>
-      <Select value={value.id} onChange={handleChange} label={"Verantwortlich"}>
+      <Select
+        value={value?.id}
+        onChange={handleChange}
+        label={"Verantwortlich"}
+      >
         {users.map((u) => (
           <MenuItem key={u.id} value={u.id}>
             {userString(u)}

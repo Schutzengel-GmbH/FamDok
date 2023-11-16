@@ -294,12 +294,12 @@ export default function FamilyDialog({
               value={family.children || []}
               onChange={(c) => setFamily({ ...family, children: c })}
             />
-            {user.role === Role.USER && family.userId && createdBy?.name && (
+            {user?.role === Role.USER && family.userId && createdBy?.name && (
               <Typography sx={{ mt: "1rem" }}>
                 Verantwortlich: {createdBy.name}
               </Typography>
             )}
-            {user.role !== Role.USER && (
+            {user?.role !== Role.USER && (
               <CreatedByPickComponent
                 value={family.createdBy ?? createdBy}
                 onChange={(u) => setFamily({ ...family, createdBy: u })}
