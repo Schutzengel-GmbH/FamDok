@@ -4,6 +4,8 @@ import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
 import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
+import { IOrganizations } from "@/pages/api/organizations";
+import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
 import useSWR from "swr";
@@ -99,3 +101,24 @@ export function useComingFromOptions() {
   };
 }
 
+export function useUsers() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IUsers>(
+    "/api/user",
+    fetcher
+  );
+
+  return { users: data?.users, error, isLoading, isValidating, mutate };
+}
+
+export function useOrganizations() {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IOrganizations>("/api/organizations", fetcher);
+
+  return {
+    organizations: data?.organizations,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
