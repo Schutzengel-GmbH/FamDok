@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Caregiver, Child, Family, Prisma } from "@prisma/client";
+import { Caregiver, Child, Family, Prisma, Role, User } from "@prisma/client";
 import { MouseEvent, useEffect, useState } from "react";
 import ChildrenComponent from "@/components/family/childrenComponent";
 import CaregiversComponent from "@/components/family/caregiversComponent";
@@ -25,14 +25,21 @@ import useToast from "@/components/notifications/notificationContext";
 import { useComingFromOptions, useLocations } from "@/utils/apiHooks";
 import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
 import ComingFromOptionPicker from "@/components/family/pickComponents/comingFromPickComponent";
+import CreatedByPickComponent from "@/components/family/pickComponents/createdByPickComponent";
 
 export type PartialFamily = Partial<
-  Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
+  Family & {
+    children: Partial<Child>[];
+    caregivers: Partial<Caregiver>[];
+    createdBy?: User;
+  }
 >;
 
 export interface FamilyDialogProps {
   initialFamily:
-    | Prisma.FamilyGetPayload<{ include: { children: true; caregivers: true } }>
+    | Prisma.FamilyGetPayload<{
+        include: { children: true; caregivers: true; comingFrom: true };
+      }>
     | undefined;
   open: boolean;
   onClose: (family?: FullFamily) => void;
@@ -96,6 +103,9 @@ export default function FamilyDialog({
       if (initialFamily[field] !== family[field])
         update.familyUpdate[field] = family[field];
     }
+
+    if (family.createdBy && family.createdBy !== createdBy)
+      update.familyUpdate.createdBy = { connect: { id: family.createdBy.id } };
 
     delete update.familyUpdate.children;
     delete update.familyUpdate.caregivers;
@@ -284,10 +294,17 @@ export default function FamilyDialog({
               value={family.children || []}
               onChange={(c) => setFamily({ ...family, children: c })}
             />
-            {family.userId && createdBy?.name && (
+            {user.role === Role.USER && family.userId && createdBy?.name && (
               <Typography sx={{ mt: "1rem" }}>
                 Verantwortlich: {createdBy.name}
               </Typography>
+            )}
+            {user.role !== Role.USER && (
+              <CreatedByPickComponent
+                value={family.createdBy ?? createdBy}
+                onChange={(u) => setFamily({ ...family, createdBy: u })}
+                sx={{ mt: "1rem" }}
+              />
             )}
             <TextField
               sx={{ marginTop: "1rem" }}
@@ -326,4 +343,3 @@ export default function FamilyDialog({
     </>
   );
 }
-
