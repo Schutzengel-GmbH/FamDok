@@ -74,8 +74,9 @@ export default function AdminDashboard() {
         gap: ".5rem",
       }}
     >
-      {adminNavList.map((i) => (
+      {adminNavList.map((i, index) => (
         <NavItem
+          key={index}
           title={i.title}
           icon={i.icon}
           url={i.url}
@@ -85,3 +86,4 @@ export default function AdminDashboard() {
     </Box>
   );
 }
+

@@ -3,6 +3,7 @@ import useToast from "@/components/notifications/notificationContext";
 import UsersElement from "@/components/subOrganization/usersElement";
 import { FullSubOrganization } from "@/types/prismaHelperTypes";
 import { useUserData } from "@/utils/authUtils";
+import { comparePrimitiveArrayByElements } from "@/utils/utils";
 import { Create, Delete, Edit, Save } from "@mui/icons-material";
 import Add from "@mui/icons-material/Add";
 import {
@@ -14,21 +15,22 @@ import {
   TextField,
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
+import { sub } from "date-fns";
 import { useState } from "react";
 
 type SubOrganizationElementProps = {
+  organizationId: string;
   initialSubOrganization?: FullSubOrganization;
   onChange: () => void;
   sx?: SxProps;
 };
 
 export default function SubOrganizationElement({
+  organizationId,
   initialSubOrganization,
   sx,
   onChange,
 }: SubOrganizationElementProps) {
-  const { user: me } = useUserData();
-
   const [subOrganization, setSubOrganization] = useState<
     Partial<FullSubOrganization>
   >({ ...initialSubOrganization });
@@ -39,7 +41,7 @@ export default function SubOrganizationElement({
   async function onSave() {
     if (initialSubOrganization) {
       const res = await fetch(
-        `/api/subOrganizations/${initialSubOrganization.id}`,
+        `/api/subOrganizations/${initialSubOrganization.id}?organizationId=${organizationId}`,
         {
           method: "POST",
           body: JSON.stringify(getSubOrganizationUpdateInput(subOrganization)),
@@ -49,12 +51,15 @@ export default function SubOrganizationElement({
       onChange();
       addToast({ message: "Geändert", severity: "success" });
     } else {
-      const res = await fetch("/api/subOrganizations", {
-        method: "POST",
-        body: JSON.stringify(
-          getSubOrganizationCreateInput(subOrganization, me.organizationId)
-        ),
-      });
+      const res = await fetch(
+        `/api/subOrganizations?organizationId=${organizationId}`,
+        {
+          method: "POST",
+          body: JSON.stringify(
+            getSubOrganizationCreateInput(subOrganization, organizationId)
+          ),
+        }
+      );
 
       if (res.ok) {
         onChange();
@@ -71,9 +76,12 @@ export default function SubOrganizationElement({
     if (!subOrganization.id)
       addToast({ message: "Fehler beim Löschen, keine ID", severity: "error" });
 
-    const res = await fetch(`/api/subOrganizations/${subOrganization.id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `/api/subOrganizations/${subOrganization.id}?organizationId=${organizationId}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     if (res.ok) {
       onChange();
@@ -83,15 +91,26 @@ export default function SubOrganizationElement({
     }
   }
 
-  const saveDisabled = subOrganization.name === initialSubOrganization?.name;
+  const saveDisabled =
+    subOrganization.name === initialSubOrganization?.name &&
+    comparePrimitiveArrayByElements<string>(
+      subOrganization?.User?.map((u) => u.id),
+      initialSubOrganization?.User?.map((u) => u.id)
+    );
 
   return (
     <Box sx={sx}>
       <Paper
         elevation={3}
-        sx={{ p: ".5rem", display: "flex", flexDirection: "row" }}
+        sx={{
+          p: ".5rem",
+          display: "flex",
+          flexDirection: "row",
+          gap: ".25rem",
+        }}
       >
         <TextField
+          label="Bezeichnung"
           sx={{ flexGrow: 1 }}
           value={subOrganization?.name || ""}
           onChange={(e) =>
@@ -99,7 +118,14 @@ export default function SubOrganizationElement({
           }
         />
         {initialSubOrganization && (
-          <UsersElement sx={{ flexGrow: 3 }} users={subOrganization.User} />
+          <UsersElement
+            organizationId={organizationId}
+            sx={{ flexGrow: 3 }}
+            users={subOrganization?.User}
+            onChange={(selectedUsers) =>
+              setSubOrganization({ ...subOrganization, User: selectedUsers })
+            }
+          />
         )}
         <IconButton
           disabled={initialSubOrganization && saveDisabled}
@@ -133,5 +159,7 @@ export function getSubOrganizationUpdateInput(
 ): Prisma.SubOrganizationUpdateInput {
   return {
     name: subOrg.name,
+    User: { set: subOrg.User.map((u) => ({ id: u.id })) },
   };
 }
+

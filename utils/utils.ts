@@ -255,3 +255,15 @@ export function sortAlphaByKey(key: string) {
     else return 0;
   };
 }
+
+export function comparePrimitiveArrayByElements<T = number | string>(
+  a: T[],
+  b: T[]
+) {
+  try {
+    return a?.sort().join() === b?.sort().join();
+  } catch (e) {
+    return false;
+  }
+}
+

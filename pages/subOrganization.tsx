@@ -3,6 +3,7 @@ import Error from "next/error";
 import { useUserData } from "@/utils/authUtils";
 import { Role } from "@prisma/client";
 import SubOrganizationDashboard from "@/components/subOrganization/subOrganizationDashboard";
+import AdminSubOrganizationsDashboard from "@/components/subOrganization/adminSubOrgDashboard";
 
 function ProtectedPage() {
   const { user } = useUserData();
@@ -10,7 +11,9 @@ function ProtectedPage() {
   if (!user || user.role === Role.USER)
     return <Error statusCode={403} title="Forbidden" />;
 
-  return <SubOrganizationDashboard />;
+  if (user.role === Role.ORGCONTROLLER)
+    return <SubOrganizationDashboard organizationId={user.organizationId} />;
+  else return <AdminSubOrganizationsDashboard />;
 }
 
 export default function SubOrganizationPage() {
@@ -20,3 +23,4 @@ export default function SubOrganizationPage() {
     </SessionReact.SessionAuth>
   );
 }
+

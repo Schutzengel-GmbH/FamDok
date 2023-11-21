@@ -16,10 +16,14 @@ export interface ISubOrganizations {
     include: { User: true };
   }>[];
   subOrganization?: Prisma.SubOrganizationGetPayload<{}>;
-  error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED" | "FORBIDDEN";
+  error?:
+    | "INTERNAL_SERVER_ERROR"
+    | "METHOD_NOT_ALLOWED"
+    | "FORBIDDEN"
+    | "ORGANIZATION_ID_REQUIRED";
 }
 
-export default async function organizations(
+export default async function subOrganizations(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse<ISubOrganizations> & Response
 ) {
@@ -41,6 +45,10 @@ export default async function organizations(
     res
   );
 
+  const { organizationId } = req.query as { organizationId: string };
+  if (!organizationId)
+    return res.status(400).json({ error: "ORGANIZATION_ID_REQUIRED" });
+
   const user = await prisma.user
     .findUnique({
       where: { authId: req.session.getUserId() },
@@ -52,7 +60,7 @@ export default async function organizations(
   switch (req.method) {
     case "GET":
       const subOrganizations = await prisma.subOrganization
-        .findMany({ include: { User: true } })
+        .findMany({ where: { organizationId }, include: { User: true } })
         .catch((err) => logger.error(err));
 
       if (!subOrganizations)
@@ -89,3 +97,4 @@ export default async function organizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

@@ -102,9 +102,9 @@ export function useComingFromOptions() {
   };
 }
 
-export function useUsers() {
+export function useUsers(queryString?: string) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IUsers>(
-    "/api/user",
+    `/api/user${queryString || ""}`,
     fetcher
   );
 
@@ -124,9 +124,12 @@ export function useOrganizations() {
   };
 }
 
-export function useSubOrganizations() {
+export function useSubOrganizations(organizationId) {
   const { data, error, isLoading, isValidating, mutate } =
-    useSWR<ISubOrganizations>("/api/subOrganizations", fetcher);
+    useSWR<ISubOrganizations>(
+      `/api/subOrganizations?organizationId=${organizationId}`,
+      fetcher
+    );
 
   return {
     suborganizations: data?.subOrganizations,
@@ -136,3 +139,4 @@ export function useSubOrganizations() {
     mutate,
   };
 }
+

@@ -7,25 +7,34 @@ import { sortAlphaByKey } from "@/utils/utils";
 import { Box, CircularProgress } from "@mui/material";
 import { Role } from "@prisma/client";
 
-export default function SubOrganizationDashboard() {
-  const { user: me } = useUserData();
-  if (me.role === Role.ADMIN) return <AdminSubOrganizationsDashboard />;
+type SubOrganizationDashboardProps = {
+  organizationId: string;
+};
 
-  const { suborganizations, isLoading, error, mutate } = useSubOrganizations();
+export default function SubOrganizationDashboard({
+  organizationId,
+}: SubOrganizationDashboardProps) {
+  const { suborganizations, isLoading, error, mutate } =
+    useSubOrganizations(organizationId);
 
   if (isLoading) return <CircularProgress />;
   if (error) return <ErrorPage message={error} />;
 
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {suborganizations.sort(sortAlphaByKey("name")).map((s) => (
         <SubOrganizationElement
+          organizationId={organizationId}
           key={s.id}
           initialSubOrganization={s}
           onChange={mutate}
         />
       ))}
-      <SubOrganizationElement onChange={mutate} />
+      <SubOrganizationElement
+        organizationId={organizationId}
+        onChange={mutate}
+      />
     </Box>
   );
 }
+
