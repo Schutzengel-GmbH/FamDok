@@ -5,6 +5,7 @@ import { IFooter } from "@/pages/api/footer/[uri]";
 import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { IOrganizations } from "@/pages/api/organizations";
+import { ISubOrganizations } from "@/pages/api/subOrganizations";
 import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
@@ -116,6 +117,19 @@ export function useOrganizations() {
 
   return {
     organizations: data?.organizations,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useSubOrganizations() {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<ISubOrganizations>("/api/subOrganizations", fetcher);
+
+  return {
+    suborganizations: data?.subOrganizations,
     error,
     isLoading,
     isValidating,
