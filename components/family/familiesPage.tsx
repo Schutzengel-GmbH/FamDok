@@ -1,8 +1,9 @@
 import { FamilyCard } from "@/components/family/familyCard";
 import FamilyDialog from "@/components/family/familyDialog";
+import NavItem from "@/components/mainPage/navItem";
 import SearchTextField from "@/components/utilityComponents/searchTextField";
 import { FullFamily } from "@/types/prismaHelperTypes";
-import { Add } from "@mui/icons-material";
+import { Add, Poll } from "@mui/icons-material";
 import { Box, Button, TextField } from "@mui/material";
 import { Gender, Education, Disability } from "@prisma/client";
 import { GetResult } from "@prisma/client/runtime";
@@ -32,11 +33,20 @@ export function FamiliesPageComponent({
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
-        <SearchTextField
-          label="Filter: Familiennummer"
-          filter={filter}
-          onChange={setFilter}
-        />
+        <Box sx={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+          <SearchTextField
+            sx={{ flexGrow: 1 }}
+            label="Filter: Familiennummer"
+            filter={filter}
+            onChange={setFilter}
+          />
+          <NavItem
+            title={"Statistik"}
+            icon={<Poll />}
+            url={"/familiesStats"}
+            canAccess={true}
+          />
+        </Box>
         <Button onClick={handleNew}>
           <Add />
           Neue Familie
@@ -59,3 +69,4 @@ export function FamiliesPageComponent({
     </>
   );
 }
+
