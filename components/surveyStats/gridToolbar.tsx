@@ -1,25 +1,24 @@
-import { getJson } from "@/components/surveyStats/getJson";
+import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
-import { FullResponse, FullSurvey } from "@/types/prismaHelperTypes";
+import { FullSurvey } from "@/types/prismaHelperTypes";
 import { fetcher } from "@/utils/swrConfig";
 import { Box, MenuItem } from "@mui/material";
 import {
   GridCsvExportMenuItem,
   GridToolbarColumnsButton,
   GridToolbarContainer,
-  GridToolbarExport,
   GridToolbarExportContainer,
   GridToolbarFilterButton,
   GridToolbarQuickFilter,
-  gridFilteredSortedRowIdsSelector,
-  gridVisibleColumnFieldsSelector,
   useGridApiContext,
 } from "@mui/x-data-grid";
-import { GridApiCommunity } from "@mui/x-data-grid/internals";
-import { MutableRefObject } from "react";
 import useSWR from "swr";
 
-const CustomGridToolbar = (fileName: string, survey: FullSurvey) => {
+const CustomGridToolbar = (
+  fileName: string,
+  data: object,
+  jsonExportFnc?: (data: object) => string
+) => {
   return (
     <GridToolbarContainer>
       <GridToolbarColumnsButton />
@@ -30,7 +29,13 @@ const CustomGridToolbar = (fileName: string, survey: FullSurvey) => {
         <GridCsvExportMenuItem
           options={{ delimiter: ";", fileName: fileName }}
         />
-        <JsonExportMenuItem survey={survey} fileName={fileName} />
+        {jsonExportFnc && (
+          <JsonExportMenuItem
+            data={data}
+            fileName={fileName}
+            jsonExportFnc={jsonExportFnc}
+          />
+        )}
       </GridToolbarExportContainer>
     </GridToolbarContainer>
   );
@@ -38,19 +43,20 @@ const CustomGridToolbar = (fileName: string, survey: FullSurvey) => {
 
 export default CustomGridToolbar;
 
-const JsonExportMenuItem = (props) => {
-  const apiRef = useGridApiContext();
-  const { hideMenu, survey, fileName } = props;
+type JsonExportMenuItemProps = any & {
+  data: object;
+  fileName: string;
+  jsonExportFnc: (data: object) => string;
+};
 
-  const { data, isLoading, mutate } = useSWR<IResponses>(
-    `/api/surveys/${survey.id}/responses`,
-    fetcher
-  );
+const JsonExportMenuItem = (props: JsonExportMenuItemProps) => {
+  const apiRef = useGridApiContext();
+  const { hideMenu, data, fileName, jsonExportFnc } = props;
 
   return (
     <MenuItem
       onClick={() => {
-        const jsonString = getJson(data.responses);
+        const jsonString = jsonExportFnc(data);
         const blob = new Blob([jsonString], {
           type: "text/json",
         });
