@@ -1,5 +1,6 @@
 import useToast from "@/components/notifications/notificationContext";
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
+import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
 import { optionalFields } from "@/components/surveyStats/responseTableFields";
 import {
@@ -78,7 +79,7 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
         experimentalFeatures={{ columnGrouping: true }}
         columnGroupingModel={columnGroups}
         columns={columns}
-        rows={rows}
+        rows={rows || []}
         checkboxSelection
         rowSelectionModel={selectedIds}
         onRowSelectionModelChange={(selectionModel) =>
@@ -89,7 +90,8 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
             return CustomGridToolbar(
               survey.name + "_" + new Date().toISOString() ||
                 "data_" + new Date().toISOString(),
-              survey
+              data.responses,
+              getFullResponseJson
             );
           },
         }}

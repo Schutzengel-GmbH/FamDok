@@ -34,7 +34,7 @@ export default function CreatedByPickComponent({
       me.organizationId
         ? ""
         : `: ${
-            organizations.find((o) => o.id === u.organizationId)?.name ??
+            organizations?.find((o) => o.id === u.organizationId)?.name ??
             "Keine Organisation"
           }`
     }`;
@@ -60,3 +60,4 @@ export default function CreatedByPickComponent({
     </Box>
   );
 }
+

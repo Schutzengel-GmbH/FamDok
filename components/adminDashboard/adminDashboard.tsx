@@ -1,6 +1,13 @@
 import NavItem from "@/components/mainPage/navItem";
 import { useUserData } from "@/utils/authUtils";
-import { Article, Code, House, Merge, People } from "@mui/icons-material";
+import {
+  Article,
+  Code,
+  House,
+  HouseOutlined,
+  Merge,
+  People,
+} from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -52,6 +59,12 @@ export default function AdminDashboard() {
       canAccess: (user) =>
         user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
     },
+    {
+      title: "Organisation",
+      icon: <HouseOutlined />,
+      url: "/subOrganization",
+      canAccess: (user) => user && user.role !== Role.USER,
+    },
   ];
   return (
     <Box
@@ -61,8 +74,9 @@ export default function AdminDashboard() {
         gap: ".5rem",
       }}
     >
-      {adminNavList.map((i) => (
+      {adminNavList.map((i, index) => (
         <NavItem
+          key={index}
           title={i.title}
           icon={i.icon}
           url={i.url}

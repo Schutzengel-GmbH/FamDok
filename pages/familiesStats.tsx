@@ -1,11 +1,11 @@
-import { FamiliesPageComponent } from "@/components/family/familiesPage";
+import FamilyStats from "@/components/familiesStats/familyStats";
 import SessionReact from "supertokens-auth-react/recipe/session";
 
 function ProtectedPage() {
-  return <FamiliesPageComponent />;
+  return <FamilyStats />;
 }
 
-export default function MePage() {
+export default function FamiliesStatsPage() {
   return (
     <SessionReact.SessionAuth>
       <ProtectedPage />

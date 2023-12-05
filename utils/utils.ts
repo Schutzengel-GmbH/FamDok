@@ -248,3 +248,22 @@ export function sortByStringProperty(propName: string) {
   };
 }
 
+export function sortAlphaByKey(key: string) {
+  return (a: object, b: object) => {
+    if (a[key] < b[key]) return -1;
+    else if (a[key] > b[key]) return 1;
+    else return 0;
+  };
+}
+
+export function comparePrimitiveArrayByElements<T = number | string>(
+  a: T[],
+  b: T[]
+) {
+  try {
+    return a?.sort().join() === b?.sort().join();
+  } catch (e) {
+    return false;
+  }
+}
+

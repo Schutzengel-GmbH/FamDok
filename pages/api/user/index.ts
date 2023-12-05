@@ -15,8 +15,12 @@ supertokens.init(backendConfig());
 
 const FAKE_PASSWORD = "asokdA87fnf30efjoiOI**cwjkn";
 export interface IUsers {
-  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
-  users?: Prisma.UserGetPayload<{ include: { organization: true } }>[];
+  user?: Prisma.UserGetPayload<{
+    include: { organization: true; subOrganizations: true };
+  }>;
+  users?: Prisma.UserGetPayload<{
+    include: { organization: true; subOrganizations: true };
+  }>[];
   inviteLink?: string;
   error?:
     | "NOT_FOUND"
@@ -55,7 +59,9 @@ export default async function users(
     })
     .catch((err) => logger.error(err));
 
-  if (!reqUser || reqUser.role === Role.USER)
+  if (!reqUser) return res.status(403).json({ error: "FORBIDDEN" });
+
+  if (reqUser.role === Role.USER && req.method !== "GET")
     return res.status(403).json({ error: "FORBIDDEN" });
 
   // if user is org controller, only allow access to users in their org
@@ -71,7 +77,7 @@ export default async function users(
             ...where,
             organizationId: organizationId ?? where.organizationId,
           },
-          include: { organization: true },
+          include: { organization: true, subOrganizations: true },
         })
         .catch((err) => logger.error(err));
 
@@ -100,7 +106,7 @@ export default async function users(
             authId: signUpResult.user.id,
             organizationId: organizationId ?? req.body.organizationId,
           },
-          include: { organization: true },
+          include: { organization: true, subOrganizations: true },
         })
         .catch((err) => logger.error(err));
 
@@ -142,3 +148,4 @@ export default async function users(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

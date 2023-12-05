@@ -1,19 +1,22 @@
 import { Search, Clear } from "@mui/icons-material";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import { TextField, InputAdornment, IconButton, SxProps } from "@mui/material";
 
 type SearchTextFieldProps = {
   label?: string;
   filter: string;
+  sx?: SxProps;
   onChange: (filter: string) => void;
 };
 
 export default function SearchTextField({
   label,
   filter,
+  sx,
   onChange,
 }: SearchTextFieldProps) {
   return (
     <TextField
+      sx={sx}
       label={label || "Suche"}
       InputProps={{
         startAdornment: (
@@ -36,3 +39,4 @@ export default function SearchTextField({
     />
   );
 }
+

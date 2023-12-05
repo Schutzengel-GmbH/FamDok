@@ -13,7 +13,7 @@ import {
 } from "@/utils/utils";
 import { Answer, Question, SelectOption } from "@prisma/client";
 
-export function getJson(data: FullResponse[]) {
+export function getFullResponseJson(data: FullResponse[]) {
   let humanReadableRes: object[] = [];
 
   for (let response of data) {

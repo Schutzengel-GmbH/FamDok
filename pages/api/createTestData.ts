@@ -1,4 +1,4 @@
-import { Prisma, Gender, Disability, Education } from "@prisma/client";
+import { Prisma, Gender, Disability, Education, User } from "@prisma/client";
 import supertokens from "supertokens-node/lib/build/supertokens";
 import { backendConfig } from "@/config/backendConfig";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -8,6 +8,8 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { logger as _logger } from "@/config/logger";
+import EmailPassword from "supertokens-node/recipe/emailpassword";
+import { randomUUID } from "crypto";
 
 supertokens.init(backendConfig());
 
@@ -35,14 +37,54 @@ export default async function createTestData(
   logger.info("someone accessed /api/createTestData");
 
   // remove this line to enable this endpoint
-  return res.json({ message: "Endpoint disabled" });
+  //return res.json({ message: "Endpoint disabled" });
   logger.info("creating random family  data for testing...");
 
   const userAuthId = req.session.getUserId();
   const user = await prisma.user.findUnique({ where: { authId: userAuthId } });
   if (!user) return res.status(500).json({ error: "User not found" });
 
-  const n = 1500;
+  const nUser = 300;
+
+  function randomEmail() {
+    return `${randomUUID()}@example.com`;
+  }
+
+  const orgs = await prisma.organization.findMany();
+  const allUsers = await prisma.user.findMany();
+
+  function randomOrg() {
+    return randomSelect(orgs.map((o) => o.id));
+  }
+
+  for (let i = 0; i < nUser; i++) {
+    let signUpResult = await EmailPassword.signUp(
+      randomEmail(),
+      "password"
+    ).catch((err) => logger.error(err));
+
+    if (!signUpResult)
+      return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+
+    if (signUpResult.status === "EMAIL_ALREADY_EXISTS_ERROR")
+      return res.status(400).json({ error: "EMAIL_ALREADY_EXISTS_ERROR" });
+
+    logger.info(req.body, "body");
+
+    const newUser = await prisma.user
+      .create({
+        data: {
+          ...req.body,
+          authId: signUpResult.user.id,
+          email: signUpResult.user.email,
+          organization: { connect: { id: randomOrg() } },
+        },
+        include: { organization: true },
+      })
+      .catch((err) => logger.error(err));
+  }
+
+  const n = 0;
 
   for (let i = 0; i < n; i++) {
     const twoParents = (Math.random() < 0.5) as Boolean;
@@ -173,7 +215,9 @@ export default async function createTestData(
             "Berlin",
             "",
           ]),
-          createdBy: { connect: { id: user.id } },
+          createdBy: {
+            connect: { id: randomSelect(allUsers.map((u) => u.id)) },
+          },
           caregivers: { createMany: caregivers },
           children: { createMany: { data: childrenData } },
           childrenInHousehold: Math.floor(Math.random() * 10) + 1,
@@ -230,3 +274,4 @@ function randomEndOfCareDate() {
 export async function yeetData() {
   return await prisma.family.deleteMany({});
 }
+

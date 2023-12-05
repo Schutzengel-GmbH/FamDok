@@ -18,29 +18,41 @@ model LogEntry {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  authId         String        @unique
-  name           String        @default("")
-  email          String        @unique
-  emailVerified  DateTime?
-  image          String?
-  role           Role          @default(USER)
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId String?
-  responses      Response[]
-  Survey         Survey[]
-  Family         Family[]
+  id               String            @id @default(cuid())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  authId           String            @unique
+  name             String            @default("")
+  email            String            @unique
+  emailVerified    DateTime?
+  image            String?
+  role             Role              @default(USER)
+  organization     Organization?     @relation(fields: [organizationId], references: [id])
+  organizationId   String?
+  responses        Response[]
+  Survey           Survey[]
+  Family           Family[]
+  subOrganizations SubOrganization[]
+}
+
+model SubOrganization {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String
+  User           User[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  User      User[]
-  Survey    Survey[]
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  name            String
+  User            User[]
+  Survey          Survey[]
+  SubOrganization SubOrganization[]
 }
 
 enum Role {

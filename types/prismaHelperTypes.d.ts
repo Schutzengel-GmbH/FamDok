@@ -92,3 +92,7 @@ export type IAnswerSelectOtherValue = {
 };
 
 export type IAnswerSelectOtherValues = IAnswerSelectOtherValue[];
+
+export type FullSubOrganization = Prisma.SubOrganizationGetPayload<{
+  include: { User: true };
+}>;
