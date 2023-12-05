@@ -10,6 +10,10 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
 import { ToastProvider } from "@/components/notifications/notificationContext";
 import { InfoDialogProvider } from "@/components/infoDialog/infoDialogContext";
+import { ThemeProvider, createTheme } from "@mui/material";
+import { DataGrid, deDE } from "@mui/x-data-grid";
+import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
+import { deDE as coreDeDE } from "@mui/material/locale";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -33,19 +37,24 @@ function MyApp({ Component, pageProps }): JSX.Element {
     return null;
   }
 
+  const theme = createTheme({}, deDE, pickersDeDE, coreDeDE);
+
   return (
     <SuperTokensWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
-        <Layout>
-          <InfoDialogProvider>
-            <ToastProvider>
-              <Component {...pageProps} />
-            </ToastProvider>
-          </InfoDialogProvider>
-        </Layout>
+        <ThemeProvider theme={theme}>
+          <Layout>
+            <InfoDialogProvider>
+              <ToastProvider>
+                <Component {...pageProps} />
+              </ToastProvider>
+            </InfoDialogProvider>
+          </Layout>
+        </ThemeProvider>
       </LocalizationProvider>
     </SuperTokensWrapper>
   );
 }
 
 export default MyApp;
+

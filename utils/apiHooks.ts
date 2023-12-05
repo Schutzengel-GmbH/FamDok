@@ -37,6 +37,58 @@ export function useFamilies() {
     };
 }
 
+export function useFamily(number: number) {
+  const { user, error: userError } = useUserData();
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
+    user && number ? `/api/families?number=${number}` : null,
+    fetcher
+  );
+
+  if (userError)
+    return {
+      data: undefined,
+      error: userError,
+      isLoading: false,
+      isValidating: false,
+      mutate,
+    };
+  else
+    return {
+      families: data?.families,
+      error,
+      isLoading,
+      isValidating,
+      mutate,
+    };
+}
+
+export function useMyFamilies() {
+  const { user, error: userError } = useUserData();
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
+    user ? `/api/families?userId=${user.id}` : null,
+    fetcher
+  );
+
+  if (userError)
+    return {
+      data: undefined,
+      error: userError,
+      isLoading: false,
+      isValidating: false,
+      mutate,
+    };
+  else
+    return {
+      families: data?.families,
+      error,
+      isLoading,
+      isValidating,
+      mutate,
+    };
+}
+
 export function useFooterUris() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFooters>(
     "/api/footer?getPageInfoOnly=true",

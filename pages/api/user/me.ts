@@ -13,7 +13,9 @@ import { SessionRequest } from "supertokens-node/framework/express";
 supertokens.init(backendConfig());
 
 export interface IUserMe {
-  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
+  user?: Prisma.UserGetPayload<{
+    include: { organization: true; subOrganizations: true };
+  }>;
   error?:
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
@@ -48,7 +50,7 @@ export default async function me(
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { authId: req.session.getUserId() },
-      include: { organization: true },
+      include: { organization: true, subOrganizations: true },
     });
   } catch (err) {
     if (
@@ -112,3 +114,4 @@ export default async function me(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

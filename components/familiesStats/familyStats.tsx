@@ -1,49 +1,119 @@
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
+import ErrorPage from "@/components/utilityComponents/error";
 import { IUser } from "@/pages/api/user/[id]";
 import { FullFamily } from "@/types/prismaHelperTypes";
+import { useFamilies, useMyFamilies } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import { CircularProgress } from "@mui/material";
-import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useState } from "react";
+import {
+  DataGrid,
+  GridColDef,
+  GridRowSelectionModel,
+  deDE,
+} from "@mui/x-data-grid";
+import { SubOrganization, User } from "@prisma/client";
+import { isPast } from "date-fns";
+import { useEffect, useState } from "react";
 
-type FamilyStatsProps = {
-  families: FullFamily[];
-};
-
-export default function FamilyStats({ families }: FamilyStatsProps) {
+export default function FamilyStats() {
   const [selectedIds, updateSelectedIds] = useState<GridRowSelectionModel>();
+  const [rows, setRows] = useState([]);
+  const { user } = useUserData();
+  const { families, isLoading, mutate, error } =
+    user.role === "USER" ? useMyFamilies() : useFamilies();
+
+  useEffect(() => {
+    if (!families) return;
+    fetch("/api/user").then((res) =>
+      res.json().then((json) => {
+        setRows(
+          families.map((f) => ({
+            ...f,
+            createdBy: getUserString(json.users.find((u) => u.id === f.userId)),
+            subOrg: (
+              json.users.find((u) => u.id === f.userId) as User & {
+                subOrganizations: SubOrganization[];
+              }
+            ).subOrganizations.reduce((prev, s) => prev + s.name, ""),
+            isClosed: isPast(new Date(f.endOfCare || undefined)),
+          }))
+        );
+      })
+    );
+  }, [families]);
 
   const colDef: GridColDef[] = [
-    { field: "number", headerName: "Familiennummer" },
+    {
+      field: "number",
+      headerName: "Familiennummer",
+      type: "number",
+    },
     {
       field: "children",
+      headerName: "Kinder",
+      description: "Anzahl Kinder im Haushalt",
+      type: "number",
       valueGetter(params) {
-        return params.value[1]?.number || "";
+        return Math.max(params.row.childrenInHousehold, params.value.length);
+      },
+    },
+    { field: "location", headerName: "Wohnort", type: "string" },
+    {
+      field: "otherInstalledProfessionals",
+      type: "string",
+      headerName: "Andere installierte Fachkräfte",
+      width: 200,
+    },
+    {
+      field: "comingFrom",
+      type: "string",
+      headerName: "Zugang über",
+      width: 200,
+    },
+    {
+      field: "beginOfCare",
+      type: "date",
+      headerName: "Beginn",
+      description: "Beginn der Betreuung",
+      valueGetter: (params) => {
+        if (params.value) return new Date(params.value);
+        else return null;
       },
     },
     {
-      field: "userId",
+      field: "isClosed",
+      headerName: "Abgeschlossen?",
+      type: "boolean",
+    },
+    {
+      field: "endOfCare",
+      type: "date",
+      headerName: "Ende",
+      description: "Ende der Betreuung",
       valueGetter: (params) => {
-        return fetch(`/api/user/${params.value}`)
-          .then((res) => {
-            if (!res.ok) return "Fehler beim Abrufen der Daten";
-            else return "buzz";
-            res.json().then((json) => {
-              if (json.error) return json.error;
-              else if (json.user) return json.user.name || json.user.email;
-              else return "Kein";
-            });
-          })
-          .catch((e) => e);
+        if (params.value) return new Date(params.value);
+        else return null;
       },
+    },
+    {
+      field: "createdBy",
+      headerName: "Verantwortlich",
+      type: "string",
+      width: 150,
+    },
+    {
+      field: "subOrg",
+      headerName: "Unterorganisation",
+      type: "string",
+      width: 150,
     },
   ];
 
   return (
     <DataGrid
       columns={colDef}
-      rows={families || []}
+      rows={rows || []}
       checkboxSelection
       rowSelectionModel={selectedIds}
       onRowSelectionModelChange={(selectionModel) =>
@@ -54,8 +124,12 @@ export default function FamilyStats({ families }: FamilyStatsProps) {
           return CustomGridToolbar("Familien", families);
         },
       }}
-      localeText={GRID_LOCALE_TEXT}
     />
   );
+}
+
+function getUserString(user?: User) {
+  if (!user) return "Kein";
+  else return user.name || user.email;
 }
 

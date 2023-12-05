@@ -14,7 +14,9 @@ import { logger as _logger } from "@/config/logger";
 supertokens.init(backendConfig());
 
 export interface IUser {
-  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
+  user?: Prisma.UserGetPayload<{
+    include: { organization: true; subOrganizations: true };
+  }>;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "NOT_FOUND"
@@ -61,7 +63,7 @@ export default async function user(
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { id: id as string },
-      include: { organization: true },
+      include: { organization: true, subOrganizations: true },
     });
   } catch (err) {
     if (
@@ -137,7 +139,7 @@ export default async function user(
         .update({
           where: { id: id as string },
           data: req.body,
-          include: { organization: true },
+          include: { organization: true, subOrganizations: true },
         })
         .catch((err) => logger.error(err));
 
@@ -150,3 +152,4 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+
