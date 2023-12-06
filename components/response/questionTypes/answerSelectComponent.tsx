@@ -18,7 +18,7 @@ export default function AnswerSelectComponent({
   onChange,
 }: AnswerComponentProps) {
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
-    (answer.answerSelectOtherValues as IAnswerSelectOtherValues) || []
+    (answer?.answerSelectOtherValues as IAnswerSelectOtherValues) || []
   );
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {

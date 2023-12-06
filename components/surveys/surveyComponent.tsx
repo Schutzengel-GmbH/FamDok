@@ -22,7 +22,7 @@ export interface SurveyComponentProps {
 }
 
 export default function SurveyComponent({ survey }: SurveyComponentProps) {
-  const [selectResponseOpen, setSelectResponseOpen] = useState<boolean>(false);
+  // const [selectResponseOpen, setSelectResponseOpen] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -36,7 +36,8 @@ export default function SurveyComponent({ survey }: SurveyComponentProps) {
   }
 
   function handleMyResponses() {
-    setSelectResponseOpen(true);
+    // setSelectResponseOpen(true);
+    router.push(`/surveys/${survey.id}/myResponses`);
   }
 
   return (
@@ -62,11 +63,11 @@ export default function SurveyComponent({ survey }: SurveyComponentProps) {
         Meine Antworten
       </Button>
 
-      <SelectResponseDialog
+      {/* <SelectResponseDialog
         responses={data?.responses || []}
         open={selectResponseOpen}
         onClose={() => setSelectResponseOpen(false)}
-      />
+      /> */}
     </Paper>
   );
 }

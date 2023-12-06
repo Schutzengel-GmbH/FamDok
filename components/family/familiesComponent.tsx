@@ -8,12 +8,15 @@ import { Box, Button, SxProps } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useState } from "react";
 import { useFamily } from "@/utils/apiHooks";
+import { useUserData } from "@/utils/authUtils";
 
 export default function FamiliesComponen() {
   const [filter, setFilter] = useState("");
   const [newFamOpen, setNewFamOpen] = useState(false);
 
-  const { families, isLoading, mutate } = useFamily(
+  const { user } = useUserData();
+
+  const { family, isLoading, mutate } = useFamily(
     parseInt(filter) || undefined
   );
 
@@ -32,19 +35,17 @@ export default function FamiliesComponen() {
             onChange={setFilter}
           />
           <NavItem
-            title={"Statistik"}
+            title={user?.role === "USER" ? "Meine Familien" : "Statistik"}
             icon={<Poll />}
             url={"/familiesStats"}
-            canAccess={true}
+            canAccess={user ? true : false}
           />
         </Box>
         <Button onClick={handleNew}>
           <Add />
           Neue Familie
         </Button>
-        {families && families[0] && (
-          <FamilyCard family={families[0]} onChange={mutate} />
-        )}
+        {family && <FamilyCard family={family} onChange={mutate} />}
       </Box>
       <FamilyDialog
         initialFamily={undefined}

@@ -1,11 +1,18 @@
+import FamilyDialog from "@/components/family/familyDialog";
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
 import ErrorPage from "@/components/utilityComponents/error";
 import { IUser } from "@/pages/api/user/[id]";
 import { FullFamily } from "@/types/prismaHelperTypes";
-import { useFamilies, useMyFamilies } from "@/utils/apiHooks";
+import {
+  useComingFromOptions,
+  useFamilies,
+  useMyFamilies,
+} from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
-import { CircularProgress } from "@mui/material";
+import { sortByNumberProperty } from "@/utils/utils";
+import { Edit } from "@mui/icons-material";
+import { CircularProgress, IconButton } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -18,17 +25,21 @@ import { useEffect, useState } from "react";
 
 export default function FamilyStats() {
   const [selectedIds, updateSelectedIds] = useState<GridRowSelectionModel>();
+  const [selectedFamily, setSelectedFamily] = useState<FullFamily>(undefined);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [rows, setRows] = useState([]);
   const { user } = useUserData();
   const { families, isLoading, mutate, error } =
-    user.role === "USER" ? useMyFamilies() : useFamilies();
+    user?.role === "USER" ? useMyFamilies() : useFamilies();
+
+  const { comingFromOptions } = useComingFromOptions();
 
   useEffect(() => {
     if (!families) return;
     fetch("/api/user").then((res) =>
       res.json().then((json) => {
         setRows(
-          families.map((f) => ({
+          families.sort(sortByNumberProperty("number")).map((f) => ({
             ...f,
             createdBy: getUserString(json.users.find((u) => u.id === f.userId)),
             subOrg: (
@@ -70,6 +81,15 @@ export default function FamilyStats() {
       type: "string",
       headerName: "Zugang über",
       width: 200,
+      valueGetter: (params) => {
+        const family = params.row as FullFamily;
+        if (family?.comingFromOptionId)
+          return (
+            comingFromOptions.find((o) => o.id === family.comingFromOptionId)
+              .value ?? ""
+          );
+        else return family?.comingFromOtherValue || "";
+      },
     },
     {
       field: "beginOfCare",
@@ -108,23 +128,52 @@ export default function FamilyStats() {
       type: "string",
       width: 150,
     },
+    {
+      field: "edit",
+      headerName: "Bearbeiten",
+      renderCell: (params) => (
+        <IconButton onClick={() => handleEdit(params.row as FullFamily)}>
+          <Edit />
+        </IconButton>
+      ),
+    },
   ];
 
+  function handleEdit(family: FullFamily) {
+    setSelectedFamily(family);
+    setDialogOpen(true);
+  }
+
+  function handleCellClick(p, e) {
+    p.field === "edit" && e.stopPropagation();
+  }
+
   return (
-    <DataGrid
-      columns={colDef}
-      rows={rows || []}
-      checkboxSelection
-      rowSelectionModel={selectedIds}
-      onRowSelectionModelChange={(selectionModel) =>
-        updateSelectedIds(selectionModel)
-      }
-      slots={{
-        toolbar: () => {
-          return CustomGridToolbar("Familien", families);
-        },
-      }}
-    />
+    <>
+      <DataGrid
+        onCellClick={handleCellClick}
+        columns={colDef}
+        rows={rows || []}
+        checkboxSelection
+        rowSelectionModel={selectedIds}
+        onRowSelectionModelChange={(selectionModel) =>
+          updateSelectedIds(selectionModel)
+        }
+        slots={{
+          toolbar: () => {
+            return CustomGridToolbar("Familien", families);
+          },
+        }}
+      />
+      <FamilyDialog
+        initialFamily={selectedFamily}
+        open={dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          mutate();
+        }}
+      />
+    </>
   );
 }
 
