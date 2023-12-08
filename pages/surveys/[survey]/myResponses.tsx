@@ -1,11 +1,12 @@
 import SessionReact from "supertokens-auth-react/recipe/session";
 import { useRouter } from "next/router";
+import MyResponsesPageComponent from "@/components/myResponses/myResponsesPage";
 
 function ProtectedPage() {
   const router = useRouter();
   const { survey: id } = router.query;
 
-  return <></>;
+  return <MyResponsesPageComponent id={id as string} />;
 }
 
 export default function MyResponsesPage() {
@@ -15,3 +16,4 @@ export default function MyResponsesPage() {
     </SessionReact.SessionAuth>
   );
 }
+

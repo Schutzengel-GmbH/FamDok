@@ -6,6 +6,8 @@ import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { IOrganizations } from "@/pages/api/organizations";
 import { ISubOrganizations } from "@/pages/api/subOrganizations";
+import { ISurvey } from "@/pages/api/surveys/[survey]";
+import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
@@ -55,7 +57,7 @@ export function useFamily(number: number) {
     };
   else
     return {
-      families: data?.families,
+      family: data?.families[0] || undefined,
       error,
       isLoading,
       isValidating,
@@ -185,6 +187,36 @@ export function useSubOrganizations(organizationId) {
 
   return {
     suborganizations: data?.subOrganizations,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMyResponses(surveyId: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IResponses>(
+    surveyId ? `/api/surveys/${surveyId}/responses/my` : null,
+    fetcher
+  );
+
+  return {
+    responses: data?.responses,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useSurvey(id: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISurvey>(
+    id ? `/api/surveys/${id}` : null,
+    fetcher
+  );
+
+  return {
+    survey: data?.survey,
     error,
     isLoading,
     isValidating,

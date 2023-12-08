@@ -237,8 +237,21 @@ export function makeUriLegal(str: string) {
 
 export function sortByStringProperty(propName: string) {
   return (
-    object1: { [x: string]: string },
-    object2: { [x: string]: string }
+    object1: any & { [x: string]: string },
+    object2: any & { [x: string]: string }
+  ) => {
+    if (!(propName in object1) || !(propName in object2))
+      throw new Error(`Property ${propName} does not exist in object`);
+    if (object1[propName] < object2[propName]) return -1;
+    if (object1[propName] > object2[propName]) return 1;
+    else return 0;
+  };
+}
+
+export function sortByNumberProperty(propName: string) {
+  return (
+    object1: any & { [x: string]: number },
+    object2: any & { [x: string]: number }
   ) => {
     if (!(propName in object1) || !(propName in object2))
       throw new Error(`Property ${propName} does not exist in object`);
