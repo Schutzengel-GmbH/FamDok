@@ -26,6 +26,7 @@ import { useComingFromOptions, useLocations } from "@/utils/apiHooks";
 import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
 import ComingFromOptionPicker from "@/components/family/pickComponents/comingFromPickComponent";
 import CreatedByPickComponent from "@/components/family/pickComponents/createdByPickComponent";
+import EndOfCareDialog from "@/components/family/endOfCareDialog";
 
 export type PartialFamily = Partial<
   Family & {
@@ -52,6 +53,8 @@ export default function FamilyDialog({
 }: FamilyDialogProps) {
   const [family, setFamily] = useState<PartialFamily>({});
   const [famNumberCreated, setFamNumberCreated] = useState<number>();
+
+  const [endOfCareDialogOpen, setEndOfCareDialogOpen] = useState(false);
 
   const { user } = useUserData();
   const { addToast } = useToast();
@@ -114,6 +117,16 @@ export default function FamilyDialog({
     delete update.familyUpdate.Response;
 
     return update;
+  }
+
+  function handleEndOfCareDialog(end: boolean, date?: Date) {
+    if (!end) {
+      setEndOfCareDialogOpen(false);
+      return;
+    }
+    console.log(date);
+    setFamily({ ...family, endOfCare: date });
+    setEndOfCareDialogOpen(false);
   }
 
   async function handleSave(e: MouseEvent) {
@@ -216,19 +229,30 @@ export default function FamilyDialog({
                 }
               }}
             />
-            <DatePickerComponent
-              sx={{ marginTop: "1rem" }}
-              label="Ende der Betreuung"
-              currentAnswer={family.endOfCare}
-              onChange={(value, error) => {
-                if (error) {
-                  //TODO: handle error
-                  return;
-                } else {
-                  setFamily({ ...family, endOfCare: value });
-                }
-              }}
-            />
+            {family.endOfCare && (
+              <DatePickerComponent
+                sx={{ marginTop: "1rem" }}
+                label="Ende der Betreuung"
+                currentAnswer={family.endOfCare}
+                onChange={(value, error) => {
+                  if (error) {
+                    //TODO: handle error
+                    return;
+                  } else {
+                    setFamily({ ...family, endOfCare: value });
+                  }
+                }}
+              />
+            )}
+            {!family.endOfCare && (
+              <Button
+                sx={{ marginTop: "1rem" }}
+                variant={"outlined"}
+                onClick={() => setEndOfCareDialogOpen(true)}
+              >
+                Betreuung beenden
+              </Button>
+            )}
             {isLoading || (comingFromIsLoading && <CircularProgress />)}
             {!isLoading && locations.length == 0 && (
               <TextField
@@ -340,6 +364,12 @@ export default function FamilyDialog({
           </Button>
         </DialogActions>
       </Dialog>
+      <EndOfCareDialog
+        family={family}
+        open={endOfCareDialogOpen}
+        onClose={handleEndOfCareDialog}
+      />
     </>
   );
 }
+
