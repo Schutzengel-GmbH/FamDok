@@ -28,7 +28,7 @@ export default async function config(
     res
   );
 
-  const { id } = req.query;
+  const { name } = req.query;
 
   const reqUser = await prisma.user
     .findUnique({
@@ -37,41 +37,39 @@ export default async function config(
     .catch((err) => logger.error(err));
 
   if (!reqUser) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-  if (reqUser.role !== "ADMIN") res.status(403).json({ error: "FORBIDDEN" });
+  if (reqUser.role !== "ADMIN")
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   switch (req.method) {
     case "GET":
       const config = await prisma.configuration
-        .findUnique({ where: { id: id as string } })
+        .findUnique({ where: { name: name as string } })
         .catch((err) => {
           logger.error(err);
-          return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
         });
 
       return res.status(200).json({ config });
     case "POST":
       await prisma.configuration
-        .update({
-          where: { id: id as string },
-          data: req.body,
+        .upsert({
+          where: { name: name as string },
+          create: JSON.parse(req.body),
+          update: JSON.parse(req.body),
         })
         .catch((err) => {
           logger.error(err);
-          return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
         });
-      return res.status(200).json({ config });
+      return res.status(200).json({});
     case "DELETE":
       await prisma.configuration
         .delete({
-          where: { id: id as string },
+          where: { name: name as string },
         })
         .catch((err) => {
           logger.error(err);
-          return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
         });
-      return res.status(200).json({ config });
+      return res.status(200).json({});
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

@@ -7,6 +7,7 @@ import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { IOrganizations } from "@/pages/api/organizations";
 import { ISubOrganizations } from "@/pages/api/subOrganizations";
+import { ISurveys } from "@/pages/api/surveys";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
@@ -226,18 +227,14 @@ export function useSurvey(id: string) {
   };
 }
 
-export function useConfig() {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IConfig>(
-    "/api/config",
+export function useSurveys() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISurveys>(
+    `/api/surveys`,
     fetcher
   );
 
-  const config: Record<string, any> = data.config.reduce((prev, value) => {
-    return { ...prev, [value.name]: value.value };
-  }, {});
-
   return {
-    config: config as AppConfiguration,
+    surveys: data?.surveys,
     error,
     isLoading,
     isValidating,
@@ -245,3 +242,17 @@ export function useConfig() {
   };
 }
 
+export function useConfig() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IConfig>(
+    "/api/config",
+    fetcher
+  );
+
+  return {
+    config: data?.config,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}

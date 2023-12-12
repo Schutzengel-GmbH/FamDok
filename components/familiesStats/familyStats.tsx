@@ -131,11 +131,14 @@ export default function FamilyStats() {
     {
       field: "edit",
       headerName: "Bearbeiten",
-      renderCell: (params) => (
-        <IconButton onClick={() => handleEdit(params.row as FullFamily)}>
-          <Edit />
-        </IconButton>
-      ),
+      renderCell: (params) => {
+        console.log("boop", params.row);
+        return (
+          <IconButton onClick={() => handleEdit(params.row as FullFamily)}>
+            <Edit />
+          </IconButton>
+        );
+      },
     },
   ];
 
@@ -181,4 +184,3 @@ function getUserString(user?: User) {
   if (!user) return "Kein";
   else return user.name || user.email;
 }
-

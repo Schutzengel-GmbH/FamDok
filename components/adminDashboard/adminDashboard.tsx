@@ -7,6 +7,7 @@ import {
   HouseOutlined,
   Merge,
   People,
+  Settings,
 } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { Prisma, Role } from "@prisma/client";
@@ -65,6 +66,12 @@ export default function AdminDashboard() {
       url: "/subOrganization",
       canAccess: (user) => user && user.role !== Role.USER,
     },
+    {
+      title: "Einstellungen",
+      icon: <Settings />,
+      url: "/settings",
+      canAccess: (user) => user && user.role === Role.ADMIN,
+    },
   ];
   return (
     <Box
@@ -86,4 +93,3 @@ export default function AdminDashboard() {
     </Box>
   );
 }
-

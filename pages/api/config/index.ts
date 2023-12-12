@@ -46,14 +46,15 @@ export default async function config(
 
       return res.status(200).json({ config });
     case "POST":
-      await prisma.configuration.create({ data: req.body }).catch((err) => {
-        logger.error(err);
-        return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-      });
+      await prisma.configuration
+        .create({ data: JSON.parse(req.body) })
+        .catch((err) => {
+          logger.error(err);
+          return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+        });
 
       return res.status(200).json({});
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
