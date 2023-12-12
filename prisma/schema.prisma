@@ -241,6 +241,15 @@ model Child {
   Response      Response[]
 }
 
+model Configuration {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String
+  value String
+}
+
 enum Disability {
   Yes
   No

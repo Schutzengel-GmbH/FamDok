@@ -1,4 +1,5 @@
 import { IComingFromOptions } from "@/pages/api/comingFromOptions";
+import { IConfig } from "@/pages/api/config";
 import { IFamilies } from "@/pages/api/families";
 import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
@@ -9,6 +10,7 @@ import { ISubOrganizations } from "@/pages/api/subOrganizations";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
+import { AppConfiguration } from "@/utils/appConfigUtils";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
 import useSWR from "swr";
@@ -217,6 +219,25 @@ export function useSurvey(id: string) {
 
   return {
     survey: data?.survey,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useConfig() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IConfig>(
+    "/api/config",
+    fetcher
+  );
+
+  const config: Record<string, any> = data.config.reduce((prev, value) => {
+    return { ...prev, [value.name]: value.value };
+  }, {});
+
+  return {
+    config: config as AppConfiguration,
     error,
     isLoading,
     isValidating,
