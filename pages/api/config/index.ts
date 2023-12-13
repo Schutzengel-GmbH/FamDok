@@ -35,7 +35,8 @@ export default async function config(
     .catch((err) => logger.error(err));
 
   if (!reqUser) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-  if (reqUser.role !== "ADMIN") res.status(403).json({ error: "FORBIDDEN" });
+  if (reqUser.role !== "ADMIN" && req.method !== "GET")
+    res.status(403).json({ error: "FORBIDDEN" });
 
   switch (req.method) {
     case "GET":

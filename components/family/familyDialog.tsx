@@ -20,7 +20,10 @@ import { useUserData } from "@/utils/authUtils";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
-import { IFamily, IFamilyUpdate } from "@/pages/api/families/[family]";
+import {
+  ApiResponseFamily,
+  IFamilyUpdate,
+} from "@/pages/api/families/[family]";
 import useToast from "@/components/notifications/notificationContext";
 import { useComingFromOptions, useLocations } from "@/utils/apiHooks";
 import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
@@ -119,16 +122,6 @@ export default function FamilyDialog({
     return update;
   }
 
-  function handleEndOfCareDialog(end: boolean, date?: Date) {
-    if (!end) {
-      setEndOfCareDialogOpen(false);
-      return;
-    }
-    console.log(date);
-    setFamily({ ...family, endOfCare: date });
-    setEndOfCareDialogOpen(false);
-  }
-
   async function handleSave(e: MouseEvent) {
     e.stopPropagation();
     if (!initialFamily) {
@@ -168,7 +161,7 @@ export default function FamilyDialog({
         onClose(res.family);
       }
     } else {
-      const res = await apiPostJson<IFamily>(
+      const res = await apiPostJson<ApiResponseFamily>(
         `/api/families/${initialFamily.id}`,
         getUpdateInput()
       );
@@ -258,7 +251,7 @@ export default function FamilyDialog({
               <TextField
                 sx={{ marginTop: "1rem" }}
                 label="Wohnort"
-                value={family.location}
+                value={family.location || ""}
                 onChange={(e) =>
                   setFamily({ ...family, location: e.currentTarget.value })
                 }
@@ -367,7 +360,7 @@ export default function FamilyDialog({
       <EndOfCareDialog
         family={family}
         open={endOfCareDialogOpen}
-        onClose={handleEndOfCareDialog}
+        onClose={() => setEndOfCareDialogOpen(false)}
       />
     </>
   );

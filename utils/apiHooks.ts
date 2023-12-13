@@ -242,7 +242,7 @@ export function useSurveys() {
   };
 }
 
-export function useConfig() {
+export function useConfigRaw() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IConfig>(
     "/api/config",
     fetcher

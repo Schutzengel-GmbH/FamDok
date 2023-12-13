@@ -14,6 +14,7 @@ import { ThemeProvider, createTheme } from "@mui/material";
 import { DataGrid, deDE } from "@mui/x-data-grid";
 import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
 import { deDE as coreDeDE } from "@mui/material/locale";
+import { ConfigProvider } from "@/components/utilityComponents/conficContext";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -43,13 +44,15 @@ function MyApp({ Component, pageProps }): JSX.Element {
     <SuperTokensWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
         <ThemeProvider theme={theme}>
-          <Layout>
-            <InfoDialogProvider>
-              <ToastProvider>
-                <Component {...pageProps} />
-              </ToastProvider>
-            </InfoDialogProvider>
-          </Layout>
+          <ConfigProvider>
+            <Layout>
+              <InfoDialogProvider>
+                <ToastProvider>
+                  <Component {...pageProps} />
+                </ToastProvider>
+              </InfoDialogProvider>
+            </Layout>
+          </ConfigProvider>
         </ThemeProvider>
       </LocalizationProvider>
     </SuperTokensWrapper>
@@ -57,4 +60,3 @@ function MyApp({ Component, pageProps }): JSX.Element {
 }
 
 export default MyApp;
-

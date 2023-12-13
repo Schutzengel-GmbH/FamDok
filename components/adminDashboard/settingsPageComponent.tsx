@@ -1,7 +1,7 @@
 import SelectSurveySettingComponent from "@/components/adminDashboard/settingComponents/selectSurveySetting";
 import StringSettingComponent from "@/components/adminDashboard/settingComponents/stringSetting";
 import useToast from "@/components/notifications/notificationContext";
-import { useConfig } from "@/utils/apiHooks";
+import { useConfigRaw } from "@/utils/apiHooks";
 import { AppConfiguration, AppConfigurationDict } from "@/utils/appConfigUtils";
 import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 export default function SettingsPageComponent() {
   const [settings, setSettings] = useState<Partial<AppConfiguration>>();
 
-  const { config, mutate } = useConfig();
+  const { config, mutate } = useConfigRaw();
 
   useEffect(() => {
     const configObject: Record<string, any> = config?.reduce((prev, value) => {

@@ -12,7 +12,7 @@ import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
-export interface IFamily {
+export interface ApiResponseFamily {
   family?: Prisma.FamilyGetPayload<{
     include: { caregivers: true; children: true; comingFrom: true };
   }>;
@@ -22,6 +22,8 @@ export interface IFamily {
     | "NOT_FOUND"
     | "FORBIDDEN";
 }
+
+export interface ApiRequestFamily {}
 
 export interface IFamilyUpdate {
   familyUpdate?: Prisma.FamilyUpdateInput;

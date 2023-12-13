@@ -9,7 +9,10 @@ export class FetchError {
   error?: string;
 }
 
-export async function apiPostJson<ApiReturnType>(url: string, body: object) {
+export async function apiPostJson<ApiReturnType, BodyType = object>(
+  url: string,
+  body: BodyType
+) {
   try {
     return await fetch(url, {
       method: "POST",

@@ -1,21 +1,25 @@
 import { PartialFamily } from "@/components/family/familyDialog";
+import useToast from "@/components/notifications/notificationContext";
+import { useConfig } from "@/components/utilityComponents/conficContext";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
-import { FullFamily } from "@/types/prismaHelperTypes";
+import { ApiResponseFamily } from "@/pages/api/families/[family]";
+import { useSurvey } from "@/utils/apiHooks";
+import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Typography,
 } from "@mui/material";
-import { Family } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 type EndOfCareDialogProps = {
   open: boolean;
   family: PartialFamily;
-  onClose: (end: boolean, date?: Date) => void;
+  onClose: () => void;
 };
 
 export default function EndOfCareDialog({
@@ -24,13 +28,43 @@ export default function EndOfCareDialog({
   onClose,
 }: EndOfCareDialogProps) {
   const [date, setDate] = useState<Date>(family.endOfCare);
+  const { endOfCareAutoSurveyId } = useConfig();
+  const { survey } = useSurvey(endOfCareAutoSurveyId);
+  const router = useRouter();
+  const { addToast } = useToast();
 
   function handleCancel() {
-    onClose(false);
+    onClose();
   }
 
-  function handleSave() {
-    onClose(true, date);
+  async function handleSave() {
+    onClose();
+
+    const res = await apiPostJson<
+      ApiResponseFamily,
+      { familyUpdate: Prisma.FamilyUpdateInput }
+    >(`/api/families/${family.id}`, { familyUpdate: { endOfCare: date } });
+
+    if (res instanceof FetchError)
+      addToast({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    else {
+      if (res.error)
+        addToast({
+          message: `Fehler: ${res.error}`,
+          severity: "error",
+        });
+
+      addToast({
+        message: `Familie ${res.family?.number} abgeschlossen.`,
+        severity: "success",
+      });
+    }
+
+    if (survey && family)
+      router.push(`/surveys/${survey.id}/newResponse?number=${family.number}`);
   }
 
   return (
@@ -41,7 +75,9 @@ export default function EndOfCareDialog({
       }}
     >
       <DialogTitle>Betreuung beenden?</DialogTitle>
-      <DialogContent>
+      <DialogContent
+        sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}
+      >
         <DatePickerComponent
           sx={{ marginTop: "1rem" }}
           label="Betreuung beendet zum"
@@ -58,4 +94,3 @@ export default function EndOfCareDialog({
     </Dialog>
   );
 }
-
