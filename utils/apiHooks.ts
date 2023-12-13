@@ -1,4 +1,5 @@
 import { IComingFromOptions } from "@/pages/api/comingFromOptions";
+import { IConfig } from "@/pages/api/config";
 import { IFamilies } from "@/pages/api/families";
 import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
@@ -6,9 +7,11 @@ import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { IOrganizations } from "@/pages/api/organizations";
 import { ISubOrganizations } from "@/pages/api/subOrganizations";
+import { ISurveys } from "@/pages/api/surveys";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
+import { AppConfiguration } from "@/utils/appConfigUtils";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
 import useSWR from "swr";
@@ -224,3 +227,32 @@ export function useSurvey(id: string) {
   };
 }
 
+export function useSurveys() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<ISurveys>(
+    `/api/surveys`,
+    fetcher
+  );
+
+  return {
+    surveys: data?.surveys,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useConfigRaw() {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IConfig>(
+    "/api/config",
+    fetcher
+  );
+
+  return {
+    config: data?.config,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}

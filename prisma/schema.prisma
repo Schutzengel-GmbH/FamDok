@@ -241,6 +241,11 @@ model Child {
   Response      Response[]
 }
 
+model Configuration {
+  name  String @id @unique
+  value String
+}
+
 enum Disability {
   Yes
   No

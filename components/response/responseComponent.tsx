@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import {
   FullResponse,
   FullSurvey,
@@ -19,6 +19,7 @@ import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
+import { useFamily } from "@/utils/apiHooks";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
@@ -46,6 +47,16 @@ export default function ResponseComponent({
   const [inputErrors, setInputErrors] = useState<
     { questionId: string; error: InputErrors }[]
   >([]);
+
+  const { survey: surveyId, number } = router.query;
+
+  const { family } = useFamily(parseInt(number as string));
+
+  useEffect(() => {
+    if (family) {
+      setCurrentRelation({ family, caregiver: undefined, child: undefined });
+    }
+  }, [family]);
 
   async function handleSave() {
     if (!response) {
@@ -222,4 +233,3 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
-

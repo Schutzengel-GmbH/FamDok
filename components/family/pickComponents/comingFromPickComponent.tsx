@@ -25,8 +25,8 @@ export default function ComingFromOptionPicker({
     <FormControl sx={sx}>
       <Select
         label={"Zugang über"}
-        value={optionId}
-        onChange={(e: SelectChangeEvent<string | null>) =>
+        value={optionId || " "}
+        onChange={(e: SelectChangeEvent<string | undefined>) =>
           onChange(comingFromOptions.find((o) => o.id === e.target.value))
         }
       >
@@ -35,10 +35,9 @@ export default function ComingFromOptionPicker({
             {l.value}
           </MenuItem>
         ))}
-        <MenuItem value={null}>Keine Angabe/Unbekannt</MenuItem>
+        <MenuItem value={" "}>Keine Angabe/Unbekannt</MenuItem>
       </Select>
       <InputLabel>Zugang über</InputLabel>
     </FormControl>
   );
 }
-

@@ -1,8 +1,5 @@
 import FamilyDialog from "@/components/family/familyDialog";
-import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
-import ErrorPage from "@/components/utilityComponents/error";
-import { IUser } from "@/pages/api/user/[id]";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import {
   useComingFromOptions,
@@ -12,21 +9,14 @@ import {
 import { useUserData } from "@/utils/authUtils";
 import { sortByNumberProperty } from "@/utils/utils";
 import { Edit } from "@mui/icons-material";
-import { CircularProgress, IconButton } from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridRowSelectionModel,
-  deDE,
-} from "@mui/x-data-grid";
+import { IconButton } from "@mui/material";
+import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { SubOrganization, User } from "@prisma/client";
 import { isPast } from "date-fns";
 import { useEffect, useState } from "react";
 
 export default function FamilyStats() {
   const [selectedIds, updateSelectedIds] = useState<GridRowSelectionModel>();
-  const [selectedFamily, setSelectedFamily] = useState<FullFamily>(undefined);
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [rows, setRows] = useState([]);
   const { user } = useUserData();
   const { families, isLoading, mutate, error } =
@@ -128,52 +118,23 @@ export default function FamilyStats() {
       type: "string",
       width: 150,
     },
-    {
-      field: "edit",
-      headerName: "Bearbeiten",
-      renderCell: (params) => (
-        <IconButton onClick={() => handleEdit(params.row as FullFamily)}>
-          <Edit />
-        </IconButton>
-      ),
-    },
   ];
 
-  function handleEdit(family: FullFamily) {
-    setSelectedFamily(family);
-    setDialogOpen(true);
-  }
-
-  function handleCellClick(p, e) {
-    p.field === "edit" && e.stopPropagation();
-  }
-
   return (
-    <>
-      <DataGrid
-        onCellClick={handleCellClick}
-        columns={colDef}
-        rows={rows || []}
-        checkboxSelection
-        rowSelectionModel={selectedIds}
-        onRowSelectionModelChange={(selectionModel) =>
-          updateSelectedIds(selectionModel)
-        }
-        slots={{
-          toolbar: () => {
-            return CustomGridToolbar("Familien", families);
-          },
-        }}
-      />
-      <FamilyDialog
-        initialFamily={selectedFamily}
-        open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          mutate();
-        }}
-      />
-    </>
+    <DataGrid
+      columns={colDef}
+      rows={rows || []}
+      checkboxSelection
+      rowSelectionModel={selectedIds}
+      onRowSelectionModelChange={(selectionModel) =>
+        updateSelectedIds(selectionModel)
+      }
+      slots={{
+        toolbar: () => {
+          return CustomGridToolbar("Familien", families);
+        },
+      }}
+    />
   );
 }
 
@@ -181,4 +142,3 @@ function getUserString(user?: User) {
   if (!user) return "Kein";
   else return user.name || user.email;
 }
-
