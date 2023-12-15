@@ -185,6 +185,7 @@ export default function FamilyDialog({
         onClose(res.family);
       }
     }
+    setFamily({});
   }
 
   return (
@@ -365,3 +366,4 @@ export default function FamilyDialog({
     </>
   );
 }
+
