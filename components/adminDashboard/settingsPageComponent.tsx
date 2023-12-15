@@ -39,7 +39,7 @@ export default function SettingsPageComponent() {
     settings &&
     Object.keys(settings).reduce(
       (prev, key) =>
-        prev && settings[key] === config.find((c) => c.name === key).value,
+        prev && settings[key] === config.find((c) => c.name === key)?.value,
       true
     );
 
@@ -57,3 +57,4 @@ export default function SettingsPageComponent() {
     </Box>
   );
 }
+
