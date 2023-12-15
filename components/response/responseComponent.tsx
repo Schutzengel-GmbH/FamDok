@@ -200,7 +200,11 @@ export default function ResponseComponent({
         }}
       >
         <UnsavedChangesComponent
-          errors={inputErrors.length > 0 || requiredQuestionsWithoutAnswers()}
+          errors={
+            inputErrors.length > 0 ||
+            requiredQuestionsWithoutAnswers() ||
+            (survey.hasFamily && !currentRelation.family)
+          }
           unsavedChanges={unsavedChanges}
           onSave={handleSave}
           onCancel={handleCancel}
@@ -233,3 +237,4 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
+
