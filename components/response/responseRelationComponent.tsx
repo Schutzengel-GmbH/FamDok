@@ -6,6 +6,7 @@ import {
   Gender,
 } from "@prisma/client";
 import {
+  Alert,
   Button,
   FormControlLabel,
   Paper,
@@ -75,6 +76,7 @@ export default function ResponseRelationComponent({
       onChange({ ...relation, caregiver: undefined, child });
     }
   }
+  console.log(relation);
 
   return (
     <>
@@ -134,6 +136,12 @@ export default function ResponseRelationComponent({
         <Typography variant="h6">
           {relation.family ? "Andere Familie auswählen" : "Familie auswählen"}
         </Typography>
+        {!relation.family && (
+          <Alert severity="error" key={"relationMissing"}>
+            Keine Familie ausgewählt.
+          </Alert>
+        )}
+
         <Button onClick={handleFindClick}>Familie finden</Button>
         <Button onClick={handleCreateClick}>Familie erstellen</Button>
         {relation.family && (
@@ -143,3 +151,4 @@ export default function ResponseRelationComponent({
     </>
   );
 }
+
