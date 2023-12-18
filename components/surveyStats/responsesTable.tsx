@@ -90,7 +90,7 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
             return CustomGridToolbar(
               survey.name + "_" + new Date().toISOString() ||
                 "data_" + new Date().toISOString(),
-              data.responses,
+              data?.responses,
               getFullResponseJson
             );
           },
@@ -100,4 +100,3 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     </>
   );
 }
-
