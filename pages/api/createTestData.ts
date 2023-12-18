@@ -37,14 +37,14 @@ export default async function createTestData(
   logger.info("someone accessed /api/createTestData");
 
   // remove this line to enable this endpoint
-  //return res.json({ message: "Endpoint disabled" });
+  return res.json({ message: "Endpoint disabled" });
   logger.info("creating random family  data for testing...");
 
   const userAuthId = req.session.getUserId();
   const user = await prisma.user.findUnique({ where: { authId: userAuthId } });
   if (!user) return res.status(500).json({ error: "User not found" });
 
-  const nUser = 300;
+  const nUser = 20;
 
   function randomEmail() {
     return `${randomUUID()}@example.com`;
@@ -84,7 +84,7 @@ export default async function createTestData(
       .catch((err) => logger.error(err));
   }
 
-  const n = 0;
+  const n = 500;
 
   for (let i = 0; i < n; i++) {
     const twoParents = (Math.random() < 0.5) as Boolean;
@@ -274,4 +274,3 @@ function randomEndOfCareDate() {
 export async function yeetData() {
   return await prisma.family.deleteMany({});
 }
-
