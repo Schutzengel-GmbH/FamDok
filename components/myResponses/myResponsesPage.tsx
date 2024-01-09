@@ -27,8 +27,6 @@ export default function MyResponsesPageComponent({ id }: MyResponsesPageProps) {
     setResponsesFilter(f);
   }
 
-  console.log(responsesFilter);
-
   return (
     <Box>
       <ResponseFilterComponent

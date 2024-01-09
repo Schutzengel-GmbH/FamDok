@@ -38,7 +38,7 @@ export default function ResponseRelationComponent({
   relation,
   onChange,
 }: ResponseRelationComponentProps) {
-  const [number, setNumber] = useState<number>();
+  const [number, setNumber] = useState<number>(relation?.family?.number);
   const [currentRelationId, setCurrentRelationId] = useState<string>(
     relation.caregiver?.id || relation.child?.id || "none"
   );
@@ -46,7 +46,7 @@ export default function ResponseRelationComponent({
   const { family } = useFamily(number);
 
   useEffect(() => {
-    onChange({ family, child: undefined, caregiver: undefined });
+    onChange({ family, child: null, caregiver: null });
   }, [family]);
 
   function handleRelationChange(e: ChangeEvent<HTMLInputElement>) {
@@ -57,13 +57,13 @@ export default function ResponseRelationComponent({
     const child = relation.family.children.find((c) => c.id === value);
 
     if (value === "none") {
-      onChange({ ...relation, caregiver: undefined, child: undefined });
+      onChange({ ...relation, caregiver: null, child: null });
     }
     if (caregiver) {
-      onChange({ ...relation, caregiver, child: undefined });
+      onChange({ ...relation, caregiver, child: null });
     }
     if (child) {
-      onChange({ ...relation, caregiver: undefined, child });
+      onChange({ ...relation, caregiver: null, child });
     }
   }
 

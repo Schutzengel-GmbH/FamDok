@@ -174,8 +174,10 @@ export default function ResponseComponent({
   }
 
   function handleResponseRelationChange(changedRelation: ResponseRelation) {
-    setCurrentRelation(changedRelation);
-    setUnsavedChanges(true);
+    if (!isSameRelation(changedRelation, currentRelation)) {
+      setCurrentRelation(changedRelation);
+      setUnsavedChanges(true);
+    }
   }
 
   return (
@@ -236,5 +238,16 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerSelect: q.defaultAnswerSelectOptions || [],
     answerDate: q.defaultAnswerDate || undefined,
   }));
+}
+
+function isSameRelation(
+  relationA: ResponseRelation,
+  relationB: ResponseRelation
+) {
+  return (
+    relationA?.family?.id === relationB?.family?.id &&
+    relationA?.caregiver?.id === relationB?.caregiver?.id &&
+    relationA?.child?.id === relationB?.child?.id
+  );
 }
 
