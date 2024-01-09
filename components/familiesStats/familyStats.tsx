@@ -1,4 +1,5 @@
 import FamilyDialog from "@/components/family/familyDialog";
+import { getFamiliesJson } from "@/components/surveyStats/getJson";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import {
@@ -131,7 +132,7 @@ export default function FamilyStats() {
       }
       slots={{
         toolbar: () => {
-          return CustomGridToolbar("Familien", families);
+          return CustomGridToolbar("Familien", families, getFamiliesJson);
         },
       }}
     />
@@ -142,3 +143,4 @@ function getUserString(user?: User) {
   if (!user) return "Kein";
   else return user.name || user.email;
 }
+

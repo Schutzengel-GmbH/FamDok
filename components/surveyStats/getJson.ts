@@ -1,5 +1,6 @@
 import {
   FullAnswer,
+  FullFamily,
   FullQuestion,
   FullResponse,
   IAnswerSelectOtherValues,
@@ -12,6 +13,56 @@ import {
   getGenderString,
 } from "@/utils/utils";
 import { Answer, Question, SelectOption } from "@prisma/client";
+
+export function getFamiliesJson(families: FullFamily[]) {
+  let humanReadable: object[] = [];
+
+  for (const family of families) {
+    let kinder = family?.children?.reduce(
+      (prev, curr, i) => ({
+        ...prev,
+        [i + 1]: {
+          alter: getAge(curr.dateOfBirth),
+          geschlecht: getGenderString(curr.gender),
+          behinderung: getDisabilityString(curr.disability),
+          mehrling: getBoolString(curr.isMultiple),
+          fruehgeburt: getBoolString(curr.isPremature),
+          psych_diagnose: getBoolString(curr.psychDiagosis),
+        },
+      }),
+      {}
+    );
+
+    let bezugspersonen = family?.caregivers?.reduce(
+      (prev, curr, i) => ({
+        ...prev,
+        [i + 1]: {
+          alter: getAge(curr.dateOfBirth),
+          geschlecht: getGenderString(curr.gender),
+          behinderung: getDisabilityString(curr.disability),
+          migrationshintergrund: getBoolString(curr.migrationBackground),
+          bildungsabschluss: getEducationString(curr.education),
+          psych_diagnose: getBoolString(curr.psychDiagosis),
+        },
+      }),
+      {}
+    );
+
+    humanReadable.push({
+      familiennummer: family.number,
+      betreuungsbeginn: family.beginOfCare,
+      betreuungsende: family.endOfCare,
+      anzahl_kinder: family.childrenInHousehold,
+      andere_fachkraefte: family.otherInstalledProfessionals,
+      wohnort: family.location,
+      zugang_ueber: family.comingFrom?.value || family.comingFromOtherValue,
+      kinder,
+      bezugspersonen,
+    });
+  }
+
+  return JSON.stringify(humanReadable);
+}
 
 export function getFullResponseJson(data: FullResponse[]) {
   let humanReadableRes: object[] = [];
