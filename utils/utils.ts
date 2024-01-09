@@ -33,6 +33,7 @@ export function getQuestionTypeString(type: QuestionType) {
 }
 
 export const getAge = (birthDate: Date) => {
+  if (!birthDate) return undefined;
   const today = new Date();
   const age = differenceInYears(today, new Date(birthDate));
   return Number.isNaN(age) ? undefined : age;
