@@ -2,10 +2,13 @@ import { FilterType, ResponseFilter } from "@/components/myResponses/filter.t";
 import { filterByQuestionAnswer } from "@/components/myResponses/logic";
 import ResponseCard from "@/components/myResponses/responseCard";
 import ResponseFilterComponent from "@/components/myResponses/responseFilterComponent";
+import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 
 import ErrorPage from "@/components/utilityComponents/error";
 import { useMyResponses, useSurvey } from "@/utils/apiHooks";
-import { Box, CircularProgress } from "@mui/material";
+import { apiDelete } from "@/utils/fetchApiUtils";
+import { DeleteForever } from "@mui/icons-material";
+import { Box, Button, CircularProgress } from "@mui/material";
 import { useState } from "react";
 
 type MyResponsesPageProps = {
@@ -42,7 +45,7 @@ export default function MyResponsesPageComponent({ id }: MyResponsesPageProps) {
             : true
         )
         .map((r) => (
-          <ResponseCard response={r} key={r.id} />
+          <ResponseCard response={r} key={r.id} onChange={mutate} />
         ))}
     </Box>
   );

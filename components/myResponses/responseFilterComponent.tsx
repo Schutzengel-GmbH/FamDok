@@ -76,7 +76,9 @@ export default function ResponseFilterComponent({
         >
           <MenuItem value={"none"}>Kein Filter</MenuItem>
           {survey?.questions.map((q) => (
-            <MenuItem value={q.id}>{q.questionText}</MenuItem>
+            <MenuItem value={q.id} key={q.id}>
+              {q.questionText}
+            </MenuItem>
           ))}
         </Select>
         {filter?.question && (
