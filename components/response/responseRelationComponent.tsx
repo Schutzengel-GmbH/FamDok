@@ -90,9 +90,9 @@ export default function ResponseRelationComponent({
                   key={c.id}
                   value={c.id}
                   control={<Radio />}
-                  label={`Bezugsperson ${c.number}, Alter: ${getAge(
-                    c.dateOfBirth
-                  )}`}
+                  label={`Bezugsperson ${c.number}${
+                    c.dateOfBirth ? `, Alter: ${getAge(c.dateOfBirth)}` : ""
+                  }`}
                 />
               ))}
               {relation.family.children?.map((c, i) => (
@@ -100,7 +100,9 @@ export default function ResponseRelationComponent({
                   key={c.id}
                   value={c.id}
                   control={<Radio />}
-                  label={`Kind ${c.number}, Alter: ${getAge(c.dateOfBirth)}`}
+                  label={`Kind ${c.number}${
+                    c.dateOfBirth ? `, Alter: ${getAge(c.dateOfBirth)}` : ""
+                  }`}
                 />
               ))}
             </RadioGroup>
