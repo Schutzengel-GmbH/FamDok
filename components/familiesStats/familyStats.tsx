@@ -37,7 +37,7 @@ export default function FamilyStats() {
               json.users.find((u) => u.id === f.userId) as User & {
                 subOrganizations: SubOrganization[];
               }
-            ).subOrganizations.reduce((prev, s) => prev + s.name, ""),
+            )?.subOrganizations.reduce((prev, s) => prev + s.name, ""),
             isClosed: isPast(new Date(f.endOfCare || undefined)),
           }))
         );
