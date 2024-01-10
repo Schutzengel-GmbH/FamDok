@@ -13,15 +13,16 @@ function ProtectedPage() {
   const router = useRouter();
   const { survey: id } = router.query;
   const { user } = useUserData();
-  if (!user || user.role === Role.USER)
-    return <Error statusCode={403} title="Forbidden" />;
 
-  const { data, isLoading, error } = useSWR<ISurvey>(
-    `/api/surveys/${id}`,
+  const { data, isLoading, error, isValidating } = useSWR<ISurvey>(
+    user && id ? `/api/surveys/${id}` : undefined,
     fetcher
   );
 
-  if (isLoading) return <Loading />;
+  if (!user || user.role === Role.USER)
+    return <Error statusCode={403} title="Forbidden" />;
+
+  if (isLoading || isValidating || !data?.survey) return <Loading />;
 
   if (error)
     return (
@@ -38,3 +39,4 @@ export default function ResponseStatsPage() {
     </SessionReact.SessionAuth>
   );
 }
+

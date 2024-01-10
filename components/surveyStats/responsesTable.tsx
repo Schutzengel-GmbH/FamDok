@@ -47,7 +47,7 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
   let rows: Record<string, any>[] = [];
 
   const { data, isLoading, mutate } = useSWR<IResponses>(
-    `/api/surveys/${survey.id}/responses`,
+    survey.id ? `/api/surveys/${survey.id}/responses` : undefined,
     fetcher
   );
 
@@ -100,3 +100,4 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     </>
   );
 }
+
