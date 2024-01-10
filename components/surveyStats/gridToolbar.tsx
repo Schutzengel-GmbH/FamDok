@@ -51,7 +51,9 @@ const JsonExportMenuItem = (props: {
 
   const filteredAndSelectedData = data
     .filter((d) => (filteredIds ? filteredIds.includes(d.id) : true))
-    .filter((d) => (selectedIds ? selectedIds.includes(d.id) : true));
+    .filter((d) =>
+      selectedIds?.length > 0 ? selectedIds.includes(d.id) : true
+    );
 
   return (
     <MenuItem
