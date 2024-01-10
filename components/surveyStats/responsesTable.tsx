@@ -86,13 +86,17 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
           updateSelectedIds(selectionModel)
         }
         slots={{
-          toolbar: () => {
-            return CustomGridToolbar(
+          toolbar: CustomGridToolbar,
+        }}
+        slotProps={{
+          toolbar: {
+            foo: "bar",
+            selectedIds,
+            fileName:
               survey.name + "_" + new Date().toISOString() ||
-                "data_" + new Date().toISOString(),
-              data?.responses,
-              getFullResponseJson
-            );
+              "data_" + new Date().toISOString(),
+            data: data?.responses,
+            jsonExportFnc: getFullResponseJson,
           },
         }}
         localeText={GRID_LOCALE_TEXT}
