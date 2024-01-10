@@ -90,7 +90,6 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
         }}
         slotProps={{
           toolbar: {
-            foo: "bar",
             selectedIds,
             fileName:
               survey.name + "_" + new Date().toISOString() ||

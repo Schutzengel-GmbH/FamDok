@@ -135,7 +135,6 @@ export default function FamilyStats() {
       }}
       slotProps={{
         toolbar: {
-          foo: "bar",
           selectedIds,
           fileName: "Familien",
           data: families,
