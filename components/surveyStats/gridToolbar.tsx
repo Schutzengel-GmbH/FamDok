@@ -5,20 +5,25 @@ import { fetcher } from "@/utils/swrConfig";
 import { Box, MenuItem } from "@mui/material";
 import {
   GridCsvExportMenuItem,
+  GridRowSelectionModel,
   GridToolbarColumnsButton,
   GridToolbarContainer,
   GridToolbarExportContainer,
   GridToolbarFilterButton,
+  GridToolbarProps,
   GridToolbarQuickFilter,
+  ToolbarPropsOverrides,
+  gridDataRowIdsSelector,
+  gridFilterActiveItemsSelector,
+  gridFilteredSortedRowIdsSelector,
+  gridRowSelectionStateSelector,
+  gridVisibleColumnFieldsSelector,
   useGridApiContext,
 } from "@mui/x-data-grid";
+import { gridAdditionalRowGroupsSelector } from "@mui/x-data-grid/internals";
 import useSWR from "swr";
 
-const CustomGridToolbar = (
-  fileName: string,
-  data: object,
-  jsonExportFnc?: (data: object) => string
-) => {
+const CustomGridToolbar = (props) => {
   return (
     <GridToolbarContainer>
       <GridToolbarColumnsButton />
@@ -27,15 +32,9 @@ const CustomGridToolbar = (
       <GridToolbarQuickFilter />
       <GridToolbarExportContainer>
         <GridCsvExportMenuItem
-          options={{ delimiter: ";", fileName: fileName }}
+          options={{ delimiter: ";", fileName: props.fileName }}
         />
-        {jsonExportFnc && (
-          <JsonExportMenuItem
-            data={data}
-            fileName={fileName}
-            jsonExportFnc={jsonExportFnc}
-          />
-        )}
+        {props.jsonExportFnc && <JsonExportMenuItem toolbarProps={props} />}
       </GridToolbarExportContainer>
     </GridToolbarContainer>
   );
@@ -43,27 +42,29 @@ const CustomGridToolbar = (
 
 export default CustomGridToolbar;
 
-type JsonExportMenuItemProps = any & {
-  data: object;
-  fileName: string;
-  jsonExportFnc: (data: object) => string;
-};
-
-const JsonExportMenuItem = (props: JsonExportMenuItemProps) => {
+const JsonExportMenuItem = (props: {
+  toolbarProps: Partial<GridToolbarProps & ToolbarPropsOverrides>;
+}) => {
   const apiRef = useGridApiContext();
-  const { hideMenu, data, fileName, jsonExportFnc } = props;
+  const { data, fileName, jsonExportFnc, selectedIds } = props.toolbarProps;
+  const filteredIds = gridFilteredSortedRowIdsSelector(apiRef);
+
+  const filteredAndSelectedData = data
+    .filter((d) => (filteredIds ? filteredIds.includes(d.id) : true))
+    .filter((d) => (selectedIds ? selectedIds.includes(d.id) : true));
 
   return (
     <MenuItem
       onClick={() => {
-        const jsonString = jsonExportFnc(data);
+        const jsonString = jsonExportFnc(filteredAndSelectedData);
         const blob = new Blob([jsonString], {
           type: "text/json",
         });
         exportBlob(blob, `${fileName}.json`);
 
         // Hide the export menu after the export
-        hideMenu?.();
+        //@ts-ignore it's there, source: trust me bro
+        props.hideMenu?.();
       }}
     >
       JSON Exportieren

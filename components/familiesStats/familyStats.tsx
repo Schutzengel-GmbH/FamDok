@@ -131,8 +131,15 @@ export default function FamilyStats() {
         updateSelectedIds(selectionModel)
       }
       slots={{
-        toolbar: () => {
-          return CustomGridToolbar("Familien", families, getFamiliesJson);
+        toolbar: CustomGridToolbar,
+      }}
+      slotProps={{
+        toolbar: {
+          foo: "bar",
+          selectedIds,
+          fileName: "Familien",
+          data: families,
+          jsonExportFnc: getFamiliesJson,
         },
       }}
     />
