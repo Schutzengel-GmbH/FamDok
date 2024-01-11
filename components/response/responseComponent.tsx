@@ -48,16 +48,6 @@ export default function ResponseComponent({
     { questionId: string; error: InputErrors }[]
   >([]);
 
-  const { survey: surveyId, number } = router.query;
-
-  const { family } = useFamily(parseInt(number as string));
-
-  useEffect(() => {
-    if (family) {
-      setCurrentRelation({ family, caregiver: undefined, child: undefined });
-    }
-  }, [family]);
-
   async function handleSave() {
     if (!response) {
       const res = await apiPostJson<IResponses>(
@@ -245,9 +235,9 @@ function isSameRelation(
   relationB: ResponseRelation
 ) {
   return (
-    relationA?.family?.id === relationB?.family?.id &&
-    relationA?.caregiver?.id === relationB?.caregiver?.id &&
-    relationA?.child?.id === relationB?.child?.id
+    relationA?.family?.id == relationB?.family?.id &&
+    relationA?.caregiver?.id == relationB?.caregiver?.id &&
+    relationA?.child?.id == relationB?.child?.id
   );
 }
 

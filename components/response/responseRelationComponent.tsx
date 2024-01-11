@@ -46,7 +46,8 @@ export default function ResponseRelationComponent({
   const { family } = useFamily(number);
 
   useEffect(() => {
-    onChange({ family, child: null, caregiver: null });
+    if (family && family.id !== relation?.family?.id)
+      onChange({ family, child: null, caregiver: null });
   }, [family]);
 
   function handleRelationChange(e: ChangeEvent<HTMLInputElement>) {
