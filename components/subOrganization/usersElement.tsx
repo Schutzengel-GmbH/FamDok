@@ -1,3 +1,4 @@
+import { FullUser } from "@/types/prismaHelperTypes";
 import { useUsers } from "@/utils/apiHooks";
 import {
   Autocomplete,
@@ -13,9 +14,9 @@ import { User } from "@prisma/client";
 import { ReactNode, useMemo, useState } from "react";
 
 type UsersElementProps = {
-  users: User[];
+  users: FullUser[];
   organizationId;
-  onChange: (selectedUsers: User[]) => void;
+  onChange: (selectedUsers: FullUser[]) => void;
   sx?: SxProps;
 };
 
@@ -45,4 +46,3 @@ export default function UsersElement({
     </Box>
   );
 }
-
