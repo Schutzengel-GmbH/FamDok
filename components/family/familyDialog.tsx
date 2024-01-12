@@ -239,6 +239,11 @@ export default function FamilyDialog({
                 sx={{ marginTop: "1rem" }}
                 variant={"outlined"}
                 onClick={() => setEndOfCareDialogOpen(true)}
+                disabled={
+                  initialFamily &&
+                  user.role === "USER" &&
+                  user.id !== family.userId
+                }
               >
                 Betreuung beenden
               </Button>
