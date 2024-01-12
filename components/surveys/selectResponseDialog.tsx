@@ -1,3 +1,4 @@
+import { FullResponse } from "@/types/prismaHelperTypes";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +13,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export interface SelectResponseDialogProps {
-  responses: Prisma.ResponseGetPayload<{
-    include: {
-      answers: { include: { answerSelect: true } };
-      user: true;
-      family: { include: { caregivers: true; children: true } };
-    };
-  }>[];
+  responses: FullResponse[];
   open: boolean;
   onClose: () => void;
 }
@@ -31,15 +26,8 @@ export default function SelectResponseDialog({
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredResponses, setFilteredResponses] = useState<
-    Prisma.ResponseGetPayload<{
-      include: {
-        answers: { include: { answerSelect: true } };
-        user: true;
-        family: { include: { caregivers: true; children: true } };
-      };
-    }>[]
-  >(responses);
+  const [filteredResponses, setFilteredResponses] =
+    useState<FullResponse[]>(responses);
 
   useEffect(() => {
     if (searchTerm.length > 0) {
@@ -54,15 +42,7 @@ export default function SelectResponseDialog({
     }
   }, [searchTerm, responses]);
 
-  function getResponseNameString(
-    response: Prisma.ResponseGetPayload<{
-      include: {
-        answers: { include: { answerSelect: true } };
-        user: true;
-        family: { include: { caregivers: true; children: true } };
-      };
-    }>
-  ) {
+  function getResponseNameString(response: FullResponse) {
     return `Antwort erstellt am: ${new Date(
       response.createdAt
     ).toLocaleString()} ${

@@ -69,29 +69,7 @@ export default async function response(
   )
     return res.status(403).json({ error: "FORBIDDEN" });
 
-  let response: Prisma.ResponseGetPayload<{
-    include: {
-      answers: {
-        include: {
-          answerSelect: true;
-          question: { include: { selectOptions: true } };
-        };
-      };
-      user: { include: { organization: true; subOrganizations: true } };
-      family: {
-        include: {
-          caregivers: true;
-          children: true;
-          comingFrom: true;
-          createdBy: {
-            include: { organization: true; subOrganizations: true };
-          };
-        };
-      };
-      caregiver: true;
-      child: true;
-    };
-  }>;
+  let response: FullResponse;
 
   try {
     response = await prisma.response.findUniqueOrThrow({
