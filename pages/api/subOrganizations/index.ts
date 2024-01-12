@@ -8,14 +8,13 @@ import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
+import { FullSubOrganization } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface ISubOrganizations {
-  subOrganizations?: Prisma.SubOrganizationGetPayload<{
-    include: { User: true };
-  }>[];
-  subOrganization?: Prisma.SubOrganizationGetPayload<{}>;
+  subOrganizations?: FullSubOrganization[];
+  subOrganization?: FullSubOrganization;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -60,7 +59,12 @@ export default async function subOrganizations(
   switch (req.method) {
     case "GET":
       const subOrganizations = await prisma.subOrganization
-        .findMany({ where: { organizationId }, include: { User: true } })
+        .findMany({
+          where: { organizationId },
+          include: {
+            User: { include: { organization: true, subOrganizations: true } },
+          },
+        })
         .catch((err) => logger.error(err));
 
       if (!subOrganizations)
@@ -86,7 +90,12 @@ export default async function subOrganizations(
       }
 
       const newOrg = await prisma.subOrganization
-        .create({ data: createInput })
+        .create({
+          data: createInput,
+          include: {
+            User: { include: { organization: true, subOrganizations: true } },
+          },
+        })
         .catch((err) => logger.error(err));
 
       if (!newOrg)
@@ -97,4 +106,3 @@ export default async function subOrganizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

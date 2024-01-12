@@ -10,17 +10,14 @@ import { Prisma, Role } from "@prisma/client";
 import { getUserWhereInput } from "@/utils/backendUtils";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import { logger as _logger } from "@/config/logger";
+import { FullUser } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 const FAKE_PASSWORD = "asokdA87fnf30efjoiOI**cwjkn";
 export interface IUsers {
-  user?: Prisma.UserGetPayload<{
-    include: { organization: true; subOrganizations: true };
-  }>;
-  users?: Prisma.UserGetPayload<{
-    include: { organization: true; subOrganizations: true };
-  }>[];
+  user?: FullUser;
+  users?: FullUser[];
   inviteLink?: string;
   error?:
     | "NOT_FOUND"
@@ -148,4 +145,3 @@ export default async function users(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

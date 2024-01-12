@@ -9,16 +9,13 @@ import { prisma } from "@/db/prisma";
 import { Prisma } from "@prisma/client";
 import { getFamilyWhereInput } from "@/utils/backendUtils";
 import { logger as _logger } from "@/config/logger";
+import { FullFamily } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IFamilies {
-  families?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true; comingFrom: true };
-  }>[];
-  family?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true; comingFrom: true };
-  }>;
+  families?: FullFamily[];
+  family?: FullFamily;
   error?: "INTERNAL_SERVER_ERROR" | "METHOD_NOT_ALLOWED";
 }
 
@@ -62,7 +59,14 @@ export default async function families(
     case "GET":
       const families = await prisma.family
         .findMany({
-          include: { caregivers: true, children: true, comingFrom: true },
+          include: {
+            caregivers: true,
+            children: true,
+            comingFrom: true,
+            createdBy: {
+              include: { organization: true, subOrganizations: true },
+            },
+          },
           where,
         })
         .catch((err) => {
@@ -91,4 +95,3 @@ export default async function families(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

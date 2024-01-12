@@ -13,9 +13,7 @@ import { logger as _logger } from "@/config/logger";
 supertokens.init(backendConfig());
 
 export interface ApiResponseFamily {
-  family?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true; comingFrom: true };
-  }>;
+  family?: FullFamily;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -73,7 +71,12 @@ export default async function families(
   try {
     family = await prisma.family.findUniqueOrThrow({
       where: { id: familyId as string },
-      include: { caregivers: true, children: true, comingFrom: true },
+      include: {
+        caregivers: true,
+        children: true,
+        comingFrom: true,
+        createdBy: { include: { organization: true, subOrganizations: true } },
+      },
     });
   } catch (err) {
     if (
