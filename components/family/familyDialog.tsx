@@ -40,11 +40,7 @@ export type PartialFamily = Partial<
 >;
 
 export interface FamilyDialogProps {
-  initialFamily:
-    | Prisma.FamilyGetPayload<{
-        include: { children: true; caregivers: true; comingFrom: true };
-      }>
-    | undefined;
+  initialFamily: FullFamily | undefined;
   open: boolean;
   onClose: (family?: FullFamily) => void;
 }
@@ -366,4 +362,3 @@ export default function FamilyDialog({
     </>
   );
 }
-
