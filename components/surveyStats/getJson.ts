@@ -48,6 +48,12 @@ export function getFamiliesJson(families: FullFamily[]) {
       {}
     );
 
+    let verantwortlich = {
+      organisation: family.createdBy?.organization?.name || "keine",
+      unterorganisationen:
+        family.createdBy?.subOrganizations?.map((s) => s.name) || [],
+    };
+
     humanReadable.push({
       familiennummer: family.number,
       betreuungsbeginn: family.beginOfCare,
@@ -58,6 +64,7 @@ export function getFamiliesJson(families: FullFamily[]) {
       zugang_ueber: family.comingFrom?.value || family.comingFromOtherValue,
       kinder,
       bezugspersonen,
+      verantwortlich,
     });
   }
 
@@ -107,8 +114,9 @@ export function getFullResponseJson(data: FullResponse[]) {
     );
 
     obj["verantwortlich"] = {
-      name: response.user.name || response.user.email,
-      organisation: response.user.organizationId,
+      organisation: response.user?.organization?.name || "keine",
+      unterorganisationen:
+        response.user?.subOrganizations?.map((s) => s.name) || [],
     };
 
     obj["familie"] = response.family
@@ -160,4 +168,3 @@ function getAnswer(
       );
   }
 }
-

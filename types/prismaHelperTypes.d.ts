@@ -8,10 +8,19 @@ export type FullResponse = Prisma.ResponseGetPayload<{
         question: { include: { selectOptions: true } };
       };
     };
-    family: { include: { caregivers: true; children: true; comingFrom: true } };
-    caregiver: true;
+    user: { include: { organization: true; subOrganizations: true } };
+    family: {
+      include: {
+        caregivers: true;
+        children: true;
+        comingFrom: true;
+        createdBy: {
+          include: { organization: true; subOrganizations: true };
+        };
+      };
+    };
     child: true;
-    user: true;
+    caregiver: true;
   };
 }>;
 
@@ -20,7 +29,12 @@ export type FullQuestion = Prisma.QuestionGetPayload<{
 }>;
 
 export type FullFamily = Prisma.FamilyGetPayload<{
-  include: { caregivers: true; children: true; comingFrom: true };
+  include: {
+    caregivers: true;
+    children: true;
+    comingFrom: true;
+    createdBy: { include: { organization: true; subOrganizations: true } };
+  };
 }>;
 
 export type FullSurvey = Prisma.SurveyGetPayload<{
@@ -29,6 +43,10 @@ export type FullSurvey = Prisma.SurveyGetPayload<{
       include: { selectOptions: true; defaultAnswerSelectOptions: true };
     };
   };
+}>;
+
+export type FullUser = Prisma.UserGetPayload<{
+  include: { organization: true; subOrganizations: true };
 }>;
 
 export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
@@ -64,7 +82,7 @@ export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
         };
         caregiver: true;
         child: true;
-        user: true;
+        user: { include: { organization: true; subOrganizations: true } };
       };
     };
   };
@@ -94,5 +112,7 @@ export type IAnswerSelectOtherValue = {
 export type IAnswerSelectOtherValues = IAnswerSelectOtherValue[];
 
 export type FullSubOrganization = Prisma.SubOrganizationGetPayload<{
-  include: { User: true };
+  include: {
+    User: { include: { organization: true; subOrganizations: true } };
+  };
 }>;
