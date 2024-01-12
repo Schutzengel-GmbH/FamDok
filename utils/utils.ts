@@ -194,7 +194,7 @@ export function answerHasNoValues(answer: PartialAnswer) {
   } = answer;
 
   return (
-    !answerBool &&
+    !(answerBool === true || answerBool === false) &&;
     !answerDate &&
     !answerInt &&
     answerInt !== 0 &&
@@ -280,4 +280,3 @@ export function comparePrimitiveArrayByElements<T = number | string>(
     return false;
   }
 }
-
