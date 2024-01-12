@@ -8,13 +8,12 @@ import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
+import { FullSubOrganization } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface ISubOrganization {
-  subOrganization?: Prisma.SubOrganizationGetPayload<{
-    include: { User: true };
-  }>;
+  subOrganization?: FullSubOrganization;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -56,7 +55,9 @@ export default async function organizations(
   try {
     subOrganization = await prisma.subOrganization.findUnique({
       where: { id: id as string },
-      include: { User: true },
+      include: {
+        User: { include: { organization: true, subOrganizations: true } },
+      },
     });
   } catch (err) {
     if (

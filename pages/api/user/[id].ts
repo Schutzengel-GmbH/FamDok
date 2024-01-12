@@ -10,13 +10,12 @@ import { Prisma, Role, User } from "@prisma/client";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import { isValidEmail } from "@/utils/validationUtils";
 import { logger as _logger } from "@/config/logger";
+import { FullUser } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IUser {
-  user?: Prisma.UserGetPayload<{
-    include: { organization: true; subOrganizations: true };
-  }>;
+  user?: FullUser;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "NOT_FOUND"
@@ -152,4 +151,3 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

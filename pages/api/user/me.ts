@@ -9,13 +9,12 @@ import { logger as _logger } from "@/config/logger";
 import { Response } from "express";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
+import { FullUser } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IUserMe {
-  user?: Prisma.UserGetPayload<{
-    include: { organization: true; subOrganizations: true };
-  }>;
+  user?: FullUser;
   error?:
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
@@ -114,4 +113,3 @@ export default async function me(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
