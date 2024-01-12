@@ -194,7 +194,7 @@ export function answerHasNoValues(answer: PartialAnswer) {
   } = answer;
 
   return (
-    !(answerBool === true || answerBool === false) &&;
+    !(answerBool === true || answerBool === false) &&
     !answerDate &&
     !answerInt &&
     answerInt !== 0 &&
