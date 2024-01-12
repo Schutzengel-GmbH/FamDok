@@ -17,7 +17,7 @@ import FamilyNumberDialog from "@/components/family/familyNumberDialog";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import { getAddFamilyInput } from "@/utils/utils";
 import { useUserData } from "@/utils/authUtils";
-import { FullFamily } from "@/types/prismaHelperTypes";
+import { FullFamily, FullUser } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
 import {
@@ -35,7 +35,7 @@ export type PartialFamily = Partial<
   Family & {
     children: Partial<Child>[];
     caregivers: Partial<Caregiver>[];
-    createdBy?: User;
+    createdBy?: FullUser;
   }
 >;
 

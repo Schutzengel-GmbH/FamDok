@@ -1,4 +1,5 @@
 import ErrorPage from "@/components/utilityComponents/error";
+import { FullUser } from "@/types/prismaHelperTypes";
 import { useOrganizations, useUsers } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import {
@@ -12,9 +13,9 @@ import {
 import { User } from "@prisma/client";
 
 type CreatedByPickComponentProps = {
-  onChange: (user: User) => void;
+  onChange: (user: FullUser) => void;
   sx?: SxProps;
-  value: User;
+  value: FullUser;
 };
 
 export default function CreatedByPickComponent({
@@ -60,4 +61,3 @@ export default function CreatedByPickComponent({
     </Box>
   );
 }
-
