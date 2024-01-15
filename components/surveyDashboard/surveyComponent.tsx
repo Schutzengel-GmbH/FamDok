@@ -1,7 +1,7 @@
 import { Delete, Edit, QueryStats, FileDownload } from "@mui/icons-material";
 import { Button, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { ISurveys } from "@/pages/api/surveys";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import useToast from "@/components/notifications/notificationContext";
+import { useUserData } from "@/utils/authUtils";
 
 export interface SurveyComponentProps {
   survey: Prisma.SurveyGetPayload<{
@@ -25,6 +26,8 @@ export default function SurveyComponent({
 }: SurveyComponentProps) {
   const { addToast } = useToast();
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
+
+  const { user } = useUserData();
 
   const router = useRouter();
 
@@ -87,6 +90,10 @@ export default function SurveyComponent({
             variant="outlined"
             startIcon={<Edit />}
             sx={{ marginRight: ".5rem" }}
+            disabled={
+              user?.role !== Role.ADMIN &&
+              survey.organizationId !== user.organizationId
+            }
           >
             Bearbeiten
           </Button>
@@ -104,6 +111,10 @@ export default function SurveyComponent({
           startIcon={<Delete />}
           sx={{ marginRight: ".5rem" }}
           onClick={handleDelete}
+          disabled={
+            user?.role !== Role.ADMIN &&
+            survey.organizationId !== user.organizationId
+          }
         >
           Löschen
         </Button>
@@ -132,3 +143,4 @@ export default function SurveyComponent({
     </Box>
   );
 }
+

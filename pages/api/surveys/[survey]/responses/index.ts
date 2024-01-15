@@ -8,38 +8,13 @@ import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
+import { FullResponse } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IResponses {
-  responses?: Prisma.ResponseGetPayload<{
-    include: {
-      answers: {
-        include: {
-          answerSelect: true;
-          question: { include: { selectOptions: true } };
-        };
-      };
-      user: true;
-      family: { include: { caregivers: true; children: true } };
-      child: true;
-      caregiver: true;
-    };
-  }>[];
-  response?: Prisma.ResponseGetPayload<{
-    include: {
-      answers: {
-        include: {
-          answerSelect: true;
-          question: { include: { selectOptions: true } };
-        };
-      };
-      user: true;
-      family: { include: { caregivers: true; children: true } };
-      child: true;
-      caregiver: true;
-    };
-  }>;
+  responses?: FullResponse[];
+  response?: FullResponse;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -102,7 +77,7 @@ export default async function responses(
     survey.organizationId &&
     user.organizationId !== survey.organizationId
   )
-    return res.status(403).json({ error: "FORB" });
+    return res.status(403).json({ error: "FORBIDDEN" });
 
   let where: Prisma.ResponseWhereInput = {
     survey: { id: surveyId as string },
@@ -130,8 +105,17 @@ export default async function responses(
                 question: { include: { selectOptions: true } },
               },
             },
-            user: true,
-            family: { include: { caregivers: true, children: true } },
+            user: { include: { organization: true, subOrganizations: true } },
+            family: {
+              include: {
+                caregivers: true,
+                children: true,
+                comingFrom: true,
+                createdBy: {
+                  include: { organization: true, subOrganizations: true },
+                },
+              },
+            },
             child: true,
             caregiver: true,
           },
@@ -167,8 +151,17 @@ export default async function responses(
                 question: { include: { selectOptions: true } },
               },
             },
-            user: true,
-            family: { include: { caregivers: true, children: true } },
+            user: { include: { organization: true, subOrganizations: true } },
+            family: {
+              include: {
+                caregivers: true,
+                children: true,
+                comingFrom: true,
+                createdBy: {
+                  include: { organization: true, subOrganizations: true },
+                },
+              },
+            },
             child: true,
             caregiver: true,
           },

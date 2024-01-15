@@ -1,17 +1,8 @@
 import { FamiliesPageComponent } from "@/components/family/familiesPage";
-import ErrorPage from "@/components/utilityComponents/error";
-import Loading from "@/components/utilityComponents/loadingMainContent";
-import { useFamilies } from "@/utils/apiHooks";
-import Error from "next/error";
 import SessionReact from "supertokens-auth-react/recipe/session";
 
 function ProtectedPage() {
-  const { families, isLoading, error, mutate } = useFamilies();
-
-  if (isLoading) return <Loading />;
-  if (error) return <ErrorPage message={error} />;
-
-  return <FamiliesPageComponent families={families} onChange={mutate} />;
+  return <FamiliesPageComponent />;
 }
 
 export default function MePage() {
@@ -21,4 +12,3 @@ export default function MePage() {
     </SessionReact.SessionAuth>
   );
 }
-

@@ -8,24 +8,12 @@ import { Response } from "express";
 import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
+import { FullResponse } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IResponse {
-  response?: Prisma.ResponseGetPayload<{
-    include: {
-      answers: {
-        include: {
-          answerSelect: true;
-          question: { include: { selectOptions: true } };
-        };
-      };
-      user: true;
-      family: { include: { caregivers: true; children: true } };
-      caregiver: true;
-      child: true;
-    };
-  }>;
+  response?: FullResponse;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
@@ -81,20 +69,7 @@ export default async function response(
   )
     return res.status(403).json({ error: "FORBIDDEN" });
 
-  let response: Prisma.ResponseGetPayload<{
-    include: {
-      answers: {
-        include: {
-          answerSelect: true;
-          question: { include: { selectOptions: true } };
-        };
-      };
-      user: true;
-      family: { include: { children: true; caregivers: true } };
-      caregiver: true;
-      child: true;
-    };
-  }>;
+  let response: FullResponse;
 
   try {
     response = await prisma.response.findUniqueOrThrow({
@@ -106,8 +81,17 @@ export default async function response(
             question: { include: { selectOptions: true } },
           },
         },
-        user: true,
-        family: { include: { caregivers: true, children: true } },
+        user: { include: { organization: true, subOrganizations: true } },
+        family: {
+          include: {
+            caregivers: true,
+            children: true,
+            comingFrom: true,
+            createdBy: {
+              include: { organization: true, subOrganizations: true },
+            },
+          },
+        },
         caregiver: true,
         child: true,
       },

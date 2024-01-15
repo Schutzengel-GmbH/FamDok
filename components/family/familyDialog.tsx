@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Caregiver, Child, Family, Prisma } from "@prisma/client";
+import { Caregiver, Child, Family, Prisma, Role, User } from "@prisma/client";
 import { MouseEvent, useEffect, useState } from "react";
 import ChildrenComponent from "@/components/family/childrenComponent";
 import CaregiversComponent from "@/components/family/caregiversComponent";
@@ -17,23 +17,30 @@ import FamilyNumberDialog from "@/components/family/familyNumberDialog";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import { getAddFamilyInput } from "@/utils/utils";
 import { useUserData } from "@/utils/authUtils";
-import { FullFamily } from "@/types/prismaHelperTypes";
+import { FullFamily, FullUser } from "@/types/prismaHelperTypes";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IFamilies } from "@/pages/api/families";
-import { IFamily, IFamilyUpdate } from "@/pages/api/families/[family]";
+import {
+  ApiResponseFamily,
+  IFamilyUpdate,
+} from "@/pages/api/families/[family]";
 import useToast from "@/components/notifications/notificationContext";
 import { useComingFromOptions, useLocations } from "@/utils/apiHooks";
 import LocationPicker from "@/components/family/pickComponents/locationPickComponent";
 import ComingFromOptionPicker from "@/components/family/pickComponents/comingFromPickComponent";
+import CreatedByPickComponent from "@/components/family/pickComponents/createdByPickComponent";
+import EndOfCareDialog from "@/components/family/endOfCareDialog";
 
 export type PartialFamily = Partial<
-  Family & { children: Partial<Child>[]; caregivers: Partial<Caregiver>[] }
+  Family & {
+    children: Partial<Child>[];
+    caregivers: Partial<Caregiver>[];
+    createdBy?: FullUser;
+  }
 >;
 
 export interface FamilyDialogProps {
-  initialFamily:
-    | Prisma.FamilyGetPayload<{ include: { children: true; caregivers: true } }>
-    | undefined;
+  initialFamily: FullFamily | undefined;
   open: boolean;
   onClose: (family?: FullFamily) => void;
 }
@@ -45,6 +52,8 @@ export default function FamilyDialog({
 }: FamilyDialogProps) {
   const [family, setFamily] = useState<PartialFamily>({});
   const [famNumberCreated, setFamNumberCreated] = useState<number>();
+
+  const [endOfCareDialogOpen, setEndOfCareDialogOpen] = useState(false);
 
   const { user } = useUserData();
   const { addToast } = useToast();
@@ -97,6 +106,9 @@ export default function FamilyDialog({
         update.familyUpdate[field] = family[field];
     }
 
+    if (family.createdBy && family.createdBy !== createdBy)
+      update.familyUpdate.createdBy = { connect: { id: family.createdBy.id } };
+
     delete update.familyUpdate.children;
     delete update.familyUpdate.caregivers;
     delete update.familyUpdate.createdAt;
@@ -145,7 +157,7 @@ export default function FamilyDialog({
         onClose(res.family);
       }
     } else {
-      const res = await apiPostJson<IFamily>(
+      const res = await apiPostJson<ApiResponseFamily>(
         `/api/families/${initialFamily.id}`,
         getUpdateInput()
       );
@@ -169,6 +181,7 @@ export default function FamilyDialog({
         onClose(res.family);
       }
     }
+    setFamily({});
   }
 
   return (
@@ -206,25 +219,41 @@ export default function FamilyDialog({
                 }
               }}
             />
-            <DatePickerComponent
-              sx={{ marginTop: "1rem" }}
-              label="Ende der Betreuung"
-              currentAnswer={family.endOfCare}
-              onChange={(value, error) => {
-                if (error) {
-                  //TODO: handle error
-                  return;
-                } else {
-                  setFamily({ ...family, endOfCare: value });
+            {family.endOfCare && (
+              <DatePickerComponent
+                sx={{ marginTop: "1rem" }}
+                label="Ende der Betreuung"
+                currentAnswer={family.endOfCare}
+                onChange={(value, error) => {
+                  if (error) {
+                    //TODO: handle error
+                    return;
+                  } else {
+                    setFamily({ ...family, endOfCare: value });
+                  }
+                }}
+              />
+            )}
+            {!family.endOfCare && (
+              <Button
+                sx={{ marginTop: "1rem" }}
+                variant={"outlined"}
+                onClick={() => setEndOfCareDialogOpen(true)}
+                disabled={
+                  initialFamily &&
+                  user.role === "USER" &&
+                  user.id !== family.userId
                 }
-              }}
-            />
+              >
+                Betreuung beenden
+              </Button>
+            )}
             {isLoading || (comingFromIsLoading && <CircularProgress />)}
             {!isLoading && locations.length == 0 && (
               <TextField
                 sx={{ marginTop: "1rem" }}
                 label="Wohnort"
-                value={family.location}
+                value={family.location || ""}
                 onChange={(e) =>
                   setFamily({ ...family, location: e.currentTarget.value })
                 }
@@ -284,10 +313,17 @@ export default function FamilyDialog({
               value={family.children || []}
               onChange={(c) => setFamily({ ...family, children: c })}
             />
-            {createdBy?.name && (
+            {user?.role === Role.USER && family.userId && createdBy?.name && (
               <Typography sx={{ mt: "1rem" }}>
                 Verantwortlich: {createdBy.name}
               </Typography>
+            )}
+            {user?.role !== Role.USER && (
+              <CreatedByPickComponent
+                value={family.createdBy ?? createdBy}
+                onChange={(u) => setFamily({ ...family, createdBy: u })}
+                sx={{ mt: "1rem" }}
+              />
             )}
             <TextField
               sx={{ marginTop: "1rem" }}
@@ -323,6 +359,11 @@ export default function FamilyDialog({
           </Button>
         </DialogActions>
       </Dialog>
+      <EndOfCareDialog
+        family={family}
+        open={endOfCareDialogOpen}
+        onClose={() => setEndOfCareDialogOpen(false)}
+      />
     </>
   );
 }

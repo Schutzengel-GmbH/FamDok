@@ -12,16 +12,16 @@ import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
 
-export interface IFamily {
-  family?: Prisma.FamilyGetPayload<{
-    include: { caregivers: true; children: true };
-  }>;
+export interface ApiResponseFamily {
+  family?: FullFamily;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
     | "FORBIDDEN";
 }
+
+export interface ApiRequestFamily {}
 
 export interface IFamilyUpdate {
   familyUpdate?: Prisma.FamilyUpdateInput;
@@ -71,7 +71,12 @@ export default async function families(
   try {
     family = await prisma.family.findUniqueOrThrow({
       where: { id: familyId as string },
-      include: { caregivers: true, children: true },
+      include: {
+        caregivers: true,
+        children: true,
+        comingFrom: true,
+        createdBy: { include: { organization: true, subOrganizations: true } },
+      },
     });
   } catch (err) {
     if (

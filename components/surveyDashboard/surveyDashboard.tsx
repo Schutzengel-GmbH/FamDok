@@ -27,15 +27,9 @@ export default function SurveyDashboard() {
   return (
     <Box>
       {data &&
-        data.surveys
-          ?.filter((s) => {
-            if (user.role === Role.ORGCONTROLLER)
-              return s.organizationId === user.organizationId;
-            else return true;
-          })
-          .map((s) => (
-            <SurveyComponent onChange={mutate} survey={s} key={s.id} />
-          ))}
+        data.surveys.map((s) => (
+          <SurveyComponent onChange={mutate} survey={s} key={s.id} />
+        ))}
       <Button
         onClick={() => setAddSurveyOpen(true)}
         startIcon={<Add />}

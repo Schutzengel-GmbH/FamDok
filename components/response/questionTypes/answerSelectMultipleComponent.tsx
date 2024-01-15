@@ -10,7 +10,7 @@ export default function AnswerSelectMultipleComponent({
   onChange,
 }: AnswerComponentProps) {
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
-    (answer.answerSelectOtherValues as IAnswerSelectOtherValues) || []
+    (answer?.answerSelectOtherValues as IAnswerSelectOtherValues) || []
   );
 
   function handleChange(checked: boolean, selectOption: SelectOption) {

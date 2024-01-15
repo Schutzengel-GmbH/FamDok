@@ -1,6 +1,8 @@
 import useToast from "@/components/notifications/notificationContext";
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
+import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
+import { optionalFields } from "@/components/surveyStats/responseTableFields";
 import {
   getColumnsForSurvey,
   getRowsForResponses,
@@ -11,7 +13,13 @@ import { FullSurvey } from "@/types/prismaHelperTypes";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { fetcher } from "@/utils/swrConfig";
 import { Button } from "@mui/material";
-import { DataGrid, GridRowSelectionModel } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColumnGroupingModel,
+  GridRowSelectionModel,
+} from "@mui/x-data-grid";
+import { GridColumnGroupingApi } from "@mui/x-data-grid/models/api/gridColumnGroupingApi";
+import { QuestionType } from "@prisma/client";
 import { useState } from "react";
 import useSWR from "swr";
 
@@ -23,10 +31,23 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
   const [selectedIds, updateSelectedIds] = useState<GridRowSelectionModel>([]);
 
   let columns = getColumnsForSurvey(survey);
+  let columnGroups: GridColumnGroupingModel = [
+    ...survey.questions
+      .filter((q) => q.type === QuestionType.Select)
+      .map((q) => ({
+        groupId: q.questionText,
+        children: [...q.selectOptions.map((o) => ({ field: o.id }))],
+      })),
+  ];
+  if (survey.hasFamily)
+    columnGroups.push({
+      groupId: "Familie",
+      children: [...optionalFields.map((f) => ({ field: f.field }))],
+    });
   let rows: Record<string, any>[] = [];
 
   const { data, isLoading, mutate } = useSWR<IResponses>(
-    `/api/surveys/${survey.id}/responses`,
+    survey.id ? `/api/surveys/${survey.id}/responses` : undefined,
     fetcher
   );
 
@@ -55,22 +76,31 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     <>
       <Button onClick={deleteResponses}>DELETE</Button>
       <DataGrid
+        experimentalFeatures={{ columnGrouping: true }}
+        columnGroupingModel={columnGroups}
         columns={columns}
-        rows={rows}
+        rows={rows || []}
         checkboxSelection
         rowSelectionModel={selectedIds}
         onRowSelectionModelChange={(selectionModel) =>
           updateSelectedIds(selectionModel)
         }
         slots={{
-          toolbar: () =>
-            CustomGridToolbar(
+          toolbar: CustomGridToolbar,
+        }}
+        slotProps={{
+          toolbar: {
+            selectedIds,
+            fileName:
               survey.name + "_" + new Date().toISOString() ||
-                "data_" + new Date().toISOString()
-            ),
+              "data_" + new Date().toISOString(),
+            data: data?.responses,
+            jsonExportFnc: getFullResponseJson,
+          },
         }}
         localeText={GRID_LOCALE_TEXT}
       />
     </>
   );
 }
+

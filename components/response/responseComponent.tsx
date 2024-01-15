@@ -1,5 +1,6 @@
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import {
+  FullFamily,
   FullResponse,
   FullSurvey,
   PartialAnswer,
@@ -11,7 +12,7 @@ import ResponseRelationComponent, {
 import ResponseAnswerQuestionsComponent from "@/components/response/responseAnswerQuestionComponent";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
-import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
+import { FetchError, apiGet, apiPostJson } from "@/utils/fetchApiUtils";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]/submitAnswers";
 import { InputErrors } from "@/components/response/answerQuestion";
@@ -19,17 +20,21 @@ import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
+import { useFamily } from "@/utils/apiHooks";
+import { IFamilies } from "@/pages/api/families";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
   onChange: () => void;
+  familyNumber?: number;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
   onChange,
+  familyNumber,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addToast } = useToast();
@@ -46,6 +51,10 @@ export default function ResponseComponent({
   const [inputErrors, setInputErrors] = useState<
     { questionId: string; error: InputErrors }[]
   >([]);
+
+  useEffect(() => {
+    if (familyNumber) createResponseForFamily(familyNumber);
+  }, []);
 
   async function handleSave() {
     if (!response) {
@@ -88,6 +97,27 @@ export default function ResponseComponent({
           submitAnswers(response.id);
         }
       }
+    }
+  }
+
+  async function createResponseForFamily(familyNumber: number) {
+    const res = await apiGet<IFamilies>(`/api/families?number=${familyNumber}`);
+    if (res instanceof FetchError) {
+      addToast({
+        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+        severity: "error",
+      });
+    } else if (res.error) {
+      addToast({
+        message: `Fehler: ${res.error}`,
+        severity: "error",
+      });
+    } else {
+      setCurrentRelation({
+        family: res.families[0],
+        child: undefined,
+        caregiver: undefined,
+      });
     }
   }
 
@@ -163,8 +193,10 @@ export default function ResponseComponent({
   }
 
   function handleResponseRelationChange(changedRelation: ResponseRelation) {
-    setCurrentRelation(changedRelation);
-    setUnsavedChanges(true);
+    if (!isSameRelation(changedRelation, currentRelation)) {
+      setCurrentRelation(changedRelation);
+      setUnsavedChanges(true);
+    }
   }
 
   return (
@@ -189,7 +221,11 @@ export default function ResponseComponent({
         }}
       >
         <UnsavedChangesComponent
-          errors={inputErrors.length > 0 || requiredQuestionsWithoutAnswers()}
+          errors={
+            inputErrors.length > 0 ||
+            requiredQuestionsWithoutAnswers() ||
+            (survey.hasFamily && !currentRelation.family)
+          }
           unsavedChanges={unsavedChanges}
           onSave={handleSave}
           onCancel={handleCancel}
@@ -223,3 +259,13 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
   }));
 }
 
+function isSameRelation(
+  relationA: ResponseRelation,
+  relationB: ResponseRelation
+) {
+  return (
+    relationA?.family?.id == relationB?.family?.id &&
+    relationA?.caregiver?.id == relationB?.caregiver?.id &&
+    relationA?.child?.id == relationB?.child?.id
+  );
+}

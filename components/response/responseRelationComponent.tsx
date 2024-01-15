@@ -6,19 +6,22 @@ import {
   Gender,
 } from "@prisma/client";
 import {
+  Alert,
   Button,
   FormControlLabel,
   Paper,
   Radio,
   RadioGroup,
+  TextField,
   Typography,
 } from "@mui/material";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import FindFamilyDialog from "@/components/family/findFamilyDialog";
 import { getAge } from "@/utils/utils";
 import { FullFamily } from "@/types/prismaHelperTypes";
 import FamilyDialog from "@/components/family/familyDialog";
 import { GetResult } from "@prisma/client/runtime";
+import { useFamily } from "@/utils/apiHooks";
 
 export type ResponseRelation = {
   family: FullFamily;
@@ -35,28 +38,17 @@ export default function ResponseRelationComponent({
   relation,
   onChange,
 }: ResponseRelationComponentProps) {
-  const [findFamilyOpen, setFindFamilyOpen] = useState<boolean>(false);
-  const [createFamilyOpen, setCreateFamilyOpen] = useState<boolean>(false);
+  const [number, setNumber] = useState<number>(relation?.family?.number);
   const [currentRelationId, setCurrentRelationId] = useState<string>(
     relation.caregiver?.id || relation.child?.id || "none"
   );
 
-  function handleFindClick() {
-    setFindFamilyOpen(true);
-  }
-  function handleCreateClick() {
-    setCreateFamilyOpen(true);
-  }
-  function handleRemoveClick() {
-    onChange({ family: undefined, caregiver: undefined, child: undefined });
-  }
+  const { family } = useFamily(number);
 
-  function handleSelectFamily(family: FullFamily) {
-    if (family && relation?.family?.id !== family.id) {
-      onChange({ family, caregiver: undefined, child: undefined });
-    }
-    setFindFamilyOpen(false);
-  }
+  useEffect(() => {
+    if (family && family.id !== relation?.family?.id)
+      onChange({ family, child: null, caregiver: null });
+  }, [family]);
 
   function handleRelationChange(e: ChangeEvent<HTMLInputElement>) {
     const value = e.currentTarget.value;
@@ -66,33 +58,18 @@ export default function ResponseRelationComponent({
     const child = relation.family.children.find((c) => c.id === value);
 
     if (value === "none") {
-      onChange({ ...relation, caregiver: undefined, child: undefined });
+      onChange({ ...relation, caregiver: null, child: null });
     }
     if (caregiver) {
-      onChange({ ...relation, caregiver, child: undefined });
+      onChange({ ...relation, caregiver, child: null });
     }
     if (child) {
-      onChange({ ...relation, caregiver: undefined, child });
+      onChange({ ...relation, caregiver: null, child });
     }
   }
 
   return (
     <>
-      <FindFamilyDialog
-        open={findFamilyOpen}
-        onConfirm={handleSelectFamily}
-        onCancel={() => setFindFamilyOpen(false)}
-      />
-
-      <FamilyDialog
-        initialFamily={undefined}
-        open={createFamilyOpen}
-        onClose={(family) => {
-          onChange({ ...relation, family });
-          setCreateFamilyOpen(false);
-        }}
-      />
-
       <Paper sx={{ p: ".5rem" }} elevation={3}>
         {relation.family && (
           <>
@@ -114,9 +91,9 @@ export default function ResponseRelationComponent({
                   key={c.id}
                   value={c.id}
                   control={<Radio />}
-                  label={`Bezugsperson ${c.number}, Alter: ${getAge(
-                    c.dateOfBirth
-                  )}`}
+                  label={`Bezugsperson ${c.number}${
+                    c.dateOfBirth ? `, Alter: ${getAge(c.dateOfBirth)}` : ""
+                  }`}
                 />
               ))}
               {relation.family.children?.map((c, i) => (
@@ -124,7 +101,9 @@ export default function ResponseRelationComponent({
                   key={c.id}
                   value={c.id}
                   control={<Radio />}
-                  label={`Kind ${c.number}, Alter: ${getAge(c.dateOfBirth)}`}
+                  label={`Kind ${c.number}${
+                    c.dateOfBirth ? `, Alter: ${getAge(c.dateOfBirth)}` : ""
+                  }`}
                 />
               ))}
             </RadioGroup>
@@ -134,11 +113,17 @@ export default function ResponseRelationComponent({
         <Typography variant="h6">
           {relation.family ? "Andere Familie auswählen" : "Familie auswählen"}
         </Typography>
-        <Button onClick={handleFindClick}>Familie finden</Button>
-        <Button onClick={handleCreateClick}>Familie erstellen</Button>
-        {relation.family && (
-          <Button onClick={handleRemoveClick}>Verbindung aufheben</Button>
+        {!relation.family && (
+          <Alert severity="error" key={"relationMissing"}>
+            Keine Familie ausgewählt.
+          </Alert>
         )}
+        <TextField
+          sx={{ mt: ".5rem" }}
+          label="Familiennummer"
+          value={number || ""}
+          onChange={(e) => setNumber(parseInt(e.target.value))}
+        />
       </Paper>
     </>
   );

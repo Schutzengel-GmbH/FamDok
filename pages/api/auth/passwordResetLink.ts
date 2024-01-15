@@ -40,7 +40,7 @@ export default async function users(
     })
     .catch((err) => logger.error(err));
 
-  if (!reqUser || reqUser.role !== Role.ADMIN)
+  if (!reqUser || reqUser.role === Role.USER)
     return res.status(403).json({ error: "FORBIDDEN" });
 
   const { email } = req.body as { email: string };
@@ -62,3 +62,4 @@ export default async function users(
 
   return res.status(200).json({ link });
 }
+

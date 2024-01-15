@@ -2,6 +2,8 @@ import { FullFamily, PartialAnswer } from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
+  Disability,
+  Education,
   Family,
   Gender,
   Prisma,
@@ -31,10 +33,38 @@ export function getQuestionTypeString(type: QuestionType) {
 }
 
 export const getAge = (birthDate: Date) => {
+  if (!birthDate) return undefined;
   const today = new Date();
   const age = differenceInYears(today, new Date(birthDate));
   return Number.isNaN(age) ? undefined : age;
 };
+
+export function getBoolString(b: boolean | undefined | null) {
+  switch (b) {
+    case true:
+      return "Ja";
+    case false:
+      return "Nein";
+    case undefined:
+    case null:
+      return "Unbekannt/Keine Angabe";
+  }
+}
+
+export function getDisabilityString(disability: Disability) {
+  switch (disability) {
+    case "Yes":
+      return "Ja";
+    case "No":
+      return "Nein";
+    case "Impending":
+      return "Drohend";
+    case "None":
+      return "Keine Angabe";
+    case "Unknown":
+      return "Unbekannt";
+  }
+}
 
 export function getGenderString(g: Gender) {
   switch (g) {
@@ -47,6 +77,53 @@ export function getGenderString(g: Gender) {
     case "Unknown":
       return "unbekannt";
   }
+}
+
+export function getEducationString(e: Education) {
+  switch (e) {
+    case "None":
+      return "Kein";
+    case "Unknown":
+      return "Unbekannt";
+    case "Other":
+      return "Andere";
+    case "Foerderschulabschluss":
+      return "Foerderschulabschluss";
+    case "Hauptschulabschluss":
+      return "Hauptschulabschluss";
+    case "Realschulabschluss":
+      return "Realschulabschluss";
+    case "Fachhochschulreife":
+      return "Fachhochschulreife";
+    case "Abitur":
+      return "Abitur";
+    case "Berufsausbildung":
+      return "Berufsausbildung";
+    case "UniversityDegree":
+      return "Hochschulabschluss";
+    case "Higher":
+      return "Höher";
+  }
+}
+
+export function isHigherEducation(ed: Education, comp: Education) {
+  const sortedEducationArray: Education[] = [
+    Education.None,
+    Education.Unknown,
+    Education.Other,
+    Education.Foerderschulabschluss,
+    Education.Hauptschulabschluss,
+    Education.Realschulabschluss,
+    Education.Fachhochschulreife,
+    Education.Abitur,
+    Education.UniversityDegree,
+    Education.Higher,
+  ];
+  if (!ed) return true;
+  else
+    return (
+      sortedEducationArray.indexOf(ed) > sortedEducationArray.indexOf(comp)
+    );
 }
 
 export function getAddFamilyInput(
@@ -117,7 +194,7 @@ export function answerHasNoValues(answer: PartialAnswer) {
   } = answer;
 
   return (
-    !answerBool &&
+    !(answerBool === true || answerBool === false) &&
     !answerDate &&
     !answerInt &&
     answerInt !== 0 &&
@@ -161,8 +238,8 @@ export function makeUriLegal(str: string) {
 
 export function sortByStringProperty(propName: string) {
   return (
-    object1: { [x: string]: string },
-    object2: { [x: string]: string }
+    object1: any & { [x: string]: string },
+    object2: any & { [x: string]: string }
   ) => {
     if (!(propName in object1) || !(propName in object2))
       throw new Error(`Property ${propName} does not exist in object`);
@@ -170,4 +247,36 @@ export function sortByStringProperty(propName: string) {
     if (object1[propName] > object2[propName]) return 1;
     else return 0;
   };
+}
+
+export function sortByNumberProperty(propName: string) {
+  return (
+    object1: any & { [x: string]: number },
+    object2: any & { [x: string]: number }
+  ) => {
+    if (!(propName in object1) || !(propName in object2))
+      throw new Error(`Property ${propName} does not exist in object`);
+    if (object1[propName] < object2[propName]) return -1;
+    if (object1[propName] > object2[propName]) return 1;
+    else return 0;
+  };
+}
+
+export function sortAlphaByKey(key: string) {
+  return (a: object, b: object) => {
+    if (a[key] < b[key]) return -1;
+    else if (a[key] > b[key]) return 1;
+    else return 0;
+  };
+}
+
+export function comparePrimitiveArrayByElements<T = number | string>(
+  a: T[],
+  b: T[]
+) {
+  try {
+    return a?.sort().join() === b?.sort().join();
+  } catch (e) {
+    return false;
+  }
 }

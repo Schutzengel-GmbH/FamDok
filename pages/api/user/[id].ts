@@ -10,11 +10,12 @@ import { Prisma, Role, User } from "@prisma/client";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import { isValidEmail } from "@/utils/validationUtils";
 import { logger as _logger } from "@/config/logger";
+import { FullUser } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IUser {
-  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
+  user?: FullUser;
   error?:
     | "INTERNAL_SERVER_ERROR"
     | "NOT_FOUND"
@@ -61,7 +62,7 @@ export default async function user(
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { id: id as string },
-      include: { organization: true },
+      include: { organization: true, subOrganizations: true },
     });
   } catch (err) {
     if (
@@ -137,7 +138,7 @@ export default async function user(
         .update({
           where: { id: id as string },
           data: req.body,
-          include: { organization: true },
+          include: { organization: true, subOrganizations: true },
         })
         .catch((err) => logger.error(err));
 

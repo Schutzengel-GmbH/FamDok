@@ -9,11 +9,12 @@ import { logger as _logger } from "@/config/logger";
 import { Response } from "express";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
+import { FullUser } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IUserMe {
-  user?: Prisma.UserGetPayload<{ include: { organization: true } }>;
+  user?: FullUser;
   error?:
     | "NOT_FOUND"
     | "INTERNAL_SERVER_ERROR"
@@ -48,7 +49,7 @@ export default async function me(
   try {
     user = await prisma.user.findUniqueOrThrow({
       where: { authId: req.session.getUserId() },
-      include: { organization: true },
+      include: { organization: true, subOrganizations: true },
     });
   } catch (err) {
     if (
