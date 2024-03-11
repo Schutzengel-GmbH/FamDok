@@ -5,6 +5,7 @@ import {
   Edit,
   FamilyRestroom,
   Article,
+  QueryStats,
 } from "@mui/icons-material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -33,9 +34,19 @@ export const navigationList: {
         user.role === Role.ORGCONTROLLER),
   },
   {
-    title: "Survey Dashboard",
+    title: "Surveys",
     icon: <Poll />,
     url: "/surveyDashboard",
+    canAccess: (user) =>
+      user &&
+      (user.role === Role.ADMIN ||
+        user.role === Role.CONTROLLER ||
+        user.role === Role.ORGCONTROLLER),
+  },
+  {
+    title: "Dashboards",
+    icon: <QueryStats />,
+    url: "/dashboards",
     canAccess: (user) =>
       user &&
       (user.role === Role.ADMIN ||
