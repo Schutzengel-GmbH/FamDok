@@ -114,13 +114,20 @@ export function getFullResponseJson(data: FullResponse[]) {
     );
 
     obj["verantwortlich"] = {
+      name: response.user?.name || "",
       organisation: response.user?.organization?.name || "keine",
       unterorganisationen:
         response.user?.subOrganizations?.map((s) => s.name) || [],
     };
 
     obj["familie"] = response.family
-      ? { ["familiennummer"]: response.family.number, kinder, bezugspersonen }
+      ? {
+          ["familiennummer"]: response.family.number,
+          kinder,
+          bezugspersonen,
+          betreuungsbeginn: response.family.beginOfCare,
+          betreuungsende: response.family.endOfCare || "",
+        }
       : undefined;
 
     humanReadableRes.push(obj);
@@ -168,3 +175,4 @@ function getAnswer(
       );
   }
 }
+
