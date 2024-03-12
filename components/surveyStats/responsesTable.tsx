@@ -39,11 +39,14 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
         children: [...q.selectOptions.map((o) => ({ field: o.id }))],
       })),
   ];
-  if (survey.hasFamily)
+  if (survey.hasFamily) {
+    columns.push(...optionalFields);
     columnGroups.push({
       groupId: "Familie",
       children: [...optionalFields.map((f) => ({ field: f.field }))],
     });
+  }
+
   let rows: Record<string, any>[] = [];
 
   const { data, isLoading, mutate } = useSWR<IResponses>(
@@ -103,4 +106,3 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     </>
   );
 }
-
