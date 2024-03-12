@@ -36,10 +36,11 @@ export function getColumnsForSurvey(survey: FullSurvey): GridColDef[] {
     }
   }
 
-  columns.push(
-    { field: "Erstellt durch", width: 200, headerName: "Erstellt durch" },
-    ...optionalFields
-  );
+  columns.push({
+    field: "Erstellt durch",
+    width: 200,
+    headerName: "Erstellt durch",
+  });
 
   return columns;
 }
@@ -168,4 +169,3 @@ function getFieldType(questionType: QuestionType) {
       return "string";
   }
 }
-
