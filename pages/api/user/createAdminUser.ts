@@ -1,4 +1,5 @@
 import { SessionRequest } from "supertokens-node/framework/express";
+import { Request } from "express";
 import supertokens from "supertokens-node/lib/build/supertokens";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
@@ -14,7 +15,10 @@ export interface ICreateAdminUser {
   error?: "INTERNAL_SERVER_ERROR";
 }
 
-export default async function createAdminUser(req: SessionRequest, res: any) {
+export default async function createAdminUser(
+  req: SessionRequest & Request,
+  res: any
+) {
   const logger = _logger.child({
     endpoint: `/user/createAdminUser`,
     method: req.method,
