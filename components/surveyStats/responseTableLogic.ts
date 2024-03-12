@@ -107,7 +107,7 @@ export function getRowsForResponses(
         ? new Date(response.family?.beginOfCare)
         : null;
       resRow[Fields.endOfCare] = response.family?.endOfCare
-        ? new Date(response.family?.beginOfCare)
+        ? new Date(response.family?.endOfCare)
         : null;
       resRow[Fields.hasChildDisability] = response.family?.children?.reduce(
         (n, c) =>
