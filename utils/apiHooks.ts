@@ -212,6 +212,15 @@ export function useMyResponses(surveyId: string) {
   };
 }
 
+export function useResponses(surveyId: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IResponses>(
+    surveyId ? `/api/surveys/${surveyId}/responses` : null,
+    fetcher
+  );
+
+  return { responses: data?.responses, error, isLoading, isValidating, mutate };
+}
+
 export function useSurvey(id: string) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ISurvey>(
     id ? `/api/surveys/${id}` : null,
