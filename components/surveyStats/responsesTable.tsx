@@ -1,4 +1,3 @@
-import useToast from "@/components/notifications/notificationContext";
 import { GRID_LOCALE_TEXT } from "@/components/surveyStats/dataGridLocale";
 import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import CustomGridToolbar from "@/components/surveyStats/gridToolbar";
@@ -8,17 +7,13 @@ import {
   getRowsForResponses,
 } from "@/components/surveyStats/responseTableLogic";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
-import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
-import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { fetcher } from "@/utils/swrConfig";
-import { Button } from "@mui/material";
 import {
   DataGrid,
   GridColumnGroupingModel,
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
-import { GridColumnGroupingApi } from "@mui/x-data-grid/models/api/gridColumnGroupingApi";
 import { QuestionType } from "@prisma/client";
 import { useState } from "react";
 import useSWR from "swr";
@@ -54,30 +49,10 @@ export default function ResponsesTable({ survey }: ResponsesTableProps) {
     fetcher
   );
 
-  const { addToast } = useToast();
-
-  async function deleteResponses() {
-    for (let id of selectedIds) {
-      const res = await apiDelete<IResponse>(
-        `/api/surveys/${survey.id}/responses/${id}`
-      );
-      if (res instanceof FetchError)
-        addToast({ message: res.error || "Fehler", severity: "error" });
-      else if (res.error) addToast({ message: res.error, severity: "error" });
-      else
-        addToast({
-          message: `${res.response.id} gelöscht`,
-          severity: "success",
-        });
-      mutate();
-    }
-  }
-
   if (data?.responses) rows = getRowsForResponses(data.responses, survey);
 
   return (
     <>
-      <Button onClick={deleteResponses}>DELETE</Button>
       <DataGrid
         experimentalFeatures={{ columnGrouping: true }}
         columnGroupingModel={columnGroups}
