@@ -4,6 +4,7 @@ import { Box, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { useState } from "react";
 import ResponsesPerUserTable from "@/components/surveyStats/responsesPerUser";
 import ResponsesPerSubOrg from "./responsesPerSubOrg";
+import ResponsesWhereAnswerTable from "@/components/surveyStats/responsesWhereAnswerTable";
 
 type SurveyStatsComponentProps = {
   survey: FullSurvey;
@@ -13,7 +14,8 @@ type StatsSelector =
   | ""
   | "ALL_ANSWERS"
   | "NUM_ANSWERS_USER"
-  | "NUM_ANSWERS_SUBORG";
+  | "NUM_ANSWERS_SUBORG"
+  | "RESPONSES_WHERE_ANSWER";
 
 export default function SurveyStatsComponent({
   survey,
@@ -36,14 +38,21 @@ export default function SurveyStatsComponent({
         <MenuItem value="NUM_ANSWERS_SUBORG">
           Antworten pro Unterorganisation
         </MenuItem>
+        <MenuItem value="RESPONSES_WHERE_ANSWER">Nach Fragen?!?</MenuItem>
       </Select>
       <Box>
         {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
         {selectedStats === "NUM_ANSWERS_USER" && (
           <ResponsesPerUserTable surveyId={survey.id} />
         )}
-        {selectedStats === "NUM_ANSWERS_SUBORG" && <ResponsesPerSubOrg survey={survey} />}
+        {selectedStats === "NUM_ANSWERS_SUBORG" && (
+          <ResponsesPerSubOrg survey={survey} />
+        )}
+        {selectedStats === "RESPONSES_WHERE_ANSWER" && (
+          <ResponsesWhereAnswerTable survey={survey} />
+        )}
       </Box>
     </Box>
   );
 }
+
