@@ -2,7 +2,8 @@ import { FullSurvey } from "@/types/prismaHelperTypes";
 import ResponsesTable from "@/components/surveyStats/responsesTable";
 import { Box, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { useState } from "react";
-import CountingTable from "@/components/surveyStats/countingTable";
+import ResponsesPerUserTable from "@/components/surveyStats/responsesPerUser";
+import ResponsesPerSubOrg from "./responsesPerSubOrg";
 
 type SurveyStatsComponentProps = {
   survey: FullSurvey;
@@ -39,9 +40,9 @@ export default function SurveyStatsComponent({
       <Box>
         {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
         {selectedStats === "NUM_ANSWERS_USER" && (
-          <CountingTable surveyId={survey.id} />
+          <ResponsesPerUserTable surveyId={survey.id} />
         )}
-        {selectedStats === "NUM_ANSWERS_SUBORG" && <>NUM_ANSWERS_SUBORG</>}
+        {selectedStats === "NUM_ANSWERS_SUBORG" && <ResponsesPerSubOrg survey={survey} />}
       </Box>
     </Box>
   );

@@ -14,22 +14,22 @@ function ProtectedPage() {
   const { survey: id } = router.query;
   const { user } = useUserData();
 
-  const { data, isLoading, error, isValidating } = useSWR<ISurvey>(
+  const { data, isLoading, error } = useSWR<ISurvey>(
     user && id ? `/api/surveys/${id}` : undefined,
-    fetcher
+    fetcher,
   );
 
   if (!user || user.role === Role.USER)
     return <Error statusCode={403} title="Forbidden" />;
 
-  if (isLoading || isValidating || !data?.survey) return <Loading />;
+  if (isLoading) return <Loading />;
 
   if (error)
     return (
       <Error statusCode={error === "Not Found" ? 404 : 500} title={error} />
     );
 
-  return <SurveyStatsComponent survey={data.survey} />;
+  return <SurveyStatsComponent survey={data?.survey} />;
 }
 
 export default function ResponseStatsPage() {

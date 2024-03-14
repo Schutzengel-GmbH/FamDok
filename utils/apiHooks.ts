@@ -127,8 +127,7 @@ export function useFooterPageContent(uri: string) {
 
 export function useLogs(level?: number, from?: Date, til?: Date) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ILogs>(
-    `/api/logs?level=${
-      level ?? 40
+    `/api/logs?level=${level ?? 40
     }&from=${from?.toISOString()}?til=${til?.toISOString()}`,
     fetcher,
     { refreshInterval: 1000 }
@@ -184,7 +183,7 @@ export function useOrganizations() {
 export function useSubOrganizations(organizationId) {
   const { data, error, isLoading, isValidating, mutate } =
     useSWR<ISubOrganizations>(
-      `/api/subOrganizations?organizationId=${organizationId}`,
+      organizationId ? `/api/subOrganizations?organizationId=${organizationId}` : null,
       fetcher
     );
 
