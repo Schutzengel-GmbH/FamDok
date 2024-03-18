@@ -16,10 +16,10 @@ export interface IResponses {
   responses?: FullResponse[];
   response?: FullResponse;
   error?:
-    | "INTERNAL_SERVER_ERROR"
-    | "METHOD_NOT_ALLOWED"
-    | "NOT_FOUND"
-    | "FORBIDDEN";
+  | "INTERNAL_SERVER_ERROR"
+  | "METHOD_NOT_ALLOWED"
+  | "NOT_FOUND"
+  | "FORBIDDEN";
 }
 
 export default async function responses(
@@ -102,7 +102,7 @@ export default async function responses(
             answers: {
               include: {
                 answerSelect: true,
-                question: { include: { selectOptions: true } },
+                question: { include: { defaultAnswerSelectOptions: true, selectOptions: true } },
               },
             },
             user: { include: { organization: true, subOrganizations: true } },
