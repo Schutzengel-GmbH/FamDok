@@ -19,6 +19,7 @@
     "pino": "^8.14.1",
     "pino-abstract-transport": "^1.0.0",
     "react": "^18.2.0",
+    "react-data-grid": "^7.0.0-beta.43",
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
     "supertokens-auth-react": "^0.33.1",

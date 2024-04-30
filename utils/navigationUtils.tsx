@@ -44,7 +44,7 @@ export const navigationList: {
         user.role === Role.ORGCONTROLLER),
   },
   {
-    title: "Dashboards",
+    title: "Daten",
     icon: <QueryStats />,
     url: "/dashboards",
     canAccess: (user) =>
@@ -66,4 +66,3 @@ export const navigationList: {
     canAccess: (user) => (user ? true : false),
   },
 ];
-

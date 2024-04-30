@@ -281,16 +281,16 @@ export function comparePrimitiveArrayByElements<T = number | string>(
 
 export function getAnswerString(answer: FullAnswer): string {
   switch (answer.question.type) {
-    case "Text": return answer.answerText || "";
-    case "Int": return answer.answerInt?.toString() || "";
-    case "Num": return answer.answerNum?.toString() || "";
+    case "Text": return answer.answerText || "- Keine Antwort -";
+    case "Int": return answer.answerInt?.toString() || "- Keine Antwort -";
+    case "Num": return answer.answerNum?.toString() || "- Keine Antwort -";
     case "Scale":
     case "Select": return answer.answerSelect.reduce((acc, a) => {
       if (acc) return `${acc}, ${a.isOpen ? (answer.answerSelectOtherValues as Array<any>).find(ao => ao.selectOptionId === a.id).value : a.value}`;
       else return `${a.isOpen ? (answer.answerSelectOtherValues as Array<any>).find(ao => ao.selectOptionId === a.id).value : a.value}`;
-    }, "");
-    case "Date": return answer.answerDate ? new Date(answer.answerDate).toLocaleDateString() : "";
-    case "Bool": return answer.answerBool === true ? "Ja" : answer.answerBool === false ? "Nein" : "";
-    default: return ""
+    }, "- Keine Antwort -");
+    case "Date": return answer.answerDate ? new Date(answer.answerDate).toLocaleDateString() : "- Keine Antwort -";
+    case "Bool": return answer.answerBool === true ? "Ja" : answer.answerBool === false ? "Nein" : "- Keine Antwort -";
+    default: return "- Keine Antwort -"
   }
 }

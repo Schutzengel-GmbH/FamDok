@@ -35,10 +35,6 @@ export default function SurveyComponent({
     setDeleteOpen(true);
   }
 
-  function handleStats() {
-    router.push(`/surveys/${survey.id}/stats`);
-  }
-
   async function deleteThisSurvey() {
     const res = await apiDelete<ISurvey>(`/api/surveys/${survey.id}`);
     if (res instanceof FetchError)
@@ -98,14 +94,6 @@ export default function SurveyComponent({
             Bearbeiten
           </Button>
         </Link>
-        <Button
-          variant="outlined"
-          startIcon={<QueryStats />}
-          sx={{ marginRight: ".5rem" }}
-          onClick={handleStats}
-        >
-          Statistiken
-        </Button>
         <Button
           variant="outlined"
           startIcon={<Delete />}
