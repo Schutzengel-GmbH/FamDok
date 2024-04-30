@@ -34,8 +34,12 @@ export default function ResponsesWhereAnswerTable({
 
     result.push({ id: "0", answer: "- Keine Antwort -", number: 0 });
 
-    if (qType === "Select" || qType === "Scale") {
+    if (qType === "Select") {
       question.selectOptions.forEach(so => so.isOpen ? {} : result.push({ id: so.id, answer: so.value, number: 0 }));
+    }
+
+    if (qType === "Scale") {
+      question.selectOptions.forEach((so, i) => result.push({ id: so.id, answer: `${i + 1} (${so.value})`, number: 0 }));
     }
 
     for (const response of responses) {
@@ -44,14 +48,17 @@ export default function ResponsesWhereAnswerTable({
       if (!answer) result[0].number += 1;
 
       else {
-        if (qType === "Select" || qType === "Scale") {
+        if (qType === "Select") {
           for (let selOption of answer.answerSelect) {
             const answerString = selOption.isOpen ? (answer.answerSelectOtherValues as Array<any>).find(ao => ao.selectOptionId === selOption.id).value : selOption.value;
             const index = result.findIndex(r => r.answer === answerString)
             if (index < 0) result.push({ id: selOption.id, answer: answerString, number: 1 })
             else result[index].number += 1;
           }
-
+        } else if (qType === "Scale") {
+          const index = result.findIndex(r => r.id === answer.answerSelect[0]?.id);
+          if (index >= 0) result[index].number += 1;
+          else result[0].number += 1;
         } else {
           const answerString = getAnswerString(answer);
           const index = result.findIndex(r => r.answer === answerString);
