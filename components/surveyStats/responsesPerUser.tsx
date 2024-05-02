@@ -1,7 +1,7 @@
 import { useResponses, useUsers } from "@/utils/apiHooks";
 import { CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
-import DataGrid, { Column, DataGridProps } from "react-data-grid";
+import DataGrid, { Column } from "react-data-grid";
 import "react-data-grid/lib/styles.css";
 
 type CountingTableProps = {
@@ -40,7 +40,7 @@ export default function ResponsesPerUserTable({
     name: u.name,
     number: responses.reduce(
       (prev, r) => (u.id === r.userId ? prev + 1 : prev),
-      0
+      0,
     ),
   }));
 
@@ -56,4 +56,3 @@ export default function ResponsesPerUserTable({
     </>
   );
 }
-
