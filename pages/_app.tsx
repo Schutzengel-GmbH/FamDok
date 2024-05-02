@@ -10,7 +10,12 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
 import { ToastProvider } from "@/components/notifications/notificationContext";
 import { InfoDialogProvider } from "@/components/infoDialog/infoDialogContext";
-import { ThemeProvider, createTheme } from "@mui/material";
+import {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  useMediaQuery,
+} from "@mui/material";
 import { DataGrid, deDE } from "@mui/x-data-grid";
 import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
 import { deDE as coreDeDE } from "@mui/material/locale";
@@ -38,13 +43,25 @@ function MyApp({ Component, pageProps }): JSX.Element {
     return null;
   }
 
-  const theme = createTheme({}, deDE, pickersDeDE, coreDeDE);
+  const darkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = React.useMemo(
+    () =>
+      createTheme(
+        { palette: { mode: darkMode ? "dark" : "light" } },
+        deDE,
+        pickersDeDE,
+        coreDeDE,
+      ),
+    [darkMode],
+  );
 
   return (
     <SuperTokensWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
         <ThemeProvider theme={theme}>
           <ConfigProvider>
+            <CssBaseline />
             <Layout>
               <InfoDialogProvider>
                 <ToastProvider>
