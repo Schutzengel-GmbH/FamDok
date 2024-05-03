@@ -13,7 +13,7 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import { Prisma, QuestionType } from "@prisma/client";
+import { Prisma, QuestionType, SelectOption } from "@prisma/client";
 import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
 import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
@@ -92,7 +92,7 @@ export default function EditQuestionDialog({
   const [questionReady, setQuestionReady] = useState<boolean>(false);
 
   const [questionState, updateQuestionState] = useState<QuestionState>(
-    question || initialQuestionState
+    question || initialQuestionState,
   );
 
   useEffect(() => {
@@ -114,7 +114,7 @@ export default function EditQuestionDialog({
 
   useEffect(
     () => updateQuestionState(question || initialQuestionState),
-    [question]
+    [question],
   );
 
   function handleClose() {
@@ -129,8 +129,8 @@ export default function EditQuestionDialog({
         `/api/surveys/${survey.id}/questions`,
         getCreateInputFromState(
           { ...questionState, numberInSurvey: survey.questions.length + 1 },
-          survey.id
-        )
+          survey.id,
+        ),
       );
       if (res instanceof FetchError)
         addToast({
@@ -156,9 +156,10 @@ export default function EditQuestionDialog({
           selectOptionsToDelete: question.selectOptions
             .map((o) => o.id)
             .filter(
-              (id) => !questionState.selectOptions.map((o) => o.id).includes(id)
+              (id) =>
+                !questionState.selectOptions.map((o) => o.id).includes(id),
             ),
-        }
+        },
       );
       if (res instanceof FetchError)
         addToast({
@@ -396,7 +397,7 @@ export default function EditQuestionDialog({
 
 function getCreateInputFromState(
   state: QuestionState,
-  surveyId: string
+  surveyId: string,
 ): Prisma.QuestionCreateInput {
   const selectOptions = state.selectOptions?.map((o) => ({
     value: o.value,
@@ -430,16 +431,21 @@ function getCreateInputFromState(
   };
 }
 
+export type QuestionUpdateInput = Omit<
+  Prisma.QuestionUpdateInput,
+  "selectOptions"
+> & { selectOptions: Partial<SelectOption>[] };
+
 function getUpdateInputFromState(
   state: QuestionState,
-  surveyId: string
-): Prisma.QuestionUpdateInput {
-  const selectOptions = state.selectOptions?.map((o) => ({
-    id: o.id,
-    value: o.value,
-    isOpen: o.isOpen,
-    info: o.info,
-  }));
+  surveyId: string,
+): QuestionUpdateInput {
+  //  const selectOptions = state.selectOptions?.map((o) => ({
+  //    id: o.id,
+  //    value: o.value,
+  //    isOpen: o.isOpen,
+  //    info: o.info,
+  //  }));
 
   return {
     questionTitle: state.questionTitle,
@@ -455,18 +461,7 @@ function getUpdateInputFromState(
     numRangeHigh: state.numRangeHigh,
     numRangeLow: state.numRangeLow,
     survey: { connect: { id: surveyId } },
-    selectOptions: selectOptions
-      ? {
-          deleteMany: selectOptions.map((s) => ({ id: s.id })),
-          createMany: {
-            data: selectOptions.map((s) => ({
-              value: s.value,
-              isOpen: s.isOpen,
-              info: s.info,
-            })),
-          },
-        }
-      : undefined,
+    selectOptions: state.selectOptions,
     defaultAnswerText: state.defaultAnswerText,
     defaultAnswerBool: state.defaultAnswerBool,
     defaultAnswerDate: state.defaultAnswerDate,
@@ -475,4 +470,3 @@ function getUpdateInputFromState(
     numberInSurvey: state.numberInSurvey,
   };
 }
-
