@@ -10,7 +10,7 @@ export default function DashboardMainPage({ surveys }: DashboardMainPageProps) {
   return (
     <Box>
       {surveys.map((s) => (
-        <DashboardSurveyCard survey={s} />
+        <DashboardSurveyCard survey={s} key={s.id} />
       ))}
     </Box>
   );
