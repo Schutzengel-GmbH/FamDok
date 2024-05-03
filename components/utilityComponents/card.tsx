@@ -26,6 +26,7 @@ export default function Card({ title, text, actions }: CardProps) {
           startIcon={a.icon}
           sx={{ marginRight: ".5rem" }}
           onClick={a.action}
+          key={a.title}
         >
           {a.title}
         </Button>
@@ -33,4 +34,3 @@ export default function Card({ title, text, actions }: CardProps) {
     </Paper>
   );
 }
-
