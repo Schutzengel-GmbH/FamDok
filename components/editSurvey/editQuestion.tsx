@@ -224,7 +224,7 @@ export default function EditQuestionDialog({
               Achtung! Beim Bearbeiten einer Frage, zu der bereits Antworten vorliegen, können Daten verlorengehen oder verfälscht werden.
             </Typography>
             <IconButton onClick={handleInfoClick}>
-              <Info sx={{ alignSelf: "center" }} color={"error"} sx={{ ":hover": { cursor: "pointer" } }} />
+              <Info color={"error"} sx={{ ":hover": { cursor: "pointer" } }} />
             </IconButton>
           </Box>}
         <TextField

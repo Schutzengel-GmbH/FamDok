@@ -1,13 +1,11 @@
-import { Delete, Edit, QueryStats, FileDownload } from "@mui/icons-material";
+import { Delete, Edit, FileDownload } from "@mui/icons-material";
 import { Button, Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma, Role } from "@prisma/client";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { SurveyExport } from "@/utils/importExport";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
-import { ISurveys } from "@/pages/api/surveys";
 import { FetchError, apiDelete } from "@/utils/fetchApiUtils";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import useToast from "@/components/notifications/notificationContext";
@@ -77,23 +75,18 @@ export default function SurveyComponent({
         <Typography sx={{ marginBottom: "1rem" }}>
           {survey.description}
         </Typography>
-        <Link
-          href={{
-            pathname: `/surveys/${survey.id}/edit`,
-          }}
+        <Button
+          variant="outlined"
+          startIcon={<Edit />}
+          sx={{ marginRight: ".5rem" }}
+          disabled={
+            user?.role !== Role.ADMIN &&
+            survey.organizationId !== user.organizationId
+          }
+          onClick={() => router.push(`/surveys/${survey.id}/edit`)}
         >
-          <Button
-            variant="outlined"
-            startIcon={<Edit />}
-            sx={{ marginRight: ".5rem" }}
-            disabled={
-              user?.role !== Role.ADMIN &&
-              survey.organizationId !== user.organizationId
-            }
-          >
-            Bearbeiten
-          </Button>
-        </Link>
+          Bearbeiten
+        </Button>
         <Button
           variant="outlined"
           startIcon={<Delete />}
@@ -131,4 +124,3 @@ export default function SurveyComponent({
     </Box>
   );
 }
-
