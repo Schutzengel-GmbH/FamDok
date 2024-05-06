@@ -50,16 +50,15 @@ export default function SelectOptionsComponent({
                   >
                     <Delete />
                   </IconButton>
-                  <IconButton>
-                    <Info
-                      onClick={() => toggleInfoOpen(i)}
-                      color={v[i].info ? "primary" : "disabled"}
-                    />
+                  <IconButton
+                    onClick={() => toggleInfoOpen(i)}
+                  >
+                    <Info color={v[i].info ? "primary" : "disabled"} />
                   </IconButton>
 
                   <EditSelectOptionInfo
                     initialInfo={v[i].info}
-                    open={infoOpen[i]}
+                    open={infoOpen[i] || false}
                     onClose={() => toggleInfoOpen(i)}
                     onSave={(info) => {
                       v[i] = { ...v[i], info };
@@ -90,4 +89,3 @@ export default function SelectOptionsComponent({
     </Box>
   );
 }
-
