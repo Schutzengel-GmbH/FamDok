@@ -58,7 +58,7 @@ export default function SelectOptionsComponent({
 
                   <EditSelectOptionInfo
                     initialInfo={v[i].info}
-                    open={infoOpen[i]}
+                    open={infoOpen[i] || false}
                     onClose={() => toggleInfoOpen(i)}
                     onSave={(info) => {
                       v[i] = { ...v[i], info };
