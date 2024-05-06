@@ -1,4 +1,4 @@
-import { Save, Cancel } from "@mui/icons-material";
+import { Save, Cancel, Info } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -9,9 +9,13 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  IconButton,
+  List,
+  ListItem,
   Modal,
   Switch,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Prisma, QuestionType, SelectOption } from "@prisma/client";
 import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
@@ -22,6 +26,7 @@ import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import useToast from "@/components/notifications/notificationContext";
+import useInfoDialog from "../infoDialog/infoDialogContext";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -94,6 +99,8 @@ export default function EditQuestionDialog({
   const [questionState, updateQuestionState] = useState<QuestionState>(
     question || initialQuestionState,
   );
+
+  const editingExisting = question !== undefined;
 
   useEffect(() => {
     const hasText =
@@ -188,6 +195,20 @@ export default function EditQuestionDialog({
       </Modal>
     );
 
+  const { showInfoDialog } = useInfoDialog()
+
+  function handleInfoClick() {
+    showInfoDialog({
+      title: "Achtung", body: <Box><Typography>Bei der Bearbeitung von Fragen können folgende Probleme auftreten:</Typography>
+        <List>
+          <ListItem>Allgemein kann jede Änderung die Natur der Frage verändern und ggf. zu inhaltlichen Problemen führen.</ListItem>
+          <ListItem>Wenn der Fragentyp geändert wird, werden alle abgegebenen Antworten ungültig (undefined).</ListItem>
+          <ListItem>Wenn bei einer Auswahlfrage oder einer Skalafrage Optionen gelöscht werden, werden die Antworten auch gelöscht.</ListItem>
+        </List>
+      </Box>
+    });
+  }
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>
@@ -197,6 +218,15 @@ export default function EditQuestionDialog({
       </DialogTitle>
 
       <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
+        {editingExisting &&
+          <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem", alignItems: "center" }}>
+            <Typography color={"error"}>
+              Achtung! Beim Bearbeiten einer Frage, zu der bereits Antworten vorliegen, können Daten verlorengehen oder verfälscht werden.
+            </Typography>
+            <IconButton onClick={handleInfoClick}>
+              <Info sx={{ alignSelf: "center" }} color={"error"} sx={{ ":hover": { cursor: "pointer" } }} />
+            </IconButton>
+          </Box>}
         <TextField
           sx={{ mt: ".5rem" }}
           value={questionState.questionTitle || ""}
