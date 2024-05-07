@@ -14,7 +14,7 @@ export default function AnswerDateComponent({
           if (date) onChange({ ...answer, answerDate: date });
         }}
         value={
-          answer
+          answer?.answerDate
             ? new Date(answer.answerDate)
             : question.defaultAnswerDate ?? undefined
         }
