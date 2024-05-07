@@ -20,10 +20,10 @@ export interface IUsers {
   users?: FullUser[];
   inviteLink?: string;
   error?:
-    | "NOT_FOUND"
-    | "INTERNAL_SERVER_ERROR"
-    | "METHOD_NOT_ALLOWED"
-    | "FORBIDDEN";
+  | "NOT_FOUND"
+  | "INTERNAL_SERVER_ERROR"
+  | "METHOD_NOT_ALLOWED"
+  | "FORBIDDEN";
 }
 
 export default async function users(
@@ -120,11 +120,10 @@ export default async function users(
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       }
 
-      let inviteLink = `${
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-      }/auth/set-password?token=${passwordResetToken.token}`;
+      let inviteLink = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        }/auth/set-password?token=${passwordResetToken.token}`;
 
-      if (process.env.MANUAL_INVITATION !== "true")
+      if (process.env.NEXT_PUBLIC_MANUAL_INVITATION !== "true")
         await EmailPassword.sendEmail({
           //@ts-ignore - this is a custom type
           type: "INVITE_EMAIL",
@@ -138,7 +137,7 @@ export default async function users(
       return res.status(200).json({
         user: newUser,
         inviteLink:
-          process.env.MANUAL_INVITATION === "true" ? inviteLink : undefined,
+          process.env.NEXT_PUBLIC_MANUAL_INVITATION === "true" ? inviteLink : undefined,
       });
 
     default:
