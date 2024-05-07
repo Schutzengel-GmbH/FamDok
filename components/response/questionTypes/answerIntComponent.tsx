@@ -33,6 +33,12 @@ export default function AnswerIntComponent({
       return;
     }
 
+    if (Number(_valueString) > 2147483647 || Number(_valueString) < -2147483647) {
+      setError("Zahl ist zu groß oder zu klein für 32bit-signed-Integer");
+      onChange(answer, InputErrors.NUM_OUT_OF_BOUNDS)
+      return;
+    }
+
     const _value = parseInt(_valueString);
 
     if (question.intRange)
@@ -57,11 +63,11 @@ export default function AnswerIntComponent({
         InputProps={
           question.intRange
             ? {
-                inputProps: {
-                  min: question.intRangeLow,
-                  max: question.intRangeHigh,
-                },
-              }
+              inputProps: {
+                min: question.intRangeLow,
+                max: question.intRangeHigh,
+              },
+            }
             : {}
         }
       />
@@ -78,4 +84,3 @@ function isOutOfRange(value: number, question: Question) {
     return value > question.intRangeHigh;
   return false;
 }
-

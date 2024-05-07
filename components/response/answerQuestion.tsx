@@ -24,6 +24,7 @@ export enum InputErrors {
   NUM_OUT_OF_RANGE,
   NAN,
   REQUIRED,
+  NUM_OUT_OF_BOUNDS,
 }
 
 type AnswerQuestionProps = {
@@ -176,4 +177,3 @@ export default function AnswerQuestion({
     </Paper>
   );
 }
-
