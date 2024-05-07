@@ -7,11 +7,13 @@ import {
   Typography,
   Tooltip,
   LinearProgress,
+  Divider,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
 import { useUserData } from "@/utils/authUtils";
+import { version } from "@/package.json";
 
 type UserMenuComponentProps = {
   router: NextRouter;
@@ -60,6 +62,8 @@ export default function UserMenuComponent({
           </ListItemIcon>
           <ListItemText>Abmelden</ListItemText>
         </MenuItem>
+        <Divider />
+        <Typography sx={{ textAlign: "right", fontSize: "small" }}>v{version}</Typography>
       </Box>
     </Menu>
   );
