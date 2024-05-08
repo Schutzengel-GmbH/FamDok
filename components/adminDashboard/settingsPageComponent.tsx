@@ -51,10 +51,14 @@ export default function SettingsPageComponent() {
         id={settings?.endOfCareAutoSurveyId || "none"}
         onChange={(name, value) => setSettings({ ...settings, [name]: value })}
       />
+      <StringSettingComponent
+        title="Maintenance-Nachricht"
+        name="maintenanceMessage"
+        value={settings?.maintenanceMessage}
+        onChange={(name, value) => setSettings({ ...settings, [name]: value })} />
       <Button variant="contained" disabled={noChanges} onClick={updateSettings}>
         Update
       </Button>
     </Box>
   );
 }
-
