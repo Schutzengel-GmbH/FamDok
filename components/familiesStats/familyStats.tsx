@@ -8,9 +8,7 @@ import {
   useMyFamilies,
 } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
-import { sortByNumberProperty } from "@/utils/utils";
-import { Edit } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { getEducationString, isHigherEducation, sortByNumberProperty } from "@/utils/utils";
 import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { SubOrganization, User } from "@prisma/client";
 import { isPast } from "date-fns";
@@ -20,7 +18,7 @@ export default function FamilyStats() {
   const [selectedIds, updateSelectedIds] = useState<GridRowSelectionModel>();
   const [rows, setRows] = useState([]);
   const { user } = useUserData();
-  const { families, isLoading, mutate, error } =
+  const { families } =
     user?.role === "USER" ? useMyFamilies() : useFamilies();
 
   const { comingFromOptions } = useComingFromOptions();
@@ -39,6 +37,20 @@ export default function FamilyStats() {
               }
             )?.subOrganizations.reduce((prev, s) => prev + s.name, ""),
             isClosed: isPast(new Date(f.endOfCare || undefined)),
+            migrationBackground: f.caregivers.findIndex(c => c.migrationBackground) >= 0,
+            numChildrenWithDisability: f.children.reduce((acc, c) => c.disability === "Yes" || c.disability === "Impending" ? acc + 1 : acc, 0),
+            numCaregiversWithDisability: f.caregivers.reduce((acc, c) => c.disability === "Yes" || c.disability === "Impending" ? acc + 1 : acc, 0),
+            psychDiagnosisChildren: f.children.findIndex(c => c.psychDiagosis) >= 0,
+            psychDiagnosisCaregiver: f.caregivers.findIndex(c => c.psychDiagosis) >= 0,
+            highestEducation: f.caregivers.reduce(
+              (prev, c, i, caregivers) => {
+                if (i === 0) return getEducationString(c.education);
+                else if (isHigherEducation(c.education, caregivers[i - 1].education))
+                  return getEducationString(c.education);
+                else return prev;
+              },
+              ""
+            ),
           }))
         );
       })
@@ -58,6 +70,15 @@ export default function FamilyStats() {
       type: "number",
       valueGetter(params) {
         return Math.max(params.row.childrenInHousehold, params.value.length);
+      },
+    },
+    {
+      field: "caregivers",
+      headerName: "Anzahl Bezugspersonen",
+      description: "Anzahl Bezugspersonen",
+      type: "number",
+      valueGetter(params) {
+        return params.value.length
       },
     },
     { field: "location", headerName: "Wohnort", type: "string" },
@@ -119,6 +140,45 @@ export default function FamilyStats() {
       type: "string",
       width: 150,
     },
+    {
+      field: "migrationBackground",
+      headerName: "Migrationshintergrund",
+      description: "Hat mindestens eine Bezugsperson einen Migrationshintergrund?",
+      type: "boolean",
+    },
+    {
+      field: "numChildrenWithDisability",
+      headerName: "Kinder mit Behinderung",
+      description: "Bei wie vielen Kindern liegt eine Behinderung vor bzw. sind von Behinderung bedroht?",
+      type: "number",
+      width: 150,
+    },
+    {
+      field: "numCaregiversWithDisability",
+      headerName: "Bezugspersonen mit Behinderung",
+      description: "Bei wie vielen Bezugspersonen liegt eine Behinderung vor bzw. sind von Behinderung bedroht?",
+      type: "number",
+      width: 150,
+    },
+    {
+      field: "psychDiagnosisCaregiver",
+      headerName: "Psych. Diagnose (Eltern)",
+      description: "Liegt bei mindestens einer Bezugsperson eine psych. Diagnose vor?",
+      type: "boolean",
+    },
+    {
+      field: "psychDiagnosisChildren",
+      headerName: "Psych. Diagnose (Kinder)",
+      description: "Liegt bei mindestens einem Kind eine psych. Diagnose vor?",
+      type: "boolean",
+    },
+    {
+      field: "highestEducation",
+      headerName: "Höchster Bildungsabschluss",
+      description: "Was ist der höchste Bildungsabschluss aller Bezugspersonen?",
+      type: "string",
+      width: 150,
+    },
   ];
 
   return (
@@ -149,4 +209,3 @@ function getUserString(user?: User) {
   if (!user) return "Kein";
   else return user.name || user.email;
 }
-
