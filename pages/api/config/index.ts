@@ -18,25 +18,23 @@ export interface IConfig {
 
 export default async function config(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   await superTokensNextWrapper(
     async (next) => {
-      return await verifySession()(req, res, next);
+      return await verifySession({ sessionRequired: false })(req, res, next);
     },
     req,
-    res
+    res,
   );
+  let reqUser;
 
-  const reqUser = await prisma.user
-    .findUnique({
-      where: { authId: req.session.getUserId() },
-    })
-    .catch((err) => logger.error(err));
-
-  if (!reqUser) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
-  if (reqUser.role !== "ADMIN" && req.method !== "GET")
-    res.status(403).json({ error: "FORBIDDEN" });
+  if (req.session)
+    reqUser = await prisma.user
+      .findUnique({
+        where: { authId: req.session.getUserId() },
+      })
+      .catch((err) => logger.error(err));
 
   switch (req.method) {
     case "GET":
@@ -47,6 +45,8 @@ export default async function config(
 
       return res.status(200).json({ config });
     case "POST":
+      if (!reqUser || reqUser.role !== "ADMIN")
+        return res.status(403).json({ error: "FORBIDDEN" });
       await prisma.configuration
         .create({ data: JSON.parse(req.body) })
         .catch((err) => {
