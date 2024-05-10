@@ -20,6 +20,7 @@ import { deDE } from "@mui/x-data-grid";
 import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
 import { deDE as coreDeDE } from "@mui/material/locale";
 import { ConfigProvider } from "@/components/utilityComponents/conficContext";
+import CookieBanner from "@/components/utilityComponents/cookieBanner";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -91,6 +92,7 @@ function MyApp({ Component, pageProps }): JSX.Element {
                 <InfoDialogProvider>
                   <ToastProvider>
                     <Component {...pageProps} />
+                    <CookieBanner />
                   </ToastProvider>
                 </InfoDialogProvider>
               </Layout>
