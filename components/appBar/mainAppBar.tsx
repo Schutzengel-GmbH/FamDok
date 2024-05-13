@@ -23,6 +23,9 @@ export default function MainAppBar() {
   let sessionContext = Session.useSessionContext() as SessionContextType &
     SessionContextUpdate;
 
+  const theme = useTheme();
+  const settings = useConfig();
+
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<
     HTMLElement | undefined
   >(undefined);
@@ -52,9 +55,6 @@ export default function MainAppBar() {
   }
 
   if (sessionContext.loading) return null;
-
-  const theme = useTheme();
-  const settings = useConfig();
 
   return (
     <AppBar position="sticky">

@@ -16,11 +16,16 @@ export default function AnswerScaleComponent({
     });
   }
 
+  function handleClick(option: Partial<SelectOption>) {
+    if (isChecked(option))
+      onChange({ ...answer, answerSelect: [] });
+  }
+
   function isChecked(o: Partial<SelectOption>): boolean {
     return answer
       ? answer.answerSelect.findIndex((a) => a.id === o.id) >= 0
       : question.defaultAnswerSelectOptions.findIndex((a) => a.id === o.id) >=
-          0 || false;
+      0 || false;
   }
 
   return (
@@ -35,10 +40,10 @@ export default function AnswerScaleComponent({
             index={i}
             checked={isChecked(option)}
             label={option.value}
+            onClick={() => handleClick(option)}
           />
         ))}
       </RadioGroup>
     </Box>
   );
 }
-
