@@ -10,7 +10,7 @@ import {
   TextField,
 } from "@mui/material";
 import { SelectOption } from "@prisma/client";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, MouseEvent, SyntheticEvent } from "react";
 
 export default function AnswerSelectComponent({
   question,
@@ -27,6 +27,11 @@ export default function AnswerSelectComponent({
       answerSelect: [{ id: e.target.value }],
       answerSelectOtherValues: otherValues,
     });
+  }
+
+  function handleClick(option: Partial<SelectOption>) {
+    if (isChecked(option))
+      onChange({ ...answer, answerSelect: [], answerSelectOtherValues: otherValues });
   }
 
   function updateOtherValues(id: string, value: string) {
@@ -46,17 +51,17 @@ export default function AnswerSelectComponent({
     return answer
       ? answer.answerSelect.findIndex((a) => a.id === o.id) >= 0
       : question.defaultAnswerSelectOptions.findIndex((a) => a.id === o.id) >=
-          0 || false;
+      0 || false;
   }
 
   return (
     <FormControl>
-      <RadioGroup onChange={handleChange}>
+      <RadioGroup onChange={handleChange} >
         {question.selectOptions.map((o) => (
           <FormControlLabel
             key={o.id}
             value={o.id}
-            control={<Radio checked={isChecked(o)} />}
+            control={<Radio checked={isChecked(o)} onClick={() => handleClick(o)} />}
             label={
               <>
                 {o.isOpen ? (
@@ -82,4 +87,3 @@ export default function AnswerSelectComponent({
     </FormControl>
   );
 }
-
