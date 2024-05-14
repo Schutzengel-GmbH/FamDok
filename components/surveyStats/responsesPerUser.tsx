@@ -1,8 +1,10 @@
 import { useResponses, useUsers } from "@/utils/apiHooks";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
-import DataGrid, { Column } from "react-data-grid";
+import DataGrid from "@inovua/reactdatagrid-community";
 import "react-data-grid/lib/styles.css";
+import { TypeColumn } from "@inovua/reactdatagrid-community/types";
+import "@inovua/reactdatagrid-community/index.css"
 
 type CountingTableProps = {
   surveyId: string;
@@ -25,12 +27,12 @@ export default function ResponsesPerUserTable({
   if (responsesIsLoading || userssIsLoading) {
     return <CircularProgress />;
   }
-  const columns: Column<any, any>[] = [
-    { key: "name", width: 200, name: "Name" },
+  const columns: TypeColumn[] = [
+    { name: "name", width: 200, header: "Name" },
     {
-      key: "number",
+      name: "number",
       width: 200,
-      name: "Anzahl",
+      header: "Anzahl",
       sortable: true,
     },
   ];
@@ -45,14 +47,14 @@ export default function ResponsesPerUserTable({
   }));
 
   return (
-    <>
+    <Box>
       {users && responses && (
         <DataGrid
           columns={columns}
-          rows={rows}
-          onSortColumnsChange={(s) => console.log(s)}
+          dataSource={rows}
+          style={{ minHeight: "100%" }}
         />
       )}
-    </>
+    </Box>
   );
 }

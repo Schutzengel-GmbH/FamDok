@@ -38,7 +38,7 @@ export default function SurveyStatsComponent({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <Box sx={{ display: "grid", gridTemplateRows: "min-content 70vh", rowGap: "1rem" }}>
       <Paper
         elevation={3}
         sx={{
@@ -63,19 +63,16 @@ export default function SurveyStatsComponent({
           <MenuItem value="RESPONSES_WHERE_ANSWER">Nach Antworten</MenuItem>
         </Select>
       </Paper>
-      <Box>
-        {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
-        {selectedStats === "NUM_ANSWERS_USER" && (
-          <ResponsesPerUserTable surveyId={survey.id} />
-        )}
-        {selectedStats === "NUM_ANSWERS_SUBORG" && (
-          <ResponsesPerSubOrg survey={survey} />
-        )}
-        {selectedStats === "RESPONSES_WHERE_ANSWER" && (
-          <ResponsesWhereAnswerTable survey={survey} />
-        )}
-      </Box>
+      {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
+      {selectedStats === "NUM_ANSWERS_USER" && (
+        <ResponsesPerUserTable surveyId={survey.id} />
+      )}
+      {selectedStats === "NUM_ANSWERS_SUBORG" && (
+        <ResponsesPerSubOrg survey={survey} />
+      )}
+      {selectedStats === "RESPONSES_WHERE_ANSWER" && (
+        <ResponsesWhereAnswerTable survey={survey} />
+      )}
     </Box>
   );
 }
-
