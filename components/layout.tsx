@@ -5,7 +5,9 @@ import Footer from "@/components/footer/footer";
 
 export default function Layout({ children }) {
   return (
-    <Box sx={{ display: "grid", gridTemplateRows: "min-content 100% min-content" }}>
+    <Box
+      sx={{ display: "grid", gridTemplateRows: "min-content auto min-content" }}
+    >
       <Head>
         <title>Fachdokumentation Frühe Hilfen</title>
         <link rel="icon" href="/favicon.ico" />

@@ -1,10 +1,10 @@
 import { useResponses, useUsers } from "@/utils/apiHooks";
 import { Box, CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
-import DataGrid from "@inovua/reactdatagrid-community";
-import "react-data-grid/lib/styles.css";
-import { TypeColumn } from "@inovua/reactdatagrid-community/types";
-import "@inovua/reactdatagrid-community/index.css"
+import { ColumnDefinition, ReactTabulator } from "react-tabulator";
+import "react-tabulator/lib/styles.css";
+import "react-tabulator/lib/css/tabulator.min.css";
+import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
 
 type CountingTableProps = {
   surveyId: string;
@@ -27,19 +27,23 @@ export default function ResponsesPerUserTable({
   if (responsesIsLoading || userssIsLoading) {
     return <CircularProgress />;
   }
-  const columns: TypeColumn[] = [
-    { name: "name", width: 200, header: "Name" },
+
+  const options: Tabulator.Options = { movableColumns: true };
+
+  const columns: ColumnDefinition[] = [
     {
-      name: "number",
-      width: 200,
-      header: "Anzahl",
-      sortable: true,
+      title: "Name",
+      field: "name",
+      editable: true,
+      editor: "input",
+      headerFilter: "input",
     },
+    { title: "Anzahl", field: "number" },
   ];
 
   const rows = users?.map((u) => ({
     id: u.id,
-    name: u.name,
+    name: u.name || u.email,
     number: responses.reduce(
       (prev, r) => (u.id === r.userId ? prev + 1 : prev),
       0,
@@ -47,14 +51,11 @@ export default function ResponsesPerUserTable({
   }));
 
   return (
-    <Box>
-      {users && responses && (
-        <DataGrid
-          columns={columns}
-          dataSource={rows}
-          style={{ minHeight: "100%" }}
-        />
-      )}
-    </Box>
+    <ReactTabulator
+      columns={columns}
+      data={rows}
+      index={"id"}
+      options={options}
+    />
   );
 }
