@@ -13,7 +13,7 @@ import ResponsesPerUserTable from "@/components/surveyStats/responsesPerUser";
 import ResponsesPerSubOrg from "./responsesPerSubOrg";
 import ResponsesWhereAnswerTable from "@/components/surveyStats/responsesWhereAnswerTable";
 import { useRouter } from "next/router";
-import { Label } from "@mui/icons-material";
+import ResponsesTabulator from "./responsesTabulator";
 
 type SurveyStatsComponentProps = {
   survey: FullSurvey;
@@ -24,7 +24,8 @@ export type StatsSelector =
   | "ALL_ANSWERS"
   | "NUM_ANSWERS_USER"
   | "NUM_ANSWERS_SUBORG"
-  | "RESPONSES_WHERE_ANSWER";
+  | "RESPONSES_WHERE_ANSWER"
+  | "ALL_ANSWERS_TABULATOR";
 
 export default function SurveyStatsComponent({
   survey,
@@ -61,6 +62,7 @@ export default function SurveyStatsComponent({
             Antworten pro Unterorganisation
           </MenuItem>
           <MenuItem value="RESPONSES_WHERE_ANSWER">Nach Antworten</MenuItem>
+          <MenuItem value="ALL_ANSWERS_TABULATOR">Alle Antworten (Tabulator)</MenuItem>
         </Select>
       </Paper>
       {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
@@ -73,6 +75,7 @@ export default function SurveyStatsComponent({
       {selectedStats === "RESPONSES_WHERE_ANSWER" && (
         <ResponsesWhereAnswerTable survey={survey} />
       )}
+      {selectedStats === "ALL_ANSWERS_TABULATOR" && <ResponsesTabulator survey={survey} />}
     </Box>
   );
 }

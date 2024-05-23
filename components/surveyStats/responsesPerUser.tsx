@@ -1,10 +1,11 @@
 import { useResponses, useUsers } from "@/utils/apiHooks";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, Button, CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
 import { ColumnDefinition, ReactTabulator } from "react-tabulator";
 import "react-tabulator/lib/styles.css";
 import "react-tabulator/lib/css/tabulator.min.css";
-import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
+import { Tabulator, TabulatorFull } from "react-tabulator/lib/types/TabulatorTypes";
+import { useRef, useState } from "react";
 
 type CountingTableProps = {
   surveyId: string;
@@ -19,6 +20,8 @@ export default function ResponsesPerUserTable({
     error: responsesError,
     isLoading: responsesIsLoading,
   } = useResponses(surveyId);
+
+  const tableRef = useRef(null)
 
   if (usersError || responsesError) {
     return <ErrorPage message={usersError || responsesError} />;
@@ -51,11 +54,15 @@ export default function ResponsesPerUserTable({
   }));
 
   return (
-    <ReactTabulator
-      columns={columns}
-      data={rows}
-      index={"id"}
-      options={options}
-    />
+    <Box sx={{}}>
+      <Button onClick={() => tableRef.current.download("csv", "data.csv")}>Download</Button>
+      <ReactTabulator
+        onRef={(ref) => tableRef.current = ref.current}
+        columns={columns}
+        data={rows}
+        index={"id"}
+        options={options}
+      />
+    </Box>
   );
 }
