@@ -2,8 +2,6 @@ import { useResponses, useUsers } from "@/utils/apiHooks";
 import { Box, Button, CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
 import { ColumnDefinition, ReactTabulator } from "react-tabulator";
-import "react-tabulator/lib/styles.css";
-import "react-tabulator/lib/css/tabulator.min.css";
 import { Tabulator, TabulatorFull } from "react-tabulator/lib/types/TabulatorTypes";
 import { useRef, useState } from "react";
 
