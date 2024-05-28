@@ -4,6 +4,7 @@ import ErrorPage from "../utilityComponents/error";
 import { ColumnDefinition, ReactTabulator } from "react-tabulator";
 import { Tabulator, TabulatorFull } from "react-tabulator/lib/types/TabulatorTypes";
 import { useRef, useState } from "react";
+import { globalOptions } from "@/utils/tableUtils";
 
 type CountingTableProps = {
   surveyId: string;
@@ -59,7 +60,7 @@ export default function ResponsesPerUserTable({
         columns={columns}
         data={rows}
         index={"id"}
-        options={options}
+        options={{ ...globalOptions, ...options }}
       />
     </Box>
   );

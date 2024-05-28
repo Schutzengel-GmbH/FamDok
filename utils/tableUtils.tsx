@@ -46,6 +46,15 @@ const dateSorter = (a: Date, b: Date, _aRow, _bRow, _col, dir: "asc" | "desc") =
   return dir === "asc" ? compareAsc(dateA, dateB) : compareDesc(dateB, dateA);
 };
 
+
+export const globalOptions = {
+  headerSortElement: (row, dir) => {
+    if (dir === "asc") return '<span class="fa-solid fa-sort-down"></span>'
+    else if (dir === "desc") return '<span class="fa-solid fa-sort-up"></span>'
+    else return '<span class="fa-solid fa-sort-down"></span>'
+  }
+}
+
 export function allAnswersColumnDefinition(survey: FullSurvey): ColumnDefinition[] {
   return survey.questions.map<ColumnDefinition>(question => {
     switch (question.type) {
