@@ -1,9 +1,11 @@
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { Add, Remove } from "@mui/icons-material";
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
+import { Box, Button, Checkbox, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 import { QuestionType, SelectOption } from "@prisma/client";
 import { useState } from "react";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes"
+import SelectOptionsComponent from "../editSurvey/scaleNamesComponent";
+import DatePickerComponent from "../utilityComponents/datePickerComponent";
 
 interface StatsFilterProps {
   filters: Tabulator.Filter[];
@@ -63,7 +65,7 @@ function NewFilter({ survey, onSave }: NewFilterProps) {
 
       <TypeSelect questionType={survey?.questions.find(q => q.id === filter.field)?.type} type={filter.type} onChange={t => setFilter({ ...filter, type: t })} />
 
-      <TextField value={filter.value} onChange={e => setFilter({ ...filter, value: e.target.value })} />
+      <ValueInput questionType={survey?.questions.find(q => q.id === filter.field)?.type} value={filter.value} onChange={value => setFilter({ ...filter, value: value })} />
 
       <Button onClick={() => onSave(filter)}><Add /></Button>
     </Box>
@@ -112,6 +114,20 @@ interface TypeSelectProps {
 }
 
 function TypeSelect({ questionType, type, onChange }: TypeSelectProps) {
+
+  let availableTypes: Tabulator.FilterType[] = [];
+
+  switch (questionType) {
+    case QuestionType.Text: availableTypes = ["like", "=", "!=", "starts"]; break;
+    case QuestionType.Num:
+    case QuestionType.Int: availableTypes = ["=", "!=", "<", "<=", ">=", ">"]; break;
+    case QuestionType.Date: availableTypes = ["="]; break;
+    case QuestionType.Select: availableTypes = ["in"]; break;
+    case QuestionType.Bool: availableTypes = ["=", "!="]; break;
+    case QuestionType.Scale: availableTypes = []; break;
+
+  }
+
   return <FormControl sx={{ width: "25%" }}>
     <InputLabel id="filter">Filter</InputLabel>
     <Select
@@ -120,8 +136,7 @@ function TypeSelect({ questionType, type, onChange }: TypeSelectProps) {
       value={type}
       onChange={e => onChange(e.target.value as Tabulator.FilterType)}
     >
-      <MenuItem value="=">=</MenuItem>
-      <MenuItem value="like">Like</MenuItem>
+      {availableTypes.map(t => <MenuItem value={t}>{t}</MenuItem>)}
     </Select>
   </FormControl>
 
@@ -137,11 +152,14 @@ function ValueInput({ questionType, value, onChange }: ValueInputProps) {
 
   switch (questionType) {
     case QuestionType.Text: return <TextField value={value} onChange={e => onChange(e.target.value)} />
-    case QuestionType.Int: return <TextField value={value} onChange={e => onChange(e.target.value)} type="number" />
-    case QuestionType.Date:
-    case QuestionType.Select:
-    case QuestionType.Bool:
     case QuestionType.Scale:
     case QuestionType.Num:
+    case QuestionType.Int: return <TextField value={value} onChange={e => onChange(e.target.value)} type="number" />
+    case QuestionType.Date: return <DatePickerComponent
+      currentAnswer={value as Date}
+      onChange={d => onChange(d)} />
+    case QuestionType.Select: return <SelectOptionsComponent
+      value={value as SelectOption[] || []} onChange={v => onChange(v as SelectOption[])} />
+    case QuestionType.Bool: return <Checkbox value={value} onChange={e => onChange(e.target.checked)} />
   }
 }
