@@ -25,7 +25,6 @@ export type StatsSelector =
   | "NUM_ANSWERS_USER"
   | "NUM_ANSWERS_SUBORG"
   | "RESPONSES_WHERE_ANSWER"
-  | "ALL_ANSWERS_TABULATOR";
 
 export default function SurveyStatsComponent({
   survey,
@@ -65,7 +64,7 @@ export default function SurveyStatsComponent({
           <MenuItem value="ALL_ANSWERS_TABULATOR">Alle Antworten (Tabulator)</MenuItem>
         </Select>
       </Paper>
-      {selectedStats === "ALL_ANSWERS" && <ResponsesTable survey={survey} />}
+      {selectedStats === "ALL_ANSWERS" && <ResponsesTabulator survey={survey} />}
       {selectedStats === "NUM_ANSWERS_USER" && (
         <ResponsesPerUserTable surveyId={survey.id} />
       )}
@@ -75,7 +74,6 @@ export default function SurveyStatsComponent({
       {selectedStats === "RESPONSES_WHERE_ANSWER" && (
         <ResponsesWhereAnswerTable survey={survey} />
       )}
-      {selectedStats === "ALL_ANSWERS_TABULATOR" && <ResponsesTabulator survey={survey} />}
     </Box>
   );
 }
