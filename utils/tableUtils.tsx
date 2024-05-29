@@ -1,7 +1,7 @@
 import { FullResponse, FullSurvey, IAnswerSelectOtherValue } from "@/types/prismaHelperTypes";
 import { QuestionType } from "@prisma/client";
 import { parseISO } from "date-fns";
-import { compareAsc, compareDesc } from "date-fns/esm";
+import { compareAsc, compareDesc } from "date-fns";
 import { ColumnDefinition } from "react-tabulator";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
 
@@ -9,6 +9,8 @@ type ResponseTableData = { [questionId: string]: string | number | boolean | Dat
 
 export function responsesToAllAnswersTable(responses: FullResponse[]): ResponseTableData[] {
   let result: ResponseTableData[] = [];
+
+  if (!responses) return result;
 
   for (const response of responses) {
     let data: ResponseTableData = {};
