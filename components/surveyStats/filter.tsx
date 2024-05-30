@@ -1,165 +1,158 @@
 import { FullSurvey } from "@/types/prismaHelperTypes";
+import { BooleanFilters, DateFilters, IFilter, NumberFilters, TextFilters } from "@/utils/filterLogic";
 import { Add, Remove } from "@mui/icons-material";
-import { Box, Button, Checkbox, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
-import { QuestionType, SelectOption } from "@prisma/client";
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, TextField } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
+import { QuestionType } from "@prisma/client";
 import { useState } from "react";
-import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes"
-import SelectOptionsComponent from "../editSurvey/scaleNamesComponent";
-import DatePickerComponent from "../utilityComponents/datePickerComponent";
 
 interface StatsFilterProps {
-  filters: Tabulator.Filter[];
+  filters: ReadyFilter[];
+  onChange: (filters: ReadyFilter[]) => void
   survey: FullSurvey;
-  onChange: (f: Tabulator.Filter[]) => void
 }
 
-export default function StatsFilter({ filters, survey, onChange }: StatsFilterProps) {
+export type ReadyFilter = { field: string, filter: IFilter<any, any>, filterParams?: any }
 
-  function addFilter(filter: Tabulator.Filter) {
-    onChange([...filters, filter])
-  }
+export default function StatsFilter({ filters, onChange, survey }: StatsFilterProps) {
+  const [newFilter, setNewFilter] = useState<Partial<ReadyFilter>>({})
 
-  function updateFilter(index: number, filter: Tabulator.Filter) {
-    onChange(filters.map((f, i) => i === index ? filter : f))
+  function addFilter() {
+    if (!filters) onChange([newFilter as ReadyFilter]);
+    else onChange([...filters, newFilter as ReadyFilter])
   }
 
   function removeFilter(index: number) {
     onChange(filters.filter((f, i) => i !== index))
   }
 
-  return <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
-    <NewFilter survey={survey} onSave={f => addFilter(f)} />
-    {filters?.map((f, i) => <Filter
-      key={i}
-      survey={survey}
-      filter={f}
-      onChange={changedFilter => { updateFilter(i, changedFilter) }}
-      onDelete={() => removeFilter(i)}
-    />)}
-  </Box>
-}
-
-interface NewFilterProps {
-  survey: FullSurvey;
-  onSave: (filter: Tabulator.Filter) => void;
-}
-
-function NewFilter({ survey, onSave }: NewFilterProps) {
-  const [filter, setFilter] = useState<Tabulator.Filter>({ field: "", type: "=", value: "" })
-
   return (
-    <Box sx={{ display: "flex", gap: ".5rem" }}>
-      <FormControl sx={{ width: "25%" }}>
-        <InputLabel id="questionLabel">Frage</InputLabel>
-        <Select
-          labelId="questionLabel"
-          label={"Frage"}
-          value={filter.field}
-          onChange={e => setFilter({ ...filter, field: e.target.value })}
-        >
-          {survey?.questions.map(q =>
-            <MenuItem value={q.id}>{q.questionText}</MenuItem>
-          )}
-        </Select>
-      </FormControl>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
 
-      <TypeSelect questionType={survey?.questions.find(q => q.id === filter.field)?.type} type={filter.type} onChange={t => setFilter({ ...filter, type: t })} />
+      <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem" }}>
+        <FormControl sx={{ width: "25%" }}>
+          <InputLabel id="questionLabel">Frage</InputLabel>
+          <Select
+            labelId="questionLabel"
+            label={"Frage"}
+            value={newFilter.field}
+            onChange={e => setNewFilter({ ...newFilter, field: e.target.value })}
+          >
+            {survey?.questions.map(q =>
+              <MenuItem value={q.id}>{q.questionText}</MenuItem>
+            )}
+          </Select>
+        </FormControl>
 
-      <ValueInput questionType={survey?.questions.find(q => q.id === filter.field)?.type} value={filter.value} onChange={value => setFilter({ ...filter, value: value })} />
+        <FilterSelect
+          questionType={survey?.questions?.find(q => q.id === newFilter.field)?.type}
+          filter={newFilter.filter}
+          onChange={f => setNewFilter({ ...newFilter, filter: f })}
+        />
 
-      <Button onClick={() => onSave(filter)}><Add /></Button>
+        <FilterParams
+          questionType={survey?.questions?.find(q => q.id === newFilter.field)?.type}
+          filter={newFilter.filter}
+          params={newFilter.filterParams}
+          onChange={p => setNewFilter({ ...newFilter, filterParams: p })}
+        />
+
+        <Button onClick={addFilter}><Add /></Button>
+
+      </Box>
+      {filters?.map((filter, index) => {
+
+        return (
+          <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem" }}>
+            <FormControl sx={{ width: "25%" }}>
+              <InputLabel id="questionLabel">Frage</InputLabel>
+              <Select
+                labelId="questionLabel"
+                label={"Frage"}
+                value={filter.field}
+                onChange={e => onChange(filters.map((f, i) => i === index ? { ...filter, field: e.target.value } : f))}
+              >
+                {survey?.questions.map(q =>
+                  <MenuItem value={q.id}>{q.questionText}</MenuItem>
+                )}
+              </Select>
+            </FormControl>
+
+            <FilterSelect
+              questionType={survey?.questions?.find(q => q.id === filter.field)?.type}
+              filter={filter.filter}
+              onChange={f => onChange(filters.map((fi, i) => i === index ? { ...filter, filter: f } : fi))}
+            />
+
+            <FilterParams
+              questionType={survey?.questions?.find(q => q.id === filter.field)?.type}
+              filter={filter.filter}
+              params={filter.filterParams}
+              onChange={p => onChange(filters.map((fi, i) => i === index ? { ...filter, filterParams: p } : fi))}
+            />
+
+            <Button onClick={() => removeFilter(index)}><Remove /></Button>
+          </Box>)
+      })}
     </Box>
   )
 }
 
-interface FilterProps {
-  filter: Tabulator.Filter;
-  survey: FullSurvey;
-  onChange: (filter: Tabulator.Filter) => void
-  onDelete: () => void;
+interface FilterSelectProps {
+  questionType: QuestionType
+  filter: IFilter<any, any>;
+  onChange: (filter: IFilter<any, any>) => void
 }
 
-function Filter({ filter, survey, onChange, onDelete }: FilterProps) {
+function FilterSelect({ questionType, filter, onChange }: FilterSelectProps) {
 
-  return (
-    <Box sx={{ display: "flex", gap: ".5rem" }}>
-      <FormControl sx={{ width: "25%" }}>
-        <InputLabel id="questionLabel">Frage</InputLabel>
-        <Select
-          labelId="questionLabel"
-          label={"Frage"}
-          value={filter.field}
-          onChange={e => onChange({ ...filter, field: e.target.value })}
-        >
-          {survey?.questions.map(q =>
-            <MenuItem value={q.id}>{q.questionText}</MenuItem>
-          )}
-        </Select>
-      </FormControl>
-
-      <TypeSelect questionType={survey?.questions.find(q => q.id === filter.field)?.type} type={filter.type} onChange={t => onChange({ ...filter, type: t })} />
-
-      <ValueInput questionType={survey?.questions.find(q => q.id === filter.field)?.type} value={filter.value} onChange={value => onChange({ ...filter, value: value })} />
-
-      <Button onClick={onDelete}><Remove /></Button>
-
-    </Box>
-  )
-}
-
-interface TypeSelectProps {
-  questionType: QuestionType;
-  type: Tabulator.FilterType;
-  onChange: (type: Tabulator.FilterType) => void
-}
-
-function TypeSelect({ questionType, type, onChange }: TypeSelectProps) {
-
-  let availableTypes: Tabulator.FilterType[] = [];
+  let availableFilters: IFilter<any, any>[] = [];
 
   switch (questionType) {
-    case QuestionType.Text: availableTypes = ["like", "=", "!=", "starts"]; break;
+    case QuestionType.Text: availableFilters = TextFilters; break;
     case QuestionType.Num:
-    case QuestionType.Int: availableTypes = ["=", "!=", "<", "<=", ">=", ">"]; break;
-    case QuestionType.Date: availableTypes = ["="]; break;
-    case QuestionType.Select: availableTypes = ["in"]; break;
-    case QuestionType.Bool: availableTypes = ["=", "!="]; break;
-    case QuestionType.Scale: availableTypes = []; break;
-
+    case QuestionType.Int: availableFilters = NumberFilters; break;
+    case QuestionType.Date: availableFilters = DateFilters; break;
+    case QuestionType.Select: break;
+    case QuestionType.Bool: availableFilters = BooleanFilters; break;
+    case QuestionType.Scale: break;
   }
 
   return <FormControl sx={{ width: "25%" }}>
-    <InputLabel id="filter">Filter</InputLabel>
+    <InputLabel id="filterLabel">Filter</InputLabel>
     <Select
-      labelId="filter"
-      label="Filter"
-      value={type}
-      onChange={e => onChange(e.target.value as Tabulator.FilterType)}
+      labelId="filterLabel"
+      label={"Filter"}
+      value={filter?.name || null}
+      onChange={e => onChange(availableFilters.find(f => f.name === e.target.value))}
     >
-      {availableTypes.map(t => <MenuItem value={t}>{t}</MenuItem>)}
+      {availableFilters.map(f => <MenuItem value={f.name}>{f.text}</MenuItem>)}
     </Select>
   </FormControl>
-
 }
 
-interface ValueInputProps {
-  questionType: QuestionType;
-  value: boolean | string | number | SelectOption[] | Date;
-  onChange: (value: boolean | string | number | SelectOption[] | Date) => void;
+interface FilterParamsProps {
+  questionType: QuestionType,
+  filter: IFilter<any, any>,
+  params: any,
+  onChange: (params: any) => void
 }
 
-function ValueInput({ questionType, value, onChange }: ValueInputProps) {
+function FilterParams({ questionType, filter, params, onChange }: FilterParamsProps) {
 
   switch (questionType) {
-    case QuestionType.Text: return <TextField value={value} onChange={e => onChange(e.target.value)} />
-    case QuestionType.Scale:
+    case QuestionType.Text: return <TextField value={params?.compareString} onChange={e => onChange({ compareString: e.target.value })} />
     case QuestionType.Num:
-    case QuestionType.Int: return <TextField value={value} onChange={e => onChange(e.target.value)} type="number" />
-    case QuestionType.Date: return <DatePickerComponent
-      currentAnswer={value as Date}
-      onChange={d => onChange(d)} />
-    case QuestionType.Select: return <SelectOptionsComponent
-      value={value as SelectOption[] || []} onChange={v => onChange(v as SelectOption[])} />
-    case QuestionType.Bool: return <Checkbox value={value} onChange={e => onChange(e.target.checked)} />
+    case QuestionType.Int: return <TextField value={params?.compareNumber} onChange={e => onChange({ compareNumber: Number(e.target.value) })} type="number" />
+    case QuestionType.Date:
+      return filter.name === "range"
+        ? <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem" }}>
+          <DatePicker value={params?.start} onChange={d => onChange({ ...params, start: d })} />
+          <DatePicker value={params?.end} onChange={d => onChange({ ...params, end: d })} />
+        </Box>
+        : <DatePicker value={params?.compareDate} onChange={d => onChange({ compareDate: d })} />
+    case QuestionType.Select: return <>NOT IMPLEMENTED</>
+    case QuestionType.Bool: return <></>
+    case QuestionType.Scale: return <>NOT IMPLEMENTED</>
   }
 }
