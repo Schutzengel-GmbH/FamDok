@@ -79,8 +79,6 @@ export default async function subOrganizations(
         req.body
       ) as Prisma.SubOrganizationCreateInput;
 
-      console.log(createInput);
-
       if (user.role !== Role.ADMIN) {
         if (
           user.role === Role.USER ||
@@ -106,3 +104,4 @@ export default async function subOrganizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

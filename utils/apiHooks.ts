@@ -14,6 +14,7 @@ import { IUsers } from "@/pages/api/user";
 import { AppConfiguration } from "@/utils/appConfigUtils";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
+import { Prisma } from "@prisma/client";
 import useSWR from "swr";
 
 export function useFamilies() {
@@ -211,9 +212,12 @@ export function useMyResponses(surveyId: string) {
   };
 }
 
-export function useResponses(surveyId: string) {
+export function useResponses(surveyId: string, whereInput?: Prisma.ResponseWhereInput) {
+
+  const input = JSON.stringify(whereInput)
+
   const { data, error, isLoading, isValidating, mutate } = useSWR<IResponses>(
-    surveyId ? `/api/surveys/${surveyId}/responses` : null,
+    surveyId ? `/api/surveys/${surveyId}/responses?whereInput=${input || "{}"}` : null,
     fetcher
   );
 
