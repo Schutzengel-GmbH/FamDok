@@ -3,6 +3,7 @@ import {
   FullSurvey,
   IAnswerSelectOtherValue,
 } from "@/types/prismaHelperTypes";
+import { getEducationString, isHigherEducation } from "@/utils/utils";
 import { QuestionType } from "@prisma/client";
 import { compareAsc, compareDesc } from "date-fns";
 import { ColumnDefinition } from "react-tabulator";
@@ -67,6 +68,59 @@ export function responsesToAllAnswersTable(
         }
       }
     }
+    if (response.family) {
+      data["familyNumber"] = response.family.number;
+      data["beginOfCare"] = response.family.beginOfCare
+        ? new Date(response.family.beginOfCare)
+        : undefined;
+      data["childrenInHousehold"] = response.family.childrenInHousehold;
+      data["location"] = response.family.location;
+      data["childrenWithDisability"] =
+        response.family.children?.reduce<boolean>(
+          (b, ch) =>
+            ch.disability === "Yes" || ch.disability === "Impending"
+              ? (b = true)
+              : b,
+          false
+        );
+      data["careGiverWithDisability"] =
+        response.family.caregivers?.reduce<boolean>(
+          (b, c) =>
+            c.disability === "Yes" || c.disability === "Impending"
+              ? (b = true)
+              : b,
+          false
+        );
+      data["childWithPsychDiagnosis"] =
+        response.family.children?.reduce<boolean>(
+          (b, ch) => (ch.psychDiagosis === true ? (b = true) : b),
+          false
+        );
+      data["caregiverWithPsychDiagnosis"] =
+        response.family.caregivers?.reduce<boolean>(
+          (b, c) => (c.psychDiagosis === true ? (b = true) : b),
+          false
+        );
+      data["migrationBackground"] = response.family.caregivers?.reduce<boolean>(
+        (b, c) => (c.migrationBackground === true ? (b = true) : b),
+        false
+      );
+      data["highestEducation"] = response.family.caregivers?.reduce(
+        (prev, c, i, caregivers) => {
+          if (i === 0) return getEducationString(c.education);
+          else if (isHigherEducation(c.education, caregivers[i - 1].education))
+            return getEducationString(c.education);
+          else return prev;
+        },
+        ""
+      );
+      data["otherInstalledProfessionals"] =
+        response.family.otherInstalledProfessionals;
+      data["comingFrom"] = response.family.comingFrom?.value || undefined;
+      data["endOfCare"] = response.family.endOfCare
+        ? new Date(response.family.endOfCare)
+        : undefined;
+    }
     result.push(data);
   }
 
@@ -102,6 +156,79 @@ export const globalOptions = {
     else return '<span class="fa-solid fa-sort-down"></span>';
   },
 };
+
+export function familyColumnsDefinition(
+  survey: FullSurvey
+): ColumnDefinition[] {
+  if (!survey.hasFamily) return [];
+  else
+    return [
+      {
+        title: "Familie",
+        columns: [
+          { title: "Familiennummer", field: "familyNumber" },
+          {
+            title: "Beginn der Betreuung",
+            field: "beginOfCare",
+            formatter: dateFormatter,
+            sorter: dateSorter,
+            headerSortTristate: true,
+          },
+          { title: "Kinder", field: "childrenInHousehold" },
+          { title: "Wohnort", field: "location" },
+          {
+            title: "Kinder mit Behinderung",
+            field: "childrenWithDisability",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          {
+            title: "Kinder mit Psych. Diagnose",
+            field: "childWithPsychDiagnosis",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          {
+            title: "ElternTeil mit Behinderung",
+            field: "careGiverWithDisability",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          {
+            title: "Elternteil mit Psych. Diagnose",
+            field: "caregiverWithPsychDiagnosis",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          {
+            title: "Migrationshintergrund",
+            field: "migrationBackground",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          { title: "Höchster Bildungsabschluss", field: "highestEducation" },
+          {
+            title: "Andere installierte Fachkräfte",
+            field: "otherInstalledProfessionals",
+          },
+
+          { title: "Zugang über", field: "comingFrom" },
+          {
+            title: "Ende der Betreuung",
+            field: "endOfCare",
+            formatter: dateFormatter,
+            sorter: dateSorter,
+            headerSortTristate: true,
+          },
+        ],
+      },
+    ];
+}
 
 export function allAnswersColumnDefinition(
   survey: FullSurvey

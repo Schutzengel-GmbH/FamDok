@@ -1,3 +1,5 @@
+import ScaleItemComponent from "@/components/response/questionTypes/scaleItemComponent";
+import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import {
@@ -91,7 +93,7 @@ function SelectFilter({ questionType, filter, onChange }: SelectFilterProps) {
       <Select
         labelId="questionLabel"
         label={"Filter"}
-        value={filter?.filter || ""}
+        value={filter?.filter || filters[0]?.filter || ""}
         onChange={(e) => {
           let filterToUse = filters.find((f) => f.filter === e.target.value);
           if (filterToUse.value === undefined) onChange(filterToUse);
@@ -156,8 +158,16 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
         />
       );
     case "Scale":
+      return (
+        <ScaleSelect
+          question={question}
+          value={filter.value}
+          onChange={(v) => onChange({ ...filter, value: v })}
+        />
+      );
+
     default:
-      return <>VALUE INPUT NOT IMPLEMENTED</>;
+      return <></>;
   }
 }
 
@@ -208,7 +218,11 @@ const NumberFilters: IFilter[] = [
   { filter: "not", name: "Ist nicht gleich" },
 ];
 const SelectFilters: IFilter[] = [
-  { filter: "in", name: "Hat mindestens eine von" },
+  { filter: "in", name: "Enthält mindestens einen von" },
+];
+const ScaleFilters: IFilter[] = [
+  { filter: "in", name: "Innerhalb des Intervalls" },
+  { filter: "notIn", name: "Außerhalb des Intervalls" },
 ];
 
 function getFiltersForQuestionType(questionType: QuestionType) {
@@ -234,7 +248,7 @@ function getFiltersForQuestionType(questionType: QuestionType) {
       filters = DateFilters;
       break;
     case "Scale":
-      filters = SelectFilters;
+      filters = ScaleFilters;
       break;
   }
 

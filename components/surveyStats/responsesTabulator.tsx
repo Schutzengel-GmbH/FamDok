@@ -6,6 +6,7 @@ import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
 import {
   allAnswersColumnDefinition,
+  familyColumnsDefinition,
   globalOptions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
@@ -58,6 +59,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         answerField = "answerSelect";
         break;
     }
+    console.log(filter);
 
     if (answerField === "answerSelect")
       return {
@@ -93,11 +95,20 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
 
   const tableRef = useRef(null);
 
-  const columns = useMemo(() => allAnswersColumnDefinition(survey), [survey]);
+  const columns = useMemo(
+    () => [
+      ...familyColumnsDefinition(survey),
+      ...allAnswersColumnDefinition(survey),
+    ],
+    [survey]
+  );
+
   const data = useMemo(
     () => responsesToAllAnswersTable(responses),
     [responses, survey]
   );
+
+  console.log(data);
 
   const options = {};
 

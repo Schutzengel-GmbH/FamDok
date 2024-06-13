@@ -21,6 +21,7 @@ export default function FiltersComponent({
 
   function addFilter() {
     onChange([...filters, newFilter]);
+    setNewFilter(undefined);
   }
 
   function updateFilter(updatedFilter: IFilter, index: number) {
