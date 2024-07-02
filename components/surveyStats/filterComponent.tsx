@@ -1,7 +1,11 @@
-import ScaleItemComponent from "@/components/response/questionTypes/scaleItemComponent";
 import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
+import {
+  IFilter,
+  SelectFilterProps,
+  getFiltersForQuestionType,
+} from "@/utils/filters";
 import {
   Box,
   FormControl,
@@ -11,7 +15,7 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { Question, QuestionType } from "@prisma/client";
+import { Question } from "@prisma/client";
 
 interface FilterComponentProps {
   survey: FullSurvey;
@@ -44,7 +48,11 @@ export default function FilterComponent({
         questionType={question?.type}
         filter={filter}
         onChange={(f, v) =>
-          onChange({ ...filter, filter: f.filter, value: v ? v : filter.value })
+          onChange({
+            ...filter,
+            filter: f.filter,
+            value: v ? v : filter.value,
+          })
         }
       />
       <ValueInput
@@ -93,7 +101,7 @@ function SelectFilter({ questionType, filter, onChange }: SelectFilterProps) {
       <Select
         labelId="questionLabel"
         label={"Filter"}
-        value={filter?.filter || filters[0]?.filter || ""}
+        value={filter?.filter || ""}
         onChange={(e) => {
           let filterToUse = filters.find((f) => f.filter === e.target.value);
           if (filterToUse.value === undefined) onChange(filterToUse);
@@ -169,95 +177,5 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
     default:
       return <></>;
   }
-}
-
-// Helper functions, types and interfaces
-
-export interface IFilter {
-  name: string;
-  filter:
-    | "equals"
-    | "contains"
-    | "not"
-    | "in"
-    | "notIn"
-    | "lt"
-    | "lte"
-    | "gt"
-    | "gte"
-    | "startsWith"
-    | "endsWith";
-  questionId?: string;
-  value?: any;
-}
-
-const TextFilters: IFilter[] = [
-  { filter: "equals", name: "Gleich" },
-  { filter: "contains", name: "Enthält" },
-  { filter: "endsWith", name: "Endet auf" },
-  { filter: "startsWith", name: "Beginnt mit" },
-];
-const BoolFilters: IFilter[] = [
-  { filter: "equals", name: "Ja", value: true },
-  { filter: "not", name: "Nein", value: true },
-];
-const DateFilters: IFilter[] = [
-  { filter: "gt", name: "Ist nach" },
-  { filter: "gte", name: "Ist nach oder am" },
-  { filter: "lt", name: "Ist vor" },
-  { filter: "lte", name: "Ist vor oder am" },
-  { filter: "equals", name: "Am" },
-  { filter: "not", name: "Nicht am" },
-];
-const NumberFilters: IFilter[] = [
-  { filter: "gt", name: "Größer als" },
-  { filter: "gte", name: "Größer oder gleich" },
-  { filter: "lt", name: "Kleiner als" },
-  { filter: "lte", name: "Kleiner oder gleich" },
-  { filter: "equals", name: "Ist gleich" },
-  { filter: "not", name: "Ist nicht gleich" },
-];
-const SelectFilters: IFilter[] = [
-  { filter: "in", name: "Enthält mindestens einen von" },
-];
-const ScaleFilters: IFilter[] = [
-  { filter: "in", name: "Innerhalb des Intervalls" },
-  { filter: "notIn", name: "Außerhalb des Intervalls" },
-];
-
-function getFiltersForQuestionType(questionType: QuestionType) {
-  let filters = [];
-
-  switch (questionType) {
-    case "Text":
-      filters = TextFilters;
-      break;
-    case "Bool":
-      filters = BoolFilters;
-      break;
-    case "Int":
-      filters = NumberFilters;
-      break;
-    case "Num":
-      filters = NumberFilters;
-      break;
-    case "Select":
-      filters = SelectFilters;
-      break;
-    case "Date":
-      filters = DateFilters;
-      break;
-    case "Scale":
-      filters = ScaleFilters;
-      break;
-  }
-
-  return filters;
-}
-
-interface SelectFilterProps {
-  questionType: QuestionType;
-  filter: IFilter;
-  onChange: (filter: IFilter, value?: any) => void;
 }
 

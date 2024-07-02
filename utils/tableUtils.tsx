@@ -17,6 +17,20 @@ type ResponseTableData = {
     | Date
     | { [selectOptionId: string]: string | boolean }
     | undefined;
+  // family data
+  familyNumber?: number;
+  beginOfCare?: Date;
+  childrenInHousehold?: number;
+  location?: string;
+  childrenWithDisability?: boolean;
+  careGiverWithDisability?: boolean;
+  childWithPsychDiagnosis?: boolean;
+  caregiverWithPsychDiagnosis?: boolean;
+  migrationBackground?: boolean;
+  highestEducation?: string;
+  otherInstalledProfessionals?: string;
+  comingFrom?: string;
+  endOfCare?: Date;
 };
 
 export function responsesToAllAnswersTable(
