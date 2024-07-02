@@ -16,10 +16,10 @@ export interface IResponses {
   responses?: FullResponse[];
   response?: FullResponse;
   error?:
-  | "INTERNAL_SERVER_ERROR"
-  | "METHOD_NOT_ALLOWED"
-  | "NOT_FOUND"
-  | "FORBIDDEN";
+    | "INTERNAL_SERVER_ERROR"
+    | "METHOD_NOT_ALLOWED"
+    | "NOT_FOUND"
+    | "FORBIDDEN";
 }
 
 export default async function responses(
@@ -45,7 +45,7 @@ export default async function responses(
     res
   );
   // if it comes here, it means that the session verification was successful
-  const { survey: surveyId } = req.query;
+  const { survey: surveyId, whereInput } = req.query;
 
   let session = req.session;
   const user = await prisma.user
@@ -92,6 +92,8 @@ export default async function responses(
     ];
     where.user = { organizationId: user.organizationId };
   }
+  const extraWhereInput = whereInput ? JSON.parse(whereInput as string) : {};
+  where = { ...extraWhereInput, ...where };
 
   switch (req.method) {
     case "GET":
@@ -102,7 +104,12 @@ export default async function responses(
             answers: {
               include: {
                 answerSelect: true,
-                question: { include: { defaultAnswerSelectOptions: true, selectOptions: true } },
+                question: {
+                  include: {
+                    defaultAnswerSelectOptions: true,
+                    selectOptions: true,
+                  },
+                },
               },
             },
             user: { include: { organization: true, subOrganizations: true } },

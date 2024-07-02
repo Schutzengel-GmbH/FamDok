@@ -20,7 +20,11 @@ import { deDE } from "@mui/x-data-grid";
 import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
 import { deDE as coreDeDE } from "@mui/material/locale";
 import { ConfigProvider } from "@/components/utilityComponents/conficContext";
+//import "react-tabulator/css/tabulator_midnight.css";
+import "@/utils/tabulator.css";
 import CookieBanner from "@/components/utilityComponents/cookieBanner";
+import "@/public/fontawesome/css/fontawesome.css";
+import "@/public/fontawesome/css/solid.css";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
@@ -76,9 +80,9 @@ function MyApp({ Component, pageProps }): JSX.Element {
         },
         deDE,
         pickersDeDE,
-        coreDeDE,
+        coreDeDE
       ),
-    [systemPrefersDark, mode],
+    [systemPrefersDark, mode]
   );
 
   return (

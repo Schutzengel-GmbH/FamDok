@@ -1,8 +1,10 @@
 import { useResponses, useUsers } from "@/utils/apiHooks";
-import { CircularProgress } from "@mui/material";
+import { Box, Button, CircularProgress } from "@mui/material";
 import ErrorPage from "../utilityComponents/error";
-import DataGrid, { Column } from "react-data-grid";
-import "react-data-grid/lib/styles.css";
+import { ColumnDefinition, ReactTabulator } from "react-tabulator";
+import { Tabulator, TabulatorFull } from "react-tabulator/lib/types/TabulatorTypes";
+import { useRef, useState } from "react";
+import { globalOptions } from "@/utils/tableUtils";
 
 type CountingTableProps = {
   surveyId: string;
@@ -18,6 +20,8 @@ export default function ResponsesPerUserTable({
     isLoading: responsesIsLoading,
   } = useResponses(surveyId);
 
+  const tableRef = useRef(null)
+
   if (usersError || responsesError) {
     return <ErrorPage message={usersError || responsesError} />;
   }
@@ -25,19 +29,23 @@ export default function ResponsesPerUserTable({
   if (responsesIsLoading || userssIsLoading) {
     return <CircularProgress />;
   }
-  const columns: Column<any, any>[] = [
-    { key: "name", width: 200, name: "Name" },
+
+  const options: Tabulator.Options = { movableColumns: true };
+
+  const columns: ColumnDefinition[] = [
     {
-      key: "number",
-      width: 200,
-      name: "Anzahl",
-      sortable: true,
+      title: "Name",
+      field: "name",
+      editable: true,
+      editor: "input",
+      headerFilter: "input",
     },
+    { title: "Anzahl", field: "number" },
   ];
 
   const rows = users?.map((u) => ({
     id: u.id,
-    name: u.name,
+    name: u.name || u.email,
     number: responses.reduce(
       (prev, r) => (u.id === r.userId ? prev + 1 : prev),
       0,
@@ -45,14 +53,15 @@ export default function ResponsesPerUserTable({
   }));
 
   return (
-    <>
-      {users && responses && (
-        <DataGrid
-          columns={columns}
-          rows={rows}
-          onSortColumnsChange={(s) => console.log(s)}
-        />
-      )}
-    </>
+    <Box sx={{}}>
+      <Button onClick={() => tableRef.current.download("csv", "data.csv")}>Download</Button>
+      <ReactTabulator
+        onRef={(ref) => tableRef.current = ref.current}
+        columns={columns}
+        data={rows}
+        index={"id"}
+        options={{ ...globalOptions, ...options }}
+      />
+    </Box>
   );
 }

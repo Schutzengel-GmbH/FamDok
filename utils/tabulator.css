@@ -1,0 +1,15 @@
+/* Define the style when the column is not sorted */
+.tabulator-col[aria-sort="none"] .tabulator-col-sorter i{
+    color:#999;
+}
+
+/* Define the style when the column is sorted in ascending order */
+.tabulator-col[aria-sort="asc"] .tabulator-col-sorter i{
+    color:#f00;
+}
+
+/* Define the style when the column is sorted in descending order */
+.tabulator-col[aria-sort="desc"] .tabulator-col-sorter i{
+    color: "red";
+    transform: scaleY(-1); /* flip the icon vertically so the arrow points down */
+}

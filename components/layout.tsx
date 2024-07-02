@@ -1,11 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import MainAppBar from "@/components/appBar/mainAppBar";
 import Head from "next/head";
 import Footer from "@/components/footer/footer";
 
 export default function Layout({ children }) {
   return (
-    <Box sx={{ minHeight: "100vh", position: "relative" }}>
+    <Box
+      sx={{ display: "grid", gridTemplateRows: "min-content auto min-content" }}
+    >
       <Head>
         <title>Fachdokumentation Frühe Hilfen</title>
         <link rel="icon" href="/favicon.ico" />
