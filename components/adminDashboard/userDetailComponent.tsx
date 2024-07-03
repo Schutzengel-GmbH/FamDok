@@ -71,11 +71,11 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
           message: `Fehler beim Update eines Users: ${res.error}}`,
           severity: "error",
         });
-
-      addToast({
-        message: `${res.user.name || res.user.email} aktualisiert`,
-        severity: "success",
-      });
+      else
+        addToast({
+          message: `${res.user.name || res.user.email} aktualisiert`,
+          severity: "success",
+        });
     }
     onChange();
   }
@@ -177,13 +177,15 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
         {cantEdit() && role}
       </TableCell>
       <TableCell>
-        {!cantEdit() && (
+        {!cantEdit() && loggedInUser.role !== "ORGCONTROLLER" && (
           <OrgSelect
             value={organizationId}
             onChange={(orgId) => setOrganizationId(orgId)}
           />
         )}
-        {cantEdit() && (user.organization?.name || "Keine Organisation")}
+        {cantEdit() ||
+          (loggedInUser.role === "ORGCONTROLLER" &&
+            (user.organization?.name || "Keine Organisation"))}
       </TableCell>
       <TableCell>
         <Tooltip title="Änderungen speichern">
@@ -252,3 +254,4 @@ export default function UserDetailComponent({ user, onChange }: UserEditProps) {
     </TableRow>
   );
 }
+
