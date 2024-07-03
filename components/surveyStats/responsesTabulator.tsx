@@ -9,12 +9,14 @@ import {
   globalOptions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
-import { Paper } from "@mui/material";
+import { FilterAlt } from "@mui/icons-material";
+import { Accordion, AccordionSummary } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
 import { format, isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   const [filters, setFilters] = useState<{
@@ -145,14 +147,23 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         height: "100%",
       }}
     >
-      <Paper elevation={5} sx={{ width: "90vw", p: ".5rem" }}>
-        <FiltersComponent
-          survey={survey}
-          filters={filters.filters}
-          familyFilters={filters.familyFilters}
-          onChange={setFilters}
-        />
-      </Paper>
+      <Accordion sx={{ width: "90vw" }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <FilterAlt sx={{ mr: "1rem" }} />{" "}
+          {filters.familyFilters?.length || filters.filters?.length
+            ? "Filter bearbeiten"
+            : "Filter hinzufügen"}
+        </AccordionSummary>
+
+        <Box sx={{ p: ".5rem" }}>
+          <FiltersComponent
+            survey={survey}
+            filters={filters.filters}
+            familyFilters={filters.familyFilters}
+            onChange={setFilters}
+          />
+        </Box>
+      </Accordion>
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columns}

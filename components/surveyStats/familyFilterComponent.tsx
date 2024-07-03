@@ -183,11 +183,13 @@ function ValueInput({ familyFilter, onChange }: FamilyFilterSelectProps) {
     case "childrenInHousehold":
       return (
         <TextField
-          type={"number"}
+          type={"text"}
           value={familyFilter.value}
-          onChange={(e) =>
-            onChange({ ...familyFilter, value: Number(e.target.value) })
-          }
+          onChange={(e) => {
+            const number = Number(e.target.value);
+            if (Number.isNaN(number)) return;
+            onChange({ ...familyFilter, value: number });
+          }}
         />
       );
     case "beginOfCare":

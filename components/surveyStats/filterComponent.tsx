@@ -139,11 +139,13 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
     case "Num":
       return (
         <TextField
-          type={"number"}
-          value={filter.value}
-          onChange={(e) =>
-            onChange({ ...filter, value: Number(e.target.value) })
-          }
+          type="text"
+          value={filter.value || ""}
+          onChange={(e) => {
+            const number = Number(e.target.value);
+            if (Number.isNaN(number)) return;
+            onChange({ ...filter, value: number });
+          }}
         />
       );
     case "Date":
