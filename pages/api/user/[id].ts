@@ -114,6 +114,20 @@ export default async function user(
         .catch((err) => logger.error(err));
 
     case "POST":
+      // if the update comes from a USER or ORGCONTROLLER, disregard some changes
+      if (reqUser.role === "USER" || reqUser.role === "ORGCONTROLLER") {
+        console.log(req.body);
+        if (
+          req.body.organization &&
+          req.body.organization?.connect?.id !== reqUser.organizationId
+        )
+          return res.status(403).json({ error: "FORBIDDEN" });
+        if (req.body.role) {
+          if (req.body.role === "ADMIN" || req.body.role === "CONTROLLER")
+            return res.status(403).json({ error: "FORBIDDEN" });
+        }
+      }
+
       // if the update changed the user's email, we have to update the supertokens-user as well
       if (req.body?.email) {
         if (!isValidEmail(req.body.email))
@@ -151,3 +165,4 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+
