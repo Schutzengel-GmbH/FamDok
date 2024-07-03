@@ -75,9 +75,11 @@ export default function FiltersComponent({
           <Add /> Fragen-Filter
         </Button>
 
-        <Button onClick={addFamilyFilter}>
-          <Add /> Familien-Filter
-        </Button>
+        {survey.hasFamily && (
+          <Button onClick={addFamilyFilter}>
+            <Add /> Familien-Filter
+          </Button>
+        )}
       </Box>
       <Box
         sx={{
