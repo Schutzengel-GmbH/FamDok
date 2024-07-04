@@ -145,7 +145,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         height: "100%",
       }}
     >
-      <Accordion sx={{ width: "90vw" }}>
+      <Accordion sx={{ width: "75vw" }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <FilterAlt sx={{ mr: "1rem" }} />{" "}
           {filters.familyFilters?.length || filters.filters?.length

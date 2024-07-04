@@ -37,7 +37,7 @@ export default function FilterComponent({
         display: "flex",
         flexDirection: "row",
         gap: ".5rem",
-        width: "80%",
+        width: "100%",
       }}
     >
       <SelectQuestion

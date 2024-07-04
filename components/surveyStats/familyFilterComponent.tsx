@@ -36,7 +36,7 @@ export default function FamilyFilterComponent({
         display: "flex",
         flexDirection: "row",
         gap: ".5rem",
-        width: "80%",
+        width: "100%",
       }}
     >
       <SelectField
@@ -221,7 +221,7 @@ function ValueInput({ familyFilter, onChange }: FamilyFilterSelectProps) {
     case "migrationBackground":
       return <></>;
     default:
-      return <>ERROR</>;
+      return <></>;
   }
 }
 
@@ -229,4 +229,3 @@ interface FamilyFilterSelectProps {
   familyFilter: IFamilyFilter;
   onChange: (familyFilter: IFamilyFilter) => void;
 }
-
