@@ -116,7 +116,6 @@ export default async function user(
     case "POST":
       // if the update comes from a USER or ORGCONTROLLER, disregard some changes
       if (reqUser.role === "USER" || reqUser.role === "ORGCONTROLLER") {
-        console.log(req.body);
         if (
           req.body.organization &&
           req.body.organization?.connect?.id !== reqUser.organizationId
@@ -165,4 +164,3 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

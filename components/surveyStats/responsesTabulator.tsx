@@ -127,8 +127,6 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     [responses, survey, filters]
   );
 
-  console.log(data);
-
   const options = {};
 
   function downloadCSV() {

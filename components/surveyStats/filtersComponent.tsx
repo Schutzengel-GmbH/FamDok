@@ -60,8 +60,6 @@ export default function FiltersComponent({
     });
   }
 
-  console.log(filters);
-
   return (
     <Box>
       <Box
@@ -133,4 +131,3 @@ export default function FiltersComponent({
     </Box>
   );
 }
-

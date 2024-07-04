@@ -1,8 +1,8 @@
 import { QuestionType } from "@prisma/client";
 
 export interface IFilter {
-  name: string;
-  filter: FilterType;
+  name?: string;
+  filter?: FilterType;
   questionId?: string;
   value?: any;
 }
@@ -96,4 +96,3 @@ export interface SelectFilterProps {
   filter: IFilter;
   onChange: (filter: IFilter, value?: any) => void;
 }
-

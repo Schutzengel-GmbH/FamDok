@@ -1,5 +1,6 @@
 import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
+import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import {
   IFilter,
@@ -42,7 +43,7 @@ export default function FilterComponent({
       <SelectQuestion
         survey={survey}
         question={question}
-        onChange={(q) => onChange({ ...filter, questionId: q.id })}
+        onChange={(q) => onChange({ questionId: q.id })}
       />
       <SelectFilter
         questionType={question?.type}
@@ -150,8 +151,8 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
       );
     case "Date":
       return (
-        <DatePicker
-          value={filter.value}
+        <DatePickerComponent
+          currentAnswer={filter.value}
           onChange={(d) => {
             onChange({ ...filter, value: d });
           }}
@@ -180,4 +181,3 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
       return <></>;
   }
 }
-
