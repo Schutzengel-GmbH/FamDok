@@ -8,9 +8,9 @@ export interface IFilter {
 }
 
 export interface IFamilyFilter {
-  name: string;
-  filter: FilterType;
-  field: string;
+  name?: string;
+  filter?: FilterType;
+  field?: string;
   value?: any;
 }
 

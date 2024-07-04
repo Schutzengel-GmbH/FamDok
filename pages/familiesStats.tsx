@@ -1,8 +1,8 @@
-import FamilyStats from "@/components/familiesStats/familyStats";
+import FamiliesTabulator from "@/components/familiesStats/familiesTabulator";
 import SessionReact from "supertokens-auth-react/recipe/session";
 
 function ProtectedPage() {
-  return <FamilyStats />;
+  return <FamiliesTabulator />;
 }
 
 export default function FamiliesStatsPage() {
@@ -12,4 +12,3 @@ export default function FamiliesStatsPage() {
     </SessionReact.SessionAuth>
   );
 }
-

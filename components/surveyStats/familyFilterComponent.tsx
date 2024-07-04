@@ -41,7 +41,7 @@ export default function FamilyFilterComponent({
     >
       <SelectField
         familyFilter={familyFilter}
-        onChange={(f) => onChange({ ...familyFilter, field: f.field })}
+        onChange={(f) => onChange({ field: f.field })}
       />
       <SelectFilter
         familyFilter={familyFilter}

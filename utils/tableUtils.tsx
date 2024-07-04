@@ -1,11 +1,14 @@
+import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
 import {
+  FullFamily,
   FullResponse,
   FullSurvey,
   IAnswerSelectOtherValue,
 } from "@/types/prismaHelperTypes";
+import { IFamilyFilter } from "@/utils/filters";
 import { getEducationString, isHigherEducation } from "@/utils/utils";
 import { QuestionType } from "@prisma/client";
-import { compareAsc, compareDesc } from "date-fns";
+import { compareAsc, compareDesc, isSameDay } from "date-fns";
 import { ColumnDefinition } from "react-tabulator";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
 
@@ -18,6 +21,9 @@ type ResponseTableData = {
     | { [selectOptionId: string]: string | boolean }
     | undefined;
   // family data
+} & FamilyTableData;
+
+type FamilyTableData = {
   familyNumber?: number;
   beginOfCare?: Date;
   childrenInHousehold?: number;
@@ -83,62 +89,58 @@ export function responsesToAllAnswersTable(
       }
     }
     if (response.family) {
-      data["familyNumber"] = response.family.number;
-      data["beginOfCare"] = response.family.beginOfCare
-        ? new Date(response.family.beginOfCare)
-        : undefined;
-      data["childrenInHousehold"] = response.family.childrenInHousehold;
-      data["location"] = response.family.location;
-      data["childrenWithDisability"] =
-        response.family.children?.reduce<boolean>(
-          (b, ch) =>
-            ch.disability === "Yes" || ch.disability === "Impending"
-              ? (b = true)
-              : b,
-          false
-        );
-      data["careGiverWithDisability"] =
-        response.family.caregivers?.reduce<boolean>(
-          (b, c) =>
-            c.disability === "Yes" || c.disability === "Impending"
-              ? (b = true)
-              : b,
-          false
-        );
-      data["childWithPsychDiagnosis"] =
-        response.family.children?.reduce<boolean>(
-          (b, ch) => (ch.psychDiagosis === true ? (b = true) : b),
-          false
-        );
-      data["caregiverWithPsychDiagnosis"] =
-        response.family.caregivers?.reduce<boolean>(
-          (b, c) => (c.psychDiagosis === true ? (b = true) : b),
-          false
-        );
-      data["migrationBackground"] = response.family.caregivers?.reduce<boolean>(
-        (b, c) => (c.migrationBackground === true ? (b = true) : b),
-        false
-      );
-      data["highestEducation"] = response.family.caregivers?.reduce(
-        (prev, c, i, caregivers) => {
-          if (i === 0) return getEducationString(c.education);
-          else if (isHigherEducation(c.education, caregivers[i - 1].education))
-            return getEducationString(c.education);
-          else return prev;
-        },
-        ""
-      );
-      data["otherInstalledProfessionals"] =
-        response.family.otherInstalledProfessionals;
-      data["comingFrom"] = response.family.comingFrom?.value || undefined;
-      data["endOfCare"] = response.family.endOfCare
-        ? new Date(response.family.endOfCare)
-        : undefined;
+      data = { ...data, ...getFamilyData(response.family) };
     }
     result.push(data);
   }
 
   return result;
+}
+
+export function getFamilyData(family: FullFamily): FamilyTableData {
+  let data = {};
+  data["familyNumber"] = family.number;
+  data["beginOfCare"] = family.beginOfCare
+    ? new Date(family.beginOfCare)
+    : undefined;
+  data["childrenInHousehold"] = family.childrenInHousehold;
+  data["location"] = family.location;
+  data["childrenWithDisability"] = family.children?.reduce<boolean>(
+    (b, ch) =>
+      ch.disability === "Yes" || ch.disability === "Impending" ? (b = true) : b,
+    false
+  );
+  data["careGiverWithDisability"] = family.caregivers?.reduce<boolean>(
+    (b, c) =>
+      c.disability === "Yes" || c.disability === "Impending" ? (b = true) : b,
+    false
+  );
+  data["childWithPsychDiagnosis"] = family.children?.reduce<boolean>(
+    (b, ch) => (ch.psychDiagosis === true ? (b = true) : b),
+    false
+  );
+  data["caregiverWithPsychDiagnosis"] = family.caregivers?.reduce<boolean>(
+    (b, c) => (c.psychDiagosis === true ? (b = true) : b),
+    false
+  );
+  data["migrationBackground"] = family.caregivers?.reduce<boolean>(
+    (b, c) => (c.migrationBackground === true ? (b = true) : b),
+    false
+  );
+  data["highestEducation"] = family.caregivers?.reduce(
+    (prev, c, i, caregivers) => {
+      if (i === 0) return getEducationString(c.education);
+      else if (isHigherEducation(c.education, caregivers[i - 1].education))
+        return getEducationString(c.education);
+      else return prev;
+    },
+    ""
+  );
+  data["otherInstalledProfessionals"] = family.otherInstalledProfessionals;
+  data["comingFrom"] = family.comingFrom?.value || undefined;
+  data["endOfCare"] = family.endOfCare ? new Date(family.endOfCare) : undefined;
+
+  return data;
 }
 
 const dateFormatter: Tabulator.Formatter = (
@@ -171,10 +173,64 @@ export const globalOptions = {
   },
 };
 
+export function applyFamilyFilter(filter: IFamilyFilter, value: any): boolean {
+  switch (filter.filter) {
+    case "equals":
+      switch (filter.field as FamilyFields) {
+        // number
+        case "familyNumber":
+        case "childrenInHousehold":
+          return value === filter.value;
+        // Date
+        case "beginOfCare":
+        case "endOfCare":
+          return isSameDay(new Date(filter.value), new Date(value));
+        // string
+        case "location":
+        case "otherInstalledProfessionals":
+        case "highestEducation":
+        case "comingFrom":
+          return filter.value.toLowerCase() === value?.toLowerCase();
+        // boolean
+        case "childrenWithDisability":
+        case "careGiverWithDisability":
+        case "childWithPsychDiagnosis":
+        case "caregiverWithPsychDiagnosis":
+        case "migrationBackground":
+          if (filter.filter === "equals") return value === true;
+          else return value !== true;
+        default:
+          return value === filter.value;
+      }
+    case "not":
+      if (filter.field === "beginOfCare" || filter.field === "endOfCare")
+        return !isSameDay(new Date(value), new Date(filter.value));
+      return value !== filter.value;
+    case "lt":
+      return value < filter.value;
+    case "lte":
+      return value <= filter.value;
+    case "gt":
+      return value > filter.value;
+    case "gte":
+      return value >= filter.value;
+    case "startsWith":
+      return ((value as string) || "").startsWith(filter.value);
+    case "endsWith":
+      return ((value as string) || "").endsWith(filter.value);
+    case "contains":
+      return ((value as string) || "")
+        .toLowerCase()
+        .includes(filter.value?.toLowerCase());
+    default:
+      return true;
+  }
+}
+
 export function familyColumnsDefinition(
-  survey: FullSurvey
+  survey?: FullSurvey
 ): ColumnDefinition[] {
-  if (!survey.hasFamily) return [];
+  if (survey && !survey.hasFamily) return [];
   else
     return [
       {

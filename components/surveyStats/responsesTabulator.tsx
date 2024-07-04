@@ -5,12 +5,13 @@ import { useResponses } from "@/utils/apiHooks";
 import { IFamilyFilter, IFilter } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
+  applyFamilyFilter,
   familyColumnsDefinition,
   globalOptions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
-import { FilterAlt } from "@mui/icons-material";
-import { Accordion, AccordionSummary } from "@mui/material";
+import { FileDownload, FilterAlt } from "@mui/icons-material";
+import { Accordion, AccordionSummary, Button } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
 import { format, isSameDay } from "date-fns";
@@ -108,14 +109,14 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     [survey]
   );
 
-  function applyFamilyFilter(row: any): boolean {
+  function applyFamilyFilters(row: any): boolean {
     if (!filters.familyFilters || filters.familyFilters.length === 0)
       return true;
     else
       for (const filter of filters.familyFilters) {
         if (!filter) break;
         // apply each filter, if it passes, just keep going, if it fails, immediately exit the function and return false
-        if (!applyFilter(filter, row[filter.field])) return false;
+        if (!applyFamilyFilter(filter, row[filter.field])) return false;
       }
 
     // when all filters have passed, return true
@@ -123,7 +124,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   }
 
   const data = useMemo(
-    () => responsesToAllAnswersTable(responses).filter(applyFamilyFilter),
+    () => responsesToAllAnswersTable(responses).filter(applyFamilyFilters),
     [responses, survey, filters]
   );
 
@@ -132,7 +133,8 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   function downloadCSV() {
     tableRef.current.download(
       "csv",
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`
+      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
+      { delimiter: ";" }
     );
   }
 
@@ -145,23 +147,35 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         height: "100%",
       }}
     >
-      <Accordion sx={{ width: "75vw" }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <FilterAlt sx={{ mr: "1rem" }} />{" "}
-          {filters.familyFilters?.length || filters.filters?.length
-            ? "Filter bearbeiten"
-            : "Filter hinzufügen"}
-        </AccordionSummary>
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Accordion sx={{ width: "75vw" }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <FilterAlt sx={{ mr: "1rem" }} />{" "}
+            {filters.familyFilters?.length || filters.filters?.length
+              ? "Filter bearbeiten"
+              : "Filter hinzufügen"}
+          </AccordionSummary>
 
-        <Box sx={{ p: ".5rem" }}>
-          <FiltersComponent
-            survey={survey}
-            filters={filters.filters}
-            familyFilters={filters.familyFilters}
-            onChange={setFilters}
-          />
-        </Box>
-      </Accordion>
+          <Box sx={{ p: ".5rem" }}>
+            <FiltersComponent
+              survey={survey}
+              filters={filters.filters}
+              familyFilters={filters.familyFilters}
+              onChange={setFilters}
+            />
+          </Box>
+        </Accordion>
+
+        <Button
+          variant="outlined"
+          sx={{ width: "20vw", ml: "1rem" }}
+          onClick={downloadCSV}
+        >
+          <FileDownload />
+          Download .CSV
+        </Button>
+      </Box>
+
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columns}
@@ -172,58 +186,4 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
       />
     </Box>
   );
-}
-
-function applyFilter(filter: IFamilyFilter, value: any): boolean {
-  switch (filter.filter) {
-    case "equals":
-      switch (filter.field as FamilyFields) {
-        // number
-        case "familyNumber":
-        case "childrenInHousehold":
-          return value === filter.value;
-        // Date
-        case "beginOfCare":
-        case "endOfCare":
-          return isSameDay(new Date(filter.value), new Date(value));
-        // string
-        case "location":
-        case "otherInstalledProfessionals":
-        case "highestEducation":
-        case "comingFrom":
-          return filter.value.toLowerCase() === value?.toLowerCase();
-        // boolean
-        case "childrenWithDisability":
-        case "careGiverWithDisability":
-        case "childWithPsychDiagnosis":
-        case "caregiverWithPsychDiagnosis":
-        case "migrationBackground":
-          if (filter.filter === "equals") return value === true;
-          else return value !== true;
-        default:
-          return value === filter.value;
-      }
-    case "not":
-      if (filter.field === "beginOfCare" || filter.field === "endOfCare")
-        return !isSameDay(new Date(value), new Date(filter.value));
-      return value !== filter.value;
-    case "lt":
-      return value < filter.value;
-    case "lte":
-      return value <= filter.value;
-    case "gt":
-      return value > filter.value;
-    case "gte":
-      return value >= filter.value;
-    case "startsWith":
-      return ((value as string) || "").startsWith(filter.value);
-    case "endsWith":
-      return ((value as string) || "").endsWith(filter.value);
-    case "contains":
-      return ((value as string) || "")
-        .toLowerCase()
-        .includes(filter.value?.toLowerCase());
-    default:
-      return true;
-  }
 }
