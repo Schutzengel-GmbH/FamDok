@@ -7,7 +7,7 @@ import {
 } from "@/types/prismaHelperTypes";
 import { IFamilyFilter } from "@/utils/filters";
 import { getEducationString, isHigherEducation } from "@/utils/utils";
-import { QuestionType } from "@prisma/client";
+import { Prisma, QuestionType } from "@prisma/client";
 import { compareAsc, compareDesc, isSameDay } from "date-fns";
 import { ColumnDefinition } from "react-tabulator";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
@@ -367,4 +367,102 @@ export function allAnswersColumnDefinition(
       }
     }
   });
+}
+export function getWhereInputFromFamilyFilters(
+  familyFilters: IFamilyFilter[]
+): Prisma.FamilyWhereInput {
+  let whereInputs: Prisma.FamilyWhereInput[] = [];
+
+  for (const filter of familyFilters) {
+    if (!filter?.field || !filter.filter) break;
+
+    switch (filter.field as FamilyFields) {
+      case "familyNumber":
+        whereInputs.push({ number: { [filter.filter]: filter.value } });
+        break;
+      case "childrenInHousehold":
+        whereInputs.push({
+          [filter.field]: {
+            [filter.filter]: filter.value,
+          },
+        });
+        break;
+
+      case "beginOfCare":
+      case "endOfCare":
+        whereInputs.push({
+          [filter.field]: {
+            [filter.filter]: filter.value,
+          },
+        });
+        break;
+
+      case "otherInstalledProfessionals":
+      case "location":
+        whereInputs.push({
+          [filter.field]: {
+            [filter.filter]: filter.value,
+            mode: "insensitive",
+          },
+        });
+        break;
+
+      case "careGiverWithDisability":
+        if (filter.filter === "equals")
+          whereInputs.push({
+            caregivers: { some: { disability: { in: ["Yes", "Impending"] } } },
+          });
+        if (filter.filter === "not")
+          whereInputs.push({
+            caregivers: {
+              none: { disability: { in: ["Yes", "Impending"] } },
+            },
+          });
+        break;
+      case "caregiverWithPsychDiagnosis":
+        if (filter.filter === "equals")
+          whereInputs.push({
+            caregivers: { some: { psychDiagosis: true } },
+          });
+        if (filter.filter === "not")
+          whereInputs.push({
+            caregivers: { none: { psychDiagosis: true } },
+          });
+        break;
+      case "migrationBackground":
+        if (filter.filter === "equals")
+          whereInputs.push({
+            caregivers: { some: { migrationBackground: true } },
+          });
+        if (filter.filter === "not")
+          whereInputs.push({
+            caregivers: { none: { migrationBackground: true } },
+          });
+        break;
+
+      case "childrenWithDisability":
+        if (filter.filter === "equals")
+          whereInputs.push({
+            children: { some: { disability: { in: ["Yes", "Impending"] } } },
+          });
+        if (filter.filter === "not")
+          whereInputs.push({
+            children: { none: { disability: { in: ["Yes", "Impending"] } } },
+          });
+        break;
+
+      case "childWithPsychDiagnosis":
+        if (filter.filter === "equals")
+          whereInputs.push({
+            children: { some: { psychDiagosis: true } },
+          });
+        if (filter.filter === "not")
+          whereInputs.push({
+            children: { none: { psychDiagosis: true } },
+          });
+        break;
+    }
+  }
+
+  return { AND: whereInputs };
 }

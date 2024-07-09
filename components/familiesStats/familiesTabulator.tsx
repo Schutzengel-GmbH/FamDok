@@ -3,6 +3,7 @@ import {
   applyFamilyFilter,
   familyColumnsDefinition,
   getFamilyData,
+  getWhereInputFromFamilyFilters,
   globalOptions,
 } from "@/utils/tableUtils";
 import { FilterAlt, FileDownload, Add, Delete } from "@mui/icons-material";
@@ -23,14 +24,14 @@ import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponen
 
 export default function FamiliesTabulator() {
   const { user } = useUserData();
-  const { families } = user?.role === "USER" ? useMyFamilies() : useFamilies();
   const [familyFilters, setFamilyFilters] = useState<IFamilyFilter[]>([]);
   const tableRef = useRef(null);
+  const { families } =
+    user?.role === "USER"
+      ? useMyFamilies(getWhereInputFromFamilyFilters(familyFilters))
+      : useFamilies(getWhereInputFromFamilyFilters(familyFilters));
 
-  const data = useMemo(
-    () => families?.map(getFamilyData).filter(applyFamilyFilters),
-    [families, familyFilters]
-  );
+  const data = useMemo(() => families?.map(getFamilyData), [families]);
   const columns = useMemo(() => familyColumnsDefinition(), []);
 
   function downloadCSV() {
@@ -133,3 +134,4 @@ export default function FamiliesTabulator() {
     </Box>
   );
 }
+

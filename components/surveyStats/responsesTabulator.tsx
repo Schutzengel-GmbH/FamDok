@@ -7,6 +7,7 @@ import {
   allAnswersColumnDefinition,
   applyFamilyFilter,
   familyColumnsDefinition,
+  getWhereInputFromFamilyFilters,
   globalOptions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
@@ -29,6 +30,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   useEffect(() => {
     setWhereInput({
       AND: filters.filters.map(getWhereInput),
+      family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
     });
   }, [filters]);
 
@@ -109,22 +111,8 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     [survey]
   );
 
-  function applyFamilyFilters(row: any): boolean {
-    if (!filters.familyFilters || filters.familyFilters.length === 0)
-      return true;
-    else
-      for (const filter of filters.familyFilters) {
-        if (!filter) break;
-        // apply each filter, if it passes, just keep going, if it fails, immediately exit the function and return false
-        if (!applyFamilyFilter(filter, row[filter.field])) return false;
-      }
-
-    // when all filters have passed, return true
-    return true;
-  }
-
   const data = useMemo(
-    () => responsesToAllAnswersTable(responses).filter(applyFamilyFilters),
+    () => responsesToAllAnswersTable(responses),
     [responses, survey, filters]
   );
 

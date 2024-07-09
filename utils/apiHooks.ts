@@ -17,11 +17,13 @@ import { fetcher } from "@/utils/swrConfig";
 import { Prisma } from "@prisma/client";
 import useSWR from "swr";
 
-export function useFamilies() {
+export function useFamilies(whereInput?: Prisma.FamilyWhereInput) {
   const { user, error: userError } = useUserData();
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
-    user ? `/api/families` : null,
+    user
+      ? `/api/families?whereInput=${JSON.stringify(whereInput) || ""}`
+      : null,
     fetcher
   );
 
@@ -47,7 +49,11 @@ export function useFamily(number: number) {
   const { user, error: userError } = useUserData();
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
-    user && number ? `/api/families?number=${number}` : null,
+    user && number
+      ? `/api/families?whereInput=${JSON.stringify({
+          number: number,
+        } as Prisma.FamilyWhereInput)}`
+      : null,
     fetcher
   );
 
@@ -69,11 +75,13 @@ export function useFamily(number: number) {
     };
 }
 
-export function useMyFamilies() {
+export function useMyFamilies(whereInput?: Prisma.FamilyWhereInput) {
   const { user, error: userError } = useUserData();
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
-    user ? `/api/families?userId=${user.id}` : null,
+    user
+      ? `/api/families?whereInput=${JSON.stringify(whereInput) || ""}`
+      : null,
     fetcher
   );
 
@@ -128,7 +136,8 @@ export function useFooterPageContent(uri: string) {
 
 export function useLogs(level?: number, from?: Date, til?: Date) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ILogs>(
-    `/api/logs?level=${level ?? 40
+    `/api/logs?level=${
+      level ?? 40
     }&from=${from?.toISOString()}?til=${til?.toISOString()}`,
     fetcher,
     { refreshInterval: 1000 }
@@ -184,7 +193,9 @@ export function useOrganizations() {
 export function useSubOrganizations(organizationId) {
   const { data, error, isLoading, isValidating, mutate } =
     useSWR<ISubOrganizations>(
-      organizationId ? `/api/subOrganizations?organizationId=${organizationId}` : null,
+      organizationId
+        ? `/api/subOrganizations?organizationId=${organizationId}`
+        : null,
       fetcher
     );
 
@@ -212,12 +223,16 @@ export function useMyResponses(surveyId: string) {
   };
 }
 
-export function useResponses(surveyId: string, whereInput?: Prisma.ResponseWhereInput) {
-
-  const input = JSON.stringify(whereInput)
+export function useResponses(
+  surveyId: string,
+  whereInput?: Prisma.ResponseWhereInput
+) {
+  const input = JSON.stringify(whereInput);
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IResponses>(
-    surveyId ? `/api/surveys/${surveyId}/responses?whereInput=${input || "{}"}` : null,
+    surveyId
+      ? `/api/surveys/${surveyId}/responses?whereInput=${input || "{}"}`
+      : null,
     fetcher
   );
 

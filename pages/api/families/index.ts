@@ -41,6 +41,8 @@ export default async function families(
     res
   );
 
+  const { whereInput } = req.query;
+
   let session = req.session;
 
   const user = await prisma.user
@@ -51,12 +53,17 @@ export default async function families(
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
-  const where = getFamilyWhereInput(req.query);
+  console.log(whereInput);
+  let where: Prisma.FamilyWhereInput = whereInput
+    ? JSON.parse(whereInput as string)
+    : {};
+
   if (user.role !== "ADMIN")
     where.createdBy = { organizationId: user.organizationId };
 
   switch (req.method) {
     case "GET":
+      console.log(where);
       const families = await prisma.family
         .findMany({
           include: {

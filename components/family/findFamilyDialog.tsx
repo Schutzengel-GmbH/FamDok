@@ -53,7 +53,9 @@ export default function FindFamilyDialog({
         return;
       }
       const res = await fetch(
-        `/api/families?number=${start}&number=${start + 8}`
+        `/api/families?whereInput=${JSON.stringify({
+          AND: [{ number: { gte: start } }, { number: { lte: start + 8 } }],
+        } as Prisma.FamilyWhereInput)}`
       );
       if (res.status !== 200) {
         addToast({

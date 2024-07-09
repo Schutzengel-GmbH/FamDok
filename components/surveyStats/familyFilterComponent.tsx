@@ -92,15 +92,15 @@ function SelectField({ familyFilter, onChange }: FamilyFilterSelectProps) {
         <MenuItem key={8} value={"migrationBackground"}>
           Migrationshintergrund
         </MenuItem>
-        <MenuItem key={9} value={"highestEducation"}>
+        {/* <MenuItem key={9} value={"highestEducation"}>
           Höchster Bildungsabschluss
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem key={10} value={"otherInstalledProfessionals"}>
           Andere installierte Fachkräfte
         </MenuItem>
-        <MenuItem key={11} value={"comingFrom"}>
+        {/* <MenuItem key={11} value={"comingFrom"}>
           Zugang über
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem key={12} value={"endOfCare"}>
           Ende der Betreuung
         </MenuItem>
@@ -165,11 +165,11 @@ function availableFilters(field: FamilyFields): IFilter[] {
     case "migrationBackground":
       return BoolFilters;
     case "highestEducation":
-      return TextFilters;
+      return [];
     case "otherInstalledProfessionals":
       return TextFilters;
     case "comingFrom":
-      return TextFilters;
+      return [];
     case "endOfCare":
       return DateFilters;
     default:
@@ -229,3 +229,4 @@ interface FamilyFilterSelectProps {
   familyFilter: IFamilyFilter;
   onChange: (familyFilter: IFamilyFilter) => void;
 }
+
