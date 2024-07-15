@@ -208,9 +208,16 @@ export function useSubOrganizations(organizationId) {
   };
 }
 
-export function useMyResponses(surveyId: string) {
+export function useMyResponses(
+  surveyId: string,
+  whereInput?: Prisma.ResponseWhereInput
+) {
+  const input = JSON.stringify(whereInput);
+
   const { data, error, isLoading, isValidating, mutate } = useSWR<IResponses>(
-    surveyId ? `/api/surveys/${surveyId}/responses/my` : null,
+    surveyId
+      ? `/api/surveys/${surveyId}/responses/my?whereInput=${input || "{}"}`
+      : null,
     fetcher
   );
 
