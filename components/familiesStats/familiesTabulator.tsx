@@ -21,6 +21,8 @@ import { IFamilyFilter } from "@/utils/filters";
 import { format } from "date-fns";
 import { useUserData } from "@/utils/authUtils";
 import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponent";
+import { exportBlob } from "@/utils/utils";
+import { getFamiliesJson } from "@/components/surveyStats/getJson";
 
 export default function FamiliesTabulator() {
   const { user } = useUserData();
@@ -40,6 +42,14 @@ export default function FamiliesTabulator() {
       `Familien-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
       { delimiter: ";" }
     );
+  }
+
+  function downloadJSON() {
+    const jsonString = getFamiliesJson(families);
+    const blob = new Blob([jsonString], {
+      type: "text/json",
+    });
+    exportBlob(blob, `Familien-${format(new Date(), "yyyy-MM-dd_hh-mm")}.json`);
   }
 
   function addFamilyFilter() {
@@ -99,15 +109,25 @@ export default function FamiliesTabulator() {
             </Box>
           ))}
         </Accordion>
-
-        <Button
-          variant="outlined"
-          sx={{ width: "20vw", ml: "1rem", height: "fit-content" }}
-          onClick={downloadCSV}
+        <Box
+          sx={{
+            width: "20vw",
+            ml: "1rem",
+            height: "fit-content",
+            display: "flex",
+            flexDirection: "column",
+            gap: ".5rem",
+          }}
         >
-          <FileDownload />
-          Download .CSV
-        </Button>
+          <Button variant="outlined" onClick={downloadCSV}>
+            <FileDownload />
+            Download .CSV
+          </Button>
+          <Button variant="outlined" onClick={downloadJSON}>
+            <FileDownload />
+            Download .JSON
+          </Button>
+        </Box>
       </Box>
 
       <ReactTabulator

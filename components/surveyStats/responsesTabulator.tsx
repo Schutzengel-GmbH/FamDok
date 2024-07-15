@@ -19,6 +19,8 @@ import { format, isSameDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { exportBlob } from "@/utils/utils";
+import { getFullResponseJson } from "@/components/surveyStats/getJson";
 
 export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   const [filters, setFilters] = useState<{
@@ -126,6 +128,17 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     );
   }
 
+  function downloadJSON() {
+    const jsonString = getFullResponseJson(responses);
+    const blob = new Blob([jsonString], {
+      type: "text/json",
+    });
+    exportBlob(
+      blob,
+      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.json`
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -154,14 +167,25 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
           </Box>
         </Accordion>
 
-        <Button
-          variant="outlined"
-          sx={{ width: "20vw", ml: "1rem" }}
-          onClick={downloadCSV}
+        <Box
+          sx={{
+            width: "20vw",
+            ml: "1rem",
+            height: "fit-content",
+            display: "flex",
+            flexDirection: "column",
+            gap: ".5rem",
+          }}
         >
-          <FileDownload />
-          Download .CSV
-        </Button>
+          <Button variant="outlined" onClick={downloadCSV}>
+            <FileDownload />
+            Download .CSV
+          </Button>
+          <Button variant="outlined" onClick={downloadJSON}>
+            <FileDownload />
+            Download .JSON
+          </Button>
+        </Box>
       </Box>
 
       <ReactTabulator

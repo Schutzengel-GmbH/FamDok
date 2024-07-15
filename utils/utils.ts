@@ -1,4 +1,8 @@
-import { FullAnswer, FullFamily, PartialAnswer } from "@/types/prismaHelperTypes";
+import {
+  FullAnswer,
+  FullFamily,
+  PartialAnswer,
+} from "@/types/prismaHelperTypes";
 import {
   Caregiver,
   Child,
@@ -206,21 +210,37 @@ export function answerHasNoValues(answer: PartialAnswer) {
   );
 }
 
+export function exportBlob(blob, filename) {
+  // Save the blob in a json file
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  });
+}
+
 export function range(start: number, end: number) {
   let arr = new Array(end - start + 1).fill(undefined).map((_, i) => i + start);
   return arr;
 }
 
 export function getFamilyString(family: FullFamily) {
-  return `Familiennummer: ${family.number} (${family.caregivers.length
-    } Bezugspersonen, Kinder (${family.childrenInHousehold || "keine"})${family.children?.length > 0 ? ": " : ""
-    }${family.children
-      .map((c) => {
-        if (!c.dateOfBirth) return "unbekanntes Alter";
-        const age = getAge(new Date(c.dateOfBirth));
-        return `${age} Jahre`;
-      })
-      .join(", ")})`;
+  return `Familiennummer: ${family.number} (${
+    family.caregivers.length
+  } Bezugspersonen, Kinder (${family.childrenInHousehold || "keine"})${
+    family.children?.length > 0 ? ": " : ""
+  }${family.children
+    .map((c) => {
+      if (!c.dateOfBirth) return "unbekanntes Alter";
+      const age = getAge(new Date(c.dateOfBirth));
+      return `${age} Jahre`;
+    })
+    .join(", ")})`;
 }
 
 export function makeUriLegal(str: string) {
@@ -282,16 +302,43 @@ export function comparePrimitiveArrayByElements<T = number | string>(
 export function getAnswerString(answer: FullAnswer): string | undefined {
   if (!answer || !answer.question) return undefined;
   switch (answer.question.type) {
-    case "Text": return answer.answerText || undefined
-    case "Int": return answer.answerInt?.toString() || undefined;
-    case "Num": return answer.answerNum?.toString() || undefined;
+    case "Text":
+      return answer.answerText || undefined;
+    case "Int":
+      return answer.answerInt?.toString() || undefined;
+    case "Num":
+      return answer.answerNum?.toString() || undefined;
     case "Scale":
-    case "Select": return answer.answerSelect.reduce((acc, a) => {
-      if (acc) return `${acc}, ${a.isOpen ? (answer.answerSelectOtherValues as Array<any>).find(ao => ao.selectOptionId === a.id).value : a.value}`;
-      else return `${a.isOpen ? (answer.answerSelectOtherValues as Array<any>).find(ao => ao.selectOptionId === a.id).value : a.value}`;
-    }, "");
-    case "Date": return answer.answerDate ? new Date(answer.answerDate).toLocaleDateString() : undefined;
-    case "Bool": return answer.answerBool === true ? "Ja" : answer.answerBool === false ? "Nein" : undefined;
-    default: return undefined
+    case "Select":
+      return answer.answerSelect.reduce((acc, a) => {
+        if (acc)
+          return `${acc}, ${
+            a.isOpen
+              ? (answer.answerSelectOtherValues as Array<any>).find(
+                  (ao) => ao.selectOptionId === a.id
+                ).value
+              : a.value
+          }`;
+        else
+          return `${
+            a.isOpen
+              ? (answer.answerSelectOtherValues as Array<any>).find(
+                  (ao) => ao.selectOptionId === a.id
+                ).value
+              : a.value
+          }`;
+      }, "");
+    case "Date":
+      return answer.answerDate
+        ? new Date(answer.answerDate).toLocaleDateString()
+        : undefined;
+    case "Bool":
+      return answer.answerBool === true
+        ? "Ja"
+        : answer.answerBool === false
+        ? "Nein"
+        : undefined;
+    default:
+      return undefined;
   }
 }
