@@ -1,6 +1,6 @@
 import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
-import { FullSurvey } from "@/types/prismaHelperTypes";
+import { FullResponse, FullSurvey } from "@/types/prismaHelperTypes";
 import { useMyResponses, useResponses } from "@/utils/apiHooks";
 import { IFamilyFilter, IFilter } from "@/utils/filters";
 import {
@@ -21,6 +21,7 @@ import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { exportBlob } from "@/utils/utils";
 import { getFullResponseJson } from "@/components/surveyStats/getJson";
+import { useRouter } from "next/router";
 
 export default function MyResponsesTabulator({
   survey,
@@ -32,6 +33,7 @@ export default function MyResponsesTabulator({
     familyFilters?: IFamilyFilter[];
   }>({ filters: [], familyFilters: [] });
   const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>();
+  const router = useRouter();
 
   useEffect(() => {
     setWhereInput({
@@ -143,6 +145,13 @@ export default function MyResponsesTabulator({
     );
   }
 
+  function rowClick(e, row) {
+    const surveyId = row.getData().surveyId;
+    const responseId = row.getData().id;
+
+    router.push(`/surveys/${surveyId}/${responseId}`);
+  }
+
   return (
     <Box
       sx={{
@@ -199,6 +208,7 @@ export default function MyResponsesTabulator({
         style={{}}
         layout="fitData"
         options={{ ...globalOptions, ...options }}
+        events={{ rowClick }}
       />
     </Box>
   );

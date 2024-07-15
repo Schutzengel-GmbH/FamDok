@@ -53,6 +53,10 @@ export function responsesToAllAnswersTable(
 
   for (const response of responses) {
     let data: ResponseTableData = {};
+
+    data["id"] = response.id;
+    data["surveyId"] = response.surveyId;
+
     for (const answer of response.answers) {
       if (answer.question.type === QuestionType.Select)
         data[answer.question.id] = answer.answerSelect.reduce<{
