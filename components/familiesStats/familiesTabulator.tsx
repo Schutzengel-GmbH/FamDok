@@ -56,19 +56,6 @@ export default function FamiliesTabulator() {
     setFamilyFilters(familyFilters.filter((_, i) => i !== index));
   }
 
-  function applyFamilyFilters(row: any): boolean {
-    if (!familyFilters || familyFilters.length === 0) return true;
-    else
-      for (const filter of familyFilters) {
-        if (!filter) break;
-        // apply each filter, if it passes, just keep going, if it fails, immediately exit the function and return false
-        if (!applyFamilyFilter(filter, row[filter.field])) return false;
-      }
-
-    // when all filters have passed, return true
-    return true;
-  }
-
   return (
     <Box
       sx={{
@@ -134,4 +121,3 @@ export default function FamiliesTabulator() {
     </Box>
   );
 }
-

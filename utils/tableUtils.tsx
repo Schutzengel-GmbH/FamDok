@@ -8,7 +8,12 @@ import {
 import { IFamilyFilter } from "@/utils/filters";
 import { getEducationString, isHigherEducation } from "@/utils/utils";
 import { Prisma, QuestionType } from "@prisma/client";
-import { compareAsc, compareDesc, isSameDay } from "date-fns";
+import {
+  compareAsc,
+  compareDesc,
+  differenceInYears,
+  isSameDay,
+} from "date-fns";
 import { ColumnDefinition } from "react-tabulator";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
 
@@ -140,7 +145,24 @@ export function getFamilyData(family: FullFamily): FamilyTableData {
   data["comingFrom"] = family.comingFrom?.value || undefined;
   data["endOfCare"] = family.endOfCare ? new Date(family.endOfCare) : undefined;
 
+  data["underage"] = underageCaregiverAtBegin(family);
+
+  data["createdBy"] = family.createdBy?.name || family.createdBy?.email || "";
+
   return data;
+}
+
+function underageCaregiverAtBegin(family: FullFamily): boolean {
+  for (const caregiver of family.caregivers) {
+    if (!caregiver.dateOfBirth) break;
+    const ageAtStart = differenceInYears(
+      new Date(family.beginOfCare),
+      new Date(caregiver.dateOfBirth)
+    );
+    if (ageAtStart < 18) return true;
+  }
+
+  return false;
 }
 
 const dateFormatter: Tabulator.Formatter = (
@@ -281,18 +303,43 @@ export function familyColumnsDefinition(
             formatterParams: { allowEmpty: true },
             headerSortTristate: true,
           },
-          { title: "Höchster Bildungsabschluss", field: "highestEducation" },
+          {
+            title: "Höchster Bildungsabschluss",
+            field: "highestEducation",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
           {
             title: "Andere installierte Fachkräfte",
             field: "otherInstalledProfessionals",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
           },
 
-          { title: "Zugang über", field: "comingFrom" },
+          {
+            title: "Zugang über",
+            field: "comingFrom",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
           {
             title: "Ende der Betreuung",
             field: "endOfCare",
             formatter: dateFormatter,
             sorter: dateSorter,
+            headerSortTristate: true,
+          },
+          {
+            title: "Verantwortlich",
+            field: "createdBy",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          },
+          {
+            title: "Minderjährigkeit bei Betreuungsbeginn",
+            field: "underage",
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
             headerSortTristate: true,
           },
         ],
