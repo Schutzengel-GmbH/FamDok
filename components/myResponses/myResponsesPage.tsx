@@ -1,11 +1,9 @@
-import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
-import { FullResponse, FullSurvey } from "@/types/prismaHelperTypes";
-import { useMyResponses, useResponses } from "@/utils/apiHooks";
+import { FullSurvey } from "@/types/prismaHelperTypes";
+import { useMyResponses } from "@/utils/apiHooks";
 import { IFamilyFilter, IFilter } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
-  applyFamilyFilter,
   familyColumnsDefinition,
   getWhereInputFromFamilyFilters,
   globalOptions,
@@ -15,7 +13,7 @@ import { FileDownload, FilterAlt } from "@mui/icons-material";
 import { Accordion, AccordionSummary, Button } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -113,6 +111,12 @@ export default function MyResponsesTabulator({
 
   const columns = useMemo(
     () => [
+      {
+        title: "",
+        headerSort: false,
+        formatter: () => '<i class="fa-solid fa-pen-to-square" />',
+        cellClick: (_e, cell) => editClick(cell.getRow().getData()),
+      },
       ...allAnswersColumnDefinition(survey),
       ...familyColumnsDefinition(survey),
     ],
@@ -145,9 +149,9 @@ export default function MyResponsesTabulator({
     );
   }
 
-  function rowClick(e, row) {
-    const surveyId = row.getData().surveyId;
-    const responseId = row.getData().id;
+  function editClick(row) {
+    const surveyId = row.surveyId;
+    const responseId = row.id;
 
     router.push(`/surveys/${surveyId}/${responseId}`);
   }
@@ -208,8 +212,8 @@ export default function MyResponsesTabulator({
         style={{}}
         layout="fitData"
         options={{ ...globalOptions, ...options }}
-        events={{ rowClick }}
       />
     </Box>
   );
 }
+
