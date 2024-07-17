@@ -25,19 +25,29 @@ export type FilterType =
   | "gt"
   | "gte"
   | "startsWith"
-  | "endsWith";
+  | "endsWith"
+  | "empty"
+  | "notEmpty";
+
+const NullFilters: IFilter[] = [
+  { filter: "empty", name: "Hat keinen Wert", value: true },
+  { filter: "notEmpty", name: "Hat Wert", value: true },
+];
 
 export const TextFilters: IFilter[] = [
+  ...NullFilters,
   { filter: "equals", name: "Gleich" },
   { filter: "contains", name: "Enthält" },
   { filter: "endsWith", name: "Endet auf" },
   { filter: "startsWith", name: "Beginnt mit" },
 ];
 export const BoolFilters: IFilter[] = [
+  ...NullFilters,
   { filter: "equals", name: "Ja", value: true },
   { filter: "not", name: "Nein", value: true },
 ];
 export const DateFilters: IFilter[] = [
+  ...NullFilters,
   { filter: "gt", name: "Ist nach" },
   { filter: "gte", name: "Ist nach oder am" },
   { filter: "lt", name: "Ist vor" },
@@ -46,6 +56,7 @@ export const DateFilters: IFilter[] = [
   { filter: "not", name: "Nicht am" },
 ];
 export const NumberFilters: IFilter[] = [
+  ...NullFilters,
   { filter: "gt", name: "Größer als" },
   { filter: "gte", name: "Größer oder gleich" },
   { filter: "lt", name: "Kleiner als" },
@@ -96,3 +107,4 @@ export interface SelectFilterProps {
   filter: IFilter;
   onChange: (filter: IFilter, value?: any) => void;
 }
+

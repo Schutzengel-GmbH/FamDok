@@ -126,6 +126,8 @@ interface ValueInputProps {
 }
 
 function ValueInput({ question, filter, onChange }: ValueInputProps) {
+  if (filter?.filter === "empty" || filter?.filter === "notEmpty") return <></>;
+
   switch (question?.type) {
     case "Text":
       return (
@@ -181,3 +183,4 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
       return <></>;
   }
 }
+

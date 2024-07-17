@@ -71,6 +71,31 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         break;
     }
 
+    if (filter?.filter === "empty")
+      return {
+        answers: {
+          some: {
+            questionId: question?.id || undefined,
+
+            [answerField]: {
+              equals: null,
+            },
+          },
+        },
+      };
+
+    if (filter?.filter === "notEmpty")
+      return {
+        answers: {
+          some: {
+            questionId: question?.id || undefined,
+            [answerField]: {
+              not: null,
+            },
+          },
+        },
+      };
+
     if (answerField === "answerSelect")
       return {
         answers: {
