@@ -1,5 +1,3 @@
-import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
-import * as XLSX from "xlsx";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
@@ -150,7 +148,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     tableRef.current.download(
       "csv",
       `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
-      { delimiter: ";" }
+      { delimiter: ";", bom: true }
     );
   }
 
