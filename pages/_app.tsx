@@ -95,6 +95,10 @@ function MyApp({ Component, pageProps }): JSX.Element {
               <Layout>
                 <InfoDialogProvider>
                   <ToastProvider>
+                    <script
+                      type="text/javascript"
+                      src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+                    ></script>
                     <Component {...pageProps} />
                     <CookieBanner />
                   </ToastProvider>

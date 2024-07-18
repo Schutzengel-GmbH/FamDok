@@ -66,8 +66,9 @@ export function responsesToAllAnswersTable(
             return {
               ...acc,
               [s.id]: (
-                answer.answerSelectOtherValues as IAnswerSelectOtherValue[]
-              ).find((ov) => ov.selectOptionId === s.id).value,
+                (answer.answerSelectOtherValues as IAnswerSelectOtherValue[]) ??
+                []
+              ).find((ov) => ov.selectOptionId === s.id)?.value,
             };
           else return { ...acc, [s.id]: true };
         }, {});

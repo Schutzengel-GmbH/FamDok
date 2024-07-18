@@ -10,8 +10,8 @@ export default function DashboardSurveyCard({
 }: DashboardSurveyCardProps) {
   const { push } = useRouter();
 
-  function navigate() {
-    return () => push(`/surveys/${survey.id}/stats`);
+  function navigate(path: string) {
+    return () => push(path);
   }
 
   return (
@@ -22,10 +22,14 @@ export default function DashboardSurveyCard({
         {
           title: "Alle Antworten",
           icon: <QueryStats />,
-          action: navigate(),
+          action: navigate(`/surveys/${survey.id}/stats`),
+        },
+        {
+          title: "Dashboard?",
+          icon: <QueryStats />,
+          action: navigate(`/surveys/${survey.id}/dashboard`),
         },
       ]}
     />
   );
 }
-

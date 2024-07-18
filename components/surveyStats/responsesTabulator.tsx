@@ -1,4 +1,5 @@
 import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
+import * as XLSX from "xlsx";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
@@ -164,6 +165,14 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     );
   }
 
+  function downloadXLSX() {
+    tableRef.current.download(
+      "xlsx",
+      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.xlsx`,
+      { sheetName: `${survey.name}` }
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -198,17 +207,21 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
             ml: "1rem",
             height: "fit-content",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
             gap: ".5rem",
           }}
         >
           <Button variant="outlined" onClick={downloadCSV}>
             <FileDownload />
-            Download .CSV
+            .CSV
           </Button>
           <Button variant="outlined" onClick={downloadJSON}>
             <FileDownload />
-            Download .JSON
+            .JSON
+          </Button>
+          <Button variant="outlined" onClick={downloadXLSX}>
+            <FileDownload />
+            .XLSX
           </Button>
         </Box>
       </Box>
