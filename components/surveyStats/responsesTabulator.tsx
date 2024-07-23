@@ -1,10 +1,11 @@
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
-import { IFamilyFilter, IFilter } from "@/utils/filters";
+import { IFamilyFilter, IFilter, IGeneralFilter } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
   applyFamilyFilter,
+  allResponsesColumnDefinition,
   familyColumnsDefinition,
   getWhereInputFromFamilyFilters,
   globalOptions,
@@ -14,7 +15,7 @@ import { FileDownload, FilterAlt } from "@mui/icons-material";
 import { Accordion, AccordionSummary, Button } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, startOfYear } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -26,15 +27,59 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   const [filters, setFilters] = useState<{
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
-  }>({ filters: [], familyFilters: [] });
-  const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>();
+    generalFilters?: IGeneralFilter[];
+  }>({
+    filters: [],
+    familyFilters: [],
+    generalFilters: [
+      {
+        field: "responseCreatedAt",
+        filter: "gte",
+        value: startOfYear(new Date()),
+      },
+    ],
+  });
+  const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
+    AND: [
+      ...filters.filters.map(getWhereInput),
+      ...filters.generalFilters.map(getGeneralWhereInput),
+    ],
+    family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+  });
 
   useEffect(() => {
     setWhereInput({
-      AND: filters.filters.map(getWhereInput),
+      AND: [
+        ...filters.filters.map(getWhereInput),
+        ...filters.generalFilters.map(getGeneralWhereInput),
+      ],
       family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
     });
   }, [filters]);
+
+  function getGeneralWhereInput(
+    generalFilter: IGeneralFilter
+  ): Prisma.ResponseWhereInput {
+    if (!generalFilter?.field) return {};
+
+    console.log(generalFilter);
+
+    switch (generalFilter.field) {
+      case "responseCreatedBy":
+        return {
+          user: {
+            name: {
+              [generalFilter.filter]: generalFilter.value,
+              mode: "insensitive",
+            },
+          },
+        };
+      case "responseCreatedAt":
+        return { createdAt: { [generalFilter.filter]: generalFilter.value } };
+      default:
+        return {};
+    }
+  }
 
   function getWhereInput(filter: IFilter): Prisma.ResponseWhereInput {
     if (!filter?.questionId) return {};
@@ -133,10 +178,16 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   const columns = useMemo(
     () => [
       ...allAnswersColumnDefinition(survey),
+      ...allResponsesColumnDefinition(),
       ...familyColumnsDefinition(survey),
     ],
     [survey]
   );
+
+  const hasFilters =
+    filters.familyFilters?.length > 0 ||
+    filters.filters?.length > 0 ||
+    filters.generalFilters?.length > 0;
 
   const data = useMemo(
     () => responsesToAllAnswersTable(responses),
@@ -157,7 +208,10 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <Accordion sx={{ width: "75vw" }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <FilterAlt sx={{ mr: "1rem" }} />{" "}
+            <FilterAlt
+              color={hasFilters ? "success" : "disabled"}
+              sx={{ mr: "1rem" }}
+            />{" "}
             {filters.familyFilters?.length || filters.filters?.length
               ? "Filter bearbeiten"
               : "Filter hinzufügen"}
@@ -168,6 +222,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
               survey={survey}
               filters={filters.filters}
               familyFilters={filters.familyFilters}
+              generalFilters={filters.generalFilters}
               onChange={setFilters}
             />
           </Box>

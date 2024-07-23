@@ -1,7 +1,8 @@
 import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponent";
 import FilterComponent from "@/components/surveyStats/filterComponent";
+import GeneralFilterComponent from "@/components/surveyStats/generalFilterComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
-import { IFilter, IFamilyFilter } from "@/utils/filters";
+import { IFilter, IFamilyFilter, IGeneralFilter } from "@/utils/filters";
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, IconButton } from "@mui/material";
 import { useState } from "react";
@@ -9,39 +10,56 @@ import { useState } from "react";
 interface FiltersComponentProps {
   filters: IFilter[];
   familyFilters: IFamilyFilter[];
+  generalFilters: IGeneralFilter[];
   survey: FullSurvey;
   onChange: ({
     filters,
     familyFilters,
+    generalFilters,
   }: {
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
+    generalFilters?: IGeneralFilter[];
   }) => void;
 }
 
 export default function FiltersComponent({
   filters,
   familyFilters,
+  generalFilters,
   survey,
   onChange,
 }: FiltersComponentProps) {
   function addFilter() {
-    onChange({ filters: [...filters, undefined], familyFilters });
+    onChange({
+      filters: [...filters, undefined],
+      familyFilters,
+      generalFilters,
+    });
   }
 
   function updateFilter(updatedFilter: IFilter, index: number) {
     onChange({
       filters: filters.map((f, i) => (i === index ? updatedFilter : f)),
       familyFilters,
+      generalFilters,
     });
   }
 
   function deleteFilter(index: number) {
-    onChange({ filters: filters.filter((_, i) => i !== index), familyFilters });
+    onChange({
+      filters: filters.filter((_, i) => i !== index),
+      familyFilters,
+      generalFilters,
+    });
   }
 
   function addFamilyFilter() {
-    onChange({ filters, familyFilters: [...familyFilters, undefined] });
+    onChange({
+      filters,
+      familyFilters: [...familyFilters, undefined],
+      generalFilters,
+    });
   }
 
   function updateFamilyFilter(updatedFilter: IFamilyFilter, index: number) {
@@ -50,6 +68,7 @@ export default function FiltersComponent({
       familyFilters: familyFilters.map((f, i) =>
         i === index ? updatedFilter : f
       ),
+      generalFilters,
     });
   }
 
@@ -57,6 +76,33 @@ export default function FiltersComponent({
     onChange({
       familyFilters: familyFilters.filter((_, i) => i !== index),
       filters,
+      generalFilters,
+    });
+  }
+
+  function addGeneralFilter() {
+    onChange({
+      filters,
+      familyFilters,
+      generalFilters: [...generalFilters, undefined],
+    });
+  }
+
+  function updateGeneralFilter(updatedFilter: IGeneralFilter, index: number) {
+    onChange({
+      filters,
+      familyFilters,
+      generalFilters: generalFilters.map((f, i) =>
+        i === index ? updatedFilter : f
+      ),
+    });
+  }
+
+  function deleteGeneralFilter(index: number) {
+    onChange({
+      familyFilters,
+      filters,
+      generalFilters: generalFilters.filter((_, i) => i !== index),
     });
   }
 
@@ -78,6 +124,10 @@ export default function FiltersComponent({
             <Add /> Familien-Filter
           </Button>
         )}
+
+        <Button onClick={addGeneralFilter}>
+          <Add /> Allgemeiner Filter
+        </Button>
       </Box>
       <Box
         sx={{
@@ -87,6 +137,26 @@ export default function FiltersComponent({
           mt: ".5rem",
         }}
       >
+        {generalFilters?.map((f, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+            }}
+          >
+            <GeneralFilterComponent
+              survey={survey}
+              key={i}
+              generalFilter={f}
+              onChange={(filter) => updateGeneralFilter(filter, i)}
+            />
+            <IconButton color="primary" onClick={() => deleteGeneralFilter(i)}>
+              <Delete />
+            </IconButton>
+          </Box>
+        ))}
         {familyFilters.map((f, i) => (
           <Box
             key={i}
@@ -131,3 +201,4 @@ export default function FiltersComponent({
     </Box>
   );
 }
+

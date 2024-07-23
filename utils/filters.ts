@@ -14,6 +14,13 @@ export interface IFamilyFilter {
   value?: any;
 }
 
+export interface IGeneralFilter {
+  name?: string;
+  filter?: FilterType;
+  field?: "responseCreatedBy" | "responseCreatedAt";
+  value?: any;
+}
+
 export type FilterType =
   | "equals"
   | "contains"
@@ -35,19 +42,16 @@ const NullFilters: IFilter[] = [
 ];
 
 export const TextFilters: IFilter[] = [
-  ...NullFilters,
   { filter: "equals", name: "Gleich" },
   { filter: "contains", name: "Enthält" },
   { filter: "endsWith", name: "Endet auf" },
   { filter: "startsWith", name: "Beginnt mit" },
 ];
 export const BoolFilters: IFilter[] = [
-  ...NullFilters,
   { filter: "equals", name: "Ja", value: true },
   { filter: "not", name: "Nein", value: true },
 ];
 export const DateFilters: IFilter[] = [
-  ...NullFilters,
   { filter: "gt", name: "Ist nach" },
   { filter: "gte", name: "Ist nach oder am" },
   { filter: "lt", name: "Ist vor" },
@@ -56,7 +60,6 @@ export const DateFilters: IFilter[] = [
   { filter: "not", name: "Nicht am" },
 ];
 export const NumberFilters: IFilter[] = [
-  ...NullFilters,
   { filter: "gt", name: "Größer als" },
   { filter: "gte", name: "Größer oder gleich" },
   { filter: "lt", name: "Kleiner als" },
@@ -77,22 +80,22 @@ export function getFiltersForQuestionType(questionType: QuestionType) {
 
   switch (questionType) {
     case "Text":
-      filters = TextFilters;
+      filters = [...NullFilters, ...TextFilters];
       break;
     case "Bool":
-      filters = BoolFilters;
+      filters = [...NullFilters, ...BoolFilters];
       break;
     case "Int":
-      filters = NumberFilters;
+      filters = [...NullFilters, ...NumberFilters];
       break;
     case "Num":
-      filters = NumberFilters;
+      filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
       filters = SelectFilters;
       break;
     case "Date":
-      filters = DateFilters;
+      filters = [...NullFilters, ...DateFilters];
       break;
     case "Scale":
       filters = ScaleFilters;

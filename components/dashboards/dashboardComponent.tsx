@@ -1,7 +1,7 @@
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
-import { IFilter, IFamilyFilter } from "@/utils/filters";
+import { IFilter, IFamilyFilter, IGeneralFilter } from "@/utils/filters";
 import {
   getWhereInputFromFamilyFilters,
   allAnswersColumnDefinition,
@@ -15,6 +15,7 @@ import { Prisma } from "@prisma/client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { ReactTabulator } from "react-tabulator";
+import { startOfYear } from "date-fns";
 
 interface DashboardProps {
   survey: FullSurvey;
@@ -24,15 +25,65 @@ export default function Dashboard({ survey }: DashboardProps) {
   const [filters, setFilters] = useState<{
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
-  }>({ filters: [], familyFilters: [] });
-  const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>();
+    generalFilters?: IGeneralFilter[];
+  }>({
+    filters: [],
+    familyFilters: [],
+    generalFilters: [
+      {
+        field: "responseCreatedAt",
+        filter: "gte",
+        value: startOfYear(new Date()),
+      },
+    ],
+  });
+
+  const hasFilters =
+    filters.familyFilters?.length > 0 ||
+    filters.filters?.length > 0 ||
+    filters.generalFilters?.length > 0;
+
+  const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
+    AND: [
+      ...filters.filters.map(getWhereInput),
+      ...filters.generalFilters.map(getGeneralWhereInput),
+    ],
+    family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+  });
 
   useEffect(() => {
     setWhereInput({
-      AND: filters.filters.map(getWhereInput),
+      AND: [
+        ...filters.filters.map(getWhereInput),
+        ...filters.generalFilters.map(getGeneralWhereInput),
+      ],
       family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
     });
   }, [filters]);
+
+  function getGeneralWhereInput(
+    generalFilter: IGeneralFilter
+  ): Prisma.ResponseWhereInput {
+    if (!generalFilter?.field) return {};
+
+    console.log(generalFilter);
+
+    switch (generalFilter.field) {
+      case "responseCreatedBy":
+        return {
+          user: {
+            name: {
+              [generalFilter.filter]: generalFilter.value,
+              mode: "insensitive",
+            },
+          },
+        };
+      case "responseCreatedAt":
+        return { createdAt: { [generalFilter.filter]: generalFilter.value } };
+      default:
+        return {};
+    }
+  }
 
   function getWhereInput(filter: IFilter): Prisma.ResponseWhereInput {
     if (!filter?.questionId) return {};
@@ -118,8 +169,6 @@ export default function Dashboard({ survey }: DashboardProps) {
 
   const options = {};
 
-  function downloadCSV() {}
-
   return (
     <Box
       sx={{
@@ -132,7 +181,10 @@ export default function Dashboard({ survey }: DashboardProps) {
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <Accordion sx={{ width: "75vw" }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <FilterAlt sx={{ mr: "1rem" }} />{" "}
+            <FilterAlt
+              color={hasFilters ? "success" : "disabled"}
+              sx={{ mr: "1rem" }}
+            />{" "}
             {filters.familyFilters?.length || filters.filters?.length
               ? "Filter bearbeiten"
               : "Filter hinzufügen"}
@@ -143,26 +195,11 @@ export default function Dashboard({ survey }: DashboardProps) {
               survey={survey}
               filters={filters.filters}
               familyFilters={filters.familyFilters}
+              generalFilters={filters.generalFilters}
               onChange={setFilters}
             />
           </Box>
         </Accordion>
-
-        <Box
-          sx={{
-            width: "20vw",
-            ml: "1rem",
-            height: "fit-content",
-            display: "flex",
-            flexDirection: "column",
-            gap: ".5rem",
-          }}
-        >
-          <Button variant="outlined" onClick={downloadCSV}>
-            <FileDownload />
-            Download .CSV
-          </Button>
-        </Box>
       </Box>
 
       <ReactTabulator
@@ -176,3 +213,4 @@ export default function Dashboard({ survey }: DashboardProps) {
     </Box>
   );
 }
+

@@ -3,11 +3,12 @@ import {
   FullFamily,
   FullResponse,
   FullSurvey,
+  FullUser,
   IAnswerSelectOtherValue,
 } from "@/types/prismaHelperTypes";
 import { IFamilyFilter } from "@/utils/filters";
 import { getEducationString, isHigherEducation } from "@/utils/utils";
-import { Prisma, QuestionType } from "@prisma/client";
+import { Prisma, QuestionType, User } from "@prisma/client";
 import {
   compareAsc,
   compareDesc,
@@ -18,12 +19,17 @@ import { ColumnDefinition } from "react-tabulator";
 import { Tabulator } from "react-tabulator/lib/types/TabulatorTypes";
 
 type ResponseTableData = {
+  id?: string;
+  surveyId?: string;
+  responseCreatedBy?: FullUser;
+  responseCreatedAt?: Date;
   [questionId: string]:
     | string
     | number
     | boolean
     | Date
     | { [selectOptionId: string]: string | boolean }
+    | object
     | undefined;
   // family data
 } & FamilyTableData;
@@ -54,8 +60,10 @@ export function responsesToAllAnswersTable(
   for (const response of responses) {
     let data: ResponseTableData = {};
 
-    data["id"] = response.id;
-    data["surveyId"] = response.surveyId;
+    data.id = response.id;
+    data.surveyId = response.surveyId;
+    data.responseCreatedBy = response.user;
+    data.responseCreatedAt = new Date(response.createdAt);
 
     for (const answer of response.answers) {
       if (answer.question.type === QuestionType.Select)
@@ -152,7 +160,8 @@ export function getFamilyData(family: FullFamily): FamilyTableData {
 
   data["underage"] = underageCaregiverAtBegin(family);
 
-  data["createdBy"] = family.createdBy?.name || family.createdBy?.email || "";
+  data["createdBy"] = family.createdBy;
+  data["createdAt"] = new Date(family.createdAt);
 
   return data;
 }
@@ -169,6 +178,12 @@ function underageCaregiverAtBegin(family: FullFamily): boolean {
 
   return false;
 }
+
+const userFormatter: Tabulator.Formatter = (cell: Tabulator.CellComponent) => {
+  const user = cell.getValue() as User;
+  if (!user) return "Kein Benutzer";
+  return user.name || user.email || "Unbekannter Benutzer";
+};
 
 const dateFormatter: Tabulator.Formatter = (
   cell: Tabulator.CellComponent,
@@ -337,6 +352,7 @@ export function familyColumnsDefinition(
           {
             title: "Verantwortlich",
             field: "createdBy",
+            formatter: userFormatter,
             formatterParams: { allowEmpty: true },
             headerSortTristate: true,
           },
@@ -350,6 +366,24 @@ export function familyColumnsDefinition(
         ],
       },
     ];
+}
+
+export function allResponsesColumnDefinition(): ColumnDefinition[] {
+  return [
+    {
+      title: "Erstellt von",
+      field: "responseCreatedBy",
+      formatter: userFormatter,
+      headerSortTristate: true,
+    },
+    {
+      title: "Erstellt am",
+      field: "responseCreatedAt",
+      formatter: dateFormatter,
+      sorter: dateSorter,
+      headerSortTristate: true,
+    },
+  ];
 }
 
 export function allAnswersColumnDefinition(
