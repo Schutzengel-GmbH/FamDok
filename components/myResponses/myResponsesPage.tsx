@@ -20,6 +20,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { exportBlob } from "@/utils/utils";
 import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import { useRouter } from "next/router";
+import DownloadButtons from "@/components/utilityComponents/tabulatorDownloadButtons";
 
 export default function MyResponsesTabulator({
   survey,
@@ -184,25 +185,11 @@ export default function MyResponsesTabulator({
           </Box>
         </Accordion>
 
-        <Box
-          sx={{
-            width: "20vw",
-            ml: "1rem",
-            height: "fit-content",
-            display: "flex",
-            flexDirection: "column",
-            gap: ".5rem",
-          }}
-        >
-          <Button variant="outlined" onClick={downloadCSV}>
-            <FileDownload />
-            Download .CSV
-          </Button>
-          <Button variant="outlined" onClick={downloadJSON}>
-            <FileDownload />
-            Download .JSON
-          </Button>
-        </Box>
+        <DownloadButtons
+          tableRef={tableRef}
+          responses={responses}
+          survey={survey}
+        />
       </Box>
 
       <ReactTabulator

@@ -20,6 +20,7 @@ import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { exportBlob } from "@/utils/utils";
 import { getFullResponseJson } from "@/components/surveyStats/getJson";
+import DownloadButtons from "@/components/utilityComponents/tabulatorDownloadButtons";
 
 export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
   const [filters, setFilters] = useState<{
@@ -144,33 +145,6 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
 
   const options = {};
 
-  function downloadCSV() {
-    tableRef.current.download(
-      "csv",
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
-      { delimiter: ";", bom: true }
-    );
-  }
-
-  function downloadJSON() {
-    const jsonString = getFullResponseJson(responses);
-    const blob = new Blob([jsonString], {
-      type: "text/json",
-    });
-    exportBlob(
-      blob,
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.json`
-    );
-  }
-
-  function downloadXLSX() {
-    tableRef.current.download(
-      "xlsx",
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.xlsx`,
-      { sheetName: `${survey.name}` }
-    );
-  }
-
   return (
     <Box
       sx={{
@@ -198,30 +172,11 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
             />
           </Box>
         </Accordion>
-
-        <Box
-          sx={{
-            width: "20vw",
-            ml: "1rem",
-            height: "fit-content",
-            display: "flex",
-            flexDirection: "row",
-            gap: ".5rem",
-          }}
-        >
-          <Button variant="outlined" onClick={downloadCSV}>
-            <FileDownload />
-            .CSV
-          </Button>
-          <Button variant="outlined" onClick={downloadJSON}>
-            <FileDownload />
-            .JSON
-          </Button>
-          <Button variant="outlined" onClick={downloadXLSX}>
-            <FileDownload />
-            .XLSX
-          </Button>
-        </Box>
+        <DownloadButtons
+          tableRef={tableRef}
+          responses={responses}
+          survey={survey}
+        />
       </Box>
 
       <ReactTabulator
