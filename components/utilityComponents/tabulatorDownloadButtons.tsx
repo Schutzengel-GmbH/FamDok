@@ -1,3 +1,4 @@
+import useInfoDialog from "@/components/infoDialog/infoDialogContext";
 import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import { FullResponse, FullSurvey } from "@/types/prismaHelperTypes";
 import { exportBlob } from "@/utils/utils";
@@ -17,7 +18,17 @@ export default function DownloadButtons({
   responses,
   survey,
 }: DownloadButtonsProps) {
+  const { showInfoDialog } = useInfoDialog();
+
   function downloadCSV() {
+    const hasSelect = survey.questions.find((q) => q.type === "Select");
+
+    if (hasSelect)
+      showInfoDialog({
+        title: "Achtung",
+        body: "Die Umfrage enthält mindestens eine Auswahl-Frage und die Tabelle daher Gruppen-Header, die in einer CSV-Datei nicht sauber wiedergegeben werden können.",
+      });
+
     tableRef.current.download(
       "csv",
       `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
