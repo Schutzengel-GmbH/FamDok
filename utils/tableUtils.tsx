@@ -194,17 +194,14 @@ const dateFormatter: Tabulator.Formatter = (
   return date?.toLocaleDateString() ?? "";
 };
 
-const dateSorter = (
-  a: Date,
-  b: Date,
-  _aRow,
-  _bRow,
-  _col,
-  dir: "asc" | "desc"
-) => {
+const dateSorter = (a: Date, b: Date) => {
   const dateA = a ? new Date(a) : new Date("0000-01-01");
   const dateB = b ? new Date(b) : new Date("0000-01-01");
-  return dir === "asc" ? compareAsc(dateA, dateB) : compareDesc(dateB, dateA);
+  return compareAsc(dateA, dateB);
+};
+
+const userSorter = (a: User, b: User) => {
+  return a.name.localeCompare(b.name);
 };
 
 export const globalOptions = {
@@ -374,6 +371,7 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
       title: "Erstellt von",
       field: "responseCreatedBy",
       formatter: userFormatter,
+      sorter: userSorter,
       headerSortTristate: true,
     },
     {
@@ -552,4 +550,37 @@ export function getWhereInputFromFamilyFilters(
 
   if (whereInputs?.length < 1) return undefined;
   return { AND: whereInputs };
+}
+
+export const dashboardPerUserColumnDefinitions: ColumnDefinition[] = [
+  {
+    title: "Benutzer*in",
+    field: "user",
+    formatter: userFormatter,
+    sorter: userSorter,
+    headerSortTristate: true,
+  },
+  { title: "Anzahl Antworten", field: "num" },
+];
+
+type DashboardPerUserData = {
+  user: FullUser;
+  num: number;
+};
+
+export function answersPerUserDashboardData(
+  responses: FullResponse[]
+): DashboardPerUserData[] {
+  let data: DashboardPerUserData[] = [];
+
+  for (const response of responses) {
+    const i = data.findIndex((d) => d.user.id === response.user.id);
+    if (i >= 0) {
+      data[i].num++;
+    } else {
+      data.push({ user: response.user, num: 1 });
+    }
+  }
+
+  return data;
 }
