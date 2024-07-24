@@ -44,7 +44,9 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
       ...filters.filters.map(getWhereInput),
       ...filters.generalFilters.map(getGeneralWhereInput),
     ],
-    family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+    family: survey.hasFamily
+      ? getWhereInputFromFamilyFilters(filters.familyFilters)
+      : undefined,
   });
 
   useEffect(() => {
@@ -53,7 +55,9 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
         ...filters.filters.map(getWhereInput),
         ...filters.generalFilters.map(getGeneralWhereInput),
       ],
-      family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+      family: survey.hasFamily
+        ? getWhereInputFromFamilyFilters(filters.familyFilters)
+        : undefined,
     });
   }, [filters]);
 

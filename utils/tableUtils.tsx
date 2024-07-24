@@ -550,5 +550,6 @@ export function getWhereInputFromFamilyFilters(
     }
   }
 
+  if (whereInputs?.length < 1) return undefined;
   return { AND: whereInputs };
 }

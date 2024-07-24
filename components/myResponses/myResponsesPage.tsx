@@ -48,7 +48,9 @@ export default function MyResponsesTabulator({
       ...filters.filters.map(getWhereInput),
       ...filters.generalFilters.map(getGeneralWhereInput),
     ],
-    family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+    family: survey.hasFamily
+      ? getWhereInputFromFamilyFilters(filters.familyFilters)
+      : undefined,
   });
   const router = useRouter();
 
@@ -58,7 +60,9 @@ export default function MyResponsesTabulator({
         ...filters.filters.map(getWhereInput),
         ...filters.generalFilters.map(getGeneralWhereInput),
       ],
-      family: { AND: getWhereInputFromFamilyFilters(filters.familyFilters) },
+      family: survey.hasFamily
+        ? getWhereInputFromFamilyFilters(filters.familyFilters)
+        : undefined,
     });
   }, [filters]);
 
@@ -174,26 +178,9 @@ export default function MyResponsesTabulator({
     [responses, survey, filters]
   );
 
+  console.log(responses);
+
   const options = {};
-
-  function downloadCSV() {
-    tableRef.current.download(
-      "csv",
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.csv`,
-      { delimiter: ";" }
-    );
-  }
-
-  function downloadJSON() {
-    const jsonString = getFullResponseJson(responses);
-    const blob = new Blob([jsonString], {
-      type: "text/json",
-    });
-    exportBlob(
-      blob,
-      `${survey.name}-${format(new Date(), "yyyy-MM-dd_hh-mm")}.json`
-    );
-  }
 
   function editClick(row) {
     const surveyId = row.surveyId;

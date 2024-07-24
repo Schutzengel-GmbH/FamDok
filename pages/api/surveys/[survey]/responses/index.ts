@@ -129,6 +129,9 @@ export default async function responses(
         })
         .catch((err) => logger.error(err));
 
+      console.log(where);
+      console.log(responses);
+
       if (!responses)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 

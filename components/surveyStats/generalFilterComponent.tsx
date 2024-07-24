@@ -99,7 +99,9 @@ function SelectFilter({ generalFilter, onChange }: GeneralFilterSelectProps) {
         }
       >
         {availableFilters(generalFilter?.field).map((f) => (
-          <MenuItem value={f.filter}>{f.name}</MenuItem>
+          <MenuItem key={f.filter} value={f.filter}>
+            {f.name}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>
