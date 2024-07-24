@@ -1,6 +1,5 @@
 import SessionReact from "supertokens-auth-react/recipe/session";
 import { useRouter } from "next/router";
-import MyResponsesPageComponent from "@/components/myResponses/myResponsesPage";
 import Loading from "@/components/utilityComponents/loadingMainContent";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
 import { useUserData } from "@/utils/authUtils";
@@ -8,6 +7,7 @@ import { fetcher } from "@/utils/swrConfig";
 import { Role } from "@prisma/client";
 import useSWR from "swr";
 import Error from "next/error";
+import ResponsesTabulator from "@/components/surveyStats/responsesTabulator";
 
 function ProtectedPage() {
   const router = useRouter();
@@ -32,7 +32,7 @@ function ProtectedPage() {
       />
     );
 
-  return <MyResponsesPageComponent survey={data.survey} />;
+  return <ResponsesTabulator survey={data.survey} myResponses />;
 }
 
 export default function MyResponsesPage() {
@@ -42,3 +42,4 @@ export default function MyResponsesPage() {
     </SessionReact.SessionAuth>
   );
 }
+

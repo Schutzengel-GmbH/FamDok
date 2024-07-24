@@ -1,29 +1,33 @@
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
-import { useResponses } from "@/utils/apiHooks";
+import { useMyResponses, useResponses } from "@/utils/apiHooks";
 import { IFamilyFilter, IFilter, IGeneralFilter } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
-  applyFamilyFilter,
   allResponsesColumnDefinition,
   familyColumnsDefinition,
   getWhereInputFromFamilyFilters,
   globalOptions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
-import { FileDownload, FilterAlt } from "@mui/icons-material";
-import { Accordion, AccordionSummary, Button } from "@mui/material";
+import { FilterAlt } from "@mui/icons-material";
+import { Accordion, AccordionSummary } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { format, isSameDay, startOfYear } from "date-fns";
+import { startOfYear } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { exportBlob } from "@/utils/utils";
-import { getFullResponseJson } from "@/components/surveyStats/getJson";
 import DownloadButtons from "@/components/utilityComponents/tabulatorDownloadButtons";
+import { useRouter } from "next/router";
 
-export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
+export default function ResponsesTabulator({
+  survey,
+  myResponses,
+}: {
+  survey: FullSurvey;
+  myResponses: boolean;
+}) {
   const [filters, setFilters] = useState<{
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
@@ -39,6 +43,7 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
       },
     ],
   });
+  const router = useRouter();
   const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
     AND: [
       ...filters.filters.map(getWhereInput),
@@ -175,12 +180,20 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
       };
   }
 
-  const { responses } = useResponses(survey.id, whereInput);
+  const { responses } = myResponses
+    ? useMyResponses(survey.id, whereInput)
+    : useResponses(survey.id, whereInput);
 
   const tableRef = useRef(null);
 
   const columns = useMemo(
     () => [
+      {
+        title: "",
+        headerSort: false,
+        formatter: () => '<i class="fa-solid fa-pen-to-square" />',
+        cellClick: (_e, cell) => editClick(cell.getRow().getData()),
+      },
       ...allAnswersColumnDefinition(survey),
       ...allResponsesColumnDefinition(),
       ...familyColumnsDefinition(survey),
@@ -188,15 +201,22 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
     [survey]
   );
 
+  const data = useMemo(
+    () => responsesToAllAnswersTable(responses),
+    [responses, survey, filters]
+  );
+
   const hasFilters =
     filters.familyFilters?.length > 0 ||
     filters.filters?.length > 0 ||
     filters.generalFilters?.length > 0;
 
-  const data = useMemo(
-    () => responsesToAllAnswersTable(responses),
-    [responses, survey, filters]
-  );
+  function editClick(row) {
+    const surveyId = row.surveyId;
+    const responseId = row.id;
+
+    router.push(`/surveys/${surveyId}/${responseId}`);
+  }
 
   const options = {};
 
@@ -216,7 +236,9 @@ export default function ResponsesTabulator({ survey }: { survey: FullSurvey }) {
               color={hasFilters ? "success" : "disabled"}
               sx={{ mr: "1rem" }}
             />{" "}
-            {filters.familyFilters?.length || filters.filters?.length
+            {filters.familyFilters?.length ||
+            filters.filters?.length ||
+            filters.generalFilters?.length
               ? "Filter bearbeiten"
               : "Filter hinzufügen"}
           </AccordionSummary>

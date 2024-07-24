@@ -32,7 +32,7 @@ function ProtectedPage() {
       />
     );
 
-  return <ResponsesTabulator survey={data.survey} />;
+  return <ResponsesTabulator survey={data.survey} myResponses={false} />;
 }
 
 export default function ResponseStatsPage() {
