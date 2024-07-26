@@ -1,4 +1,5 @@
-import { QuestionType } from "@prisma/client";
+import { FullSurvey } from "@/types/prismaHelperTypes";
+import { Prisma, QuestionType } from "@prisma/client";
 
 export interface IFilter {
   name?: string;
@@ -111,3 +112,116 @@ export interface SelectFilterProps {
   onChange: (filter: IFilter, value?: any) => void;
 }
 
+export function getWhereInput(
+  filter: IFilter,
+  survey: FullSurvey
+): Prisma.ResponseWhereInput {
+  if (!filter?.questionId) return {};
+
+  if (filter.value === null || filter.value === undefined) return {};
+
+  const question = survey?.questions?.find((q) => q.id === filter?.questionId);
+
+  let answerField: string;
+
+  switch (question?.type) {
+    case "Text":
+      answerField = "answerText";
+      break;
+    case "Bool":
+      answerField = "answerBool";
+      break;
+    case "Int":
+      answerField = "answerInt";
+      break;
+    case "Num":
+      answerField = "answerNum";
+      break;
+    case "Select":
+      answerField = "answerSelect";
+      break;
+    case "Date":
+      answerField = "answerDate";
+      break;
+    case "Scale":
+      answerField = "answerSelect";
+      break;
+  }
+
+  if (filter?.filter === "empty")
+    return {
+      answers: {
+        some: {
+          questionId: question?.id || undefined,
+
+          [answerField]: {
+            equals: null,
+          },
+        },
+      },
+    };
+
+  if (filter?.filter === "notEmpty")
+    return {
+      answers: {
+        some: {
+          questionId: question?.id || undefined,
+          [answerField]: {
+            not: null,
+          },
+        },
+      },
+    };
+
+  if (answerField === "answerSelect")
+    return {
+      answers: {
+        some: {
+          questionId: question?.id,
+          answerSelect: {
+            some: {
+              id: { [filter.filter]: filter.value.map((o) => o.id) },
+            },
+          },
+        },
+      },
+    };
+  else
+    return {
+      answers: {
+        some: {
+          questionId: question?.id || undefined,
+          [answerField]: filter
+            ? {
+                [filter.filter]: filter.value,
+                mode: answerField === "answerText" ? "insensitive" : undefined,
+              }
+            : null,
+        },
+      },
+    };
+}
+
+export function getGeneralWhereInput(
+  generalFilter: IGeneralFilter
+): Prisma.ResponseWhereInput {
+  if (!generalFilter?.field) return {};
+
+  console.log(generalFilter);
+
+  switch (generalFilter.field) {
+    case "responseCreatedBy":
+      return {
+        user: {
+          name: {
+            [generalFilter.filter]: generalFilter.value,
+            mode: "insensitive",
+          },
+        },
+      };
+    case "responseCreatedAt":
+      return { createdAt: { [generalFilter.filter]: generalFilter.value } };
+    default:
+      return {};
+  }
+}

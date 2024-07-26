@@ -1,14 +1,28 @@
 import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
 import {
+  FullAnswer,
   FullFamily,
+  FullQuestion,
   FullResponse,
   FullSurvey,
   FullUser,
   IAnswerSelectOtherValue,
 } from "@/types/prismaHelperTypes";
 import { IFamilyFilter } from "@/utils/filters";
-import { getEducationString, isHigherEducation } from "@/utils/utils";
-import { Prisma, QuestionType, User } from "@prisma/client";
+import {
+  getAnswerString,
+  getEducationString,
+  isHigherEducation,
+} from "@/utils/utils";
+import {
+  Answer,
+  Organization,
+  Prisma,
+  Question,
+  QuestionType,
+  SubOrganization,
+  User,
+} from "@prisma/client";
 import {
   compareAsc,
   compareDesc,
@@ -179,10 +193,48 @@ function underageCaregiverAtBegin(family: FullFamily): boolean {
   return false;
 }
 
-const userFormatter: Tabulator.Formatter = (cell: Tabulator.CellComponent) => {
-  const user = cell.getValue() as User;
-  if (!user) return "Kein Benutzer";
-  return user.name || user.email || "Unbekannter Benutzer";
+function stringMemberFormatter<T>(
+  field: keyof T,
+  defaultValue?: string
+): Tabulator.Formatter {
+  return (cell) => {
+    if (!cell?.getValue()) return defaultValue || "";
+    return cell.getValue()[field];
+  };
+}
+
+const userFormatter = stringMemberFormatter<User>("name", "Kein Name");
+const organizationFormatter = stringMemberFormatter<Organization>(
+  "name",
+  "Keine Organisation"
+);
+const subOrganizationFormatter = stringMemberFormatter<SubOrganization>(
+  "name",
+  "Keine Unterorganisation"
+);
+const answerFormatter: Tabulator.Formatter = (cell) => {
+  const answer = cell.getValue() as FullAnswer;
+  if (!answer) return "Keine Antwort";
+  const type = answer.question.type;
+
+  switch (type) {
+    case "Text":
+      return answer.answerText;
+    case "Bool":
+      return String(answer.answerBool);
+    case "Int":
+      return String(answer.answerInt);
+    case "Num":
+      return String(answer.answerNum);
+    case "Select":
+      return "SELECT NOT IMPLEMENTED";
+    case "Date":
+      return new Date(answer.answerDate).toLocaleDateString();
+    case "Scale":
+      return "SCALE NOT IMPLEMENTED";
+    default:
+      return "";
+  }
 };
 
 const dateFormatter: Tabulator.Formatter = (
@@ -200,9 +252,17 @@ const dateSorter = (a: Date, b: Date) => {
   return compareAsc(dateA, dateB);
 };
 
-const userSorter = (a: User, b: User) => {
-  return a.name.localeCompare(b.name);
-};
+function stringMemberSorter<T>(field: keyof T) {
+  return (a: T, b: T) => {
+    if (typeof a[field] !== "string")
+      throw new Error(`${typeof a}.${String(field)} is not a string`);
+    return (a[field] as string).localeCompare(b[field] as string);
+  };
+}
+
+const userSorter = stringMemberSorter<User>("name");
+const organizationSorter = stringMemberSorter<Organization>("name");
+const subOrganizationSorter = stringMemberSorter<SubOrganization>("name");
 
 export const globalOptions = {
   headerSortElement: (row, dir) => {
@@ -573,12 +633,167 @@ export function answersPerUserDashboardData(
 ): DashboardPerUserData[] {
   let data: DashboardPerUserData[] = [];
 
+  if (!responses) return data;
+
   for (const response of responses) {
-    const i = data.findIndex((d) => d.user.id === response.user.id);
+    const i = data.findIndex((d) => d.user?.id === response.user?.id);
     if (i >= 0) {
       data[i].num++;
     } else {
       data.push({ user: response.user, num: 1 });
+    }
+  }
+
+  return data;
+}
+
+export const dashboardPerOrgColumnDefinitions: ColumnDefinition[] = [
+  {
+    title: "Organisation",
+    field: "organization",
+    formatter: organizationFormatter,
+    sorter: organizationSorter,
+    headerSortTristate: true,
+  },
+  { title: "Anzahl Antworten", field: "num" },
+];
+
+type DashboardPerOrgData = {
+  organization: Organization;
+  num: number;
+};
+
+export function answersPerOrgDashboardData(
+  responses: FullResponse[]
+): DashboardPerOrgData[] {
+  let data: DashboardPerOrgData[] = [{ organization: null, num: 0 }];
+
+  if (!responses) return data;
+
+  for (const response of responses) {
+    if (!response.user?.organization) {
+      data[0].num++;
+    } else {
+      const i = data.findIndex(
+        (d) => d.organization?.id === response.user?.organizationId
+      );
+      if (i >= 0) {
+        data[i].num++;
+      } else {
+        data.push({
+          organization: response.user?.organization,
+          num: 1,
+        });
+      }
+    }
+  }
+
+  return data;
+}
+
+export const dashboardPerSubOrgColumnDefinitions: ColumnDefinition[] = [
+  {
+    title: "Unterorganisation",
+    field: "subOrganization",
+    formatter: subOrganizationFormatter,
+    sorter: subOrganizationSorter,
+    headerSortTristate: true,
+  },
+  { title: "Anzahl Antworten", field: "num" },
+];
+
+type DashboardPerSubOrgData = {
+  subOrganization: SubOrganization;
+  num: number;
+};
+
+export function answersPerSubOrgDashboardData(
+  responses: FullResponse[]
+): DashboardPerSubOrgData[] {
+  let data: DashboardPerSubOrgData[] = [{ subOrganization: null, num: 0 }];
+
+  if (!responses) return data;
+
+  for (const response of responses) {
+    if (
+      !response.user?.subOrganizations ||
+      response.user.subOrganizations.length === 0
+    ) {
+      data[0].num++;
+    } else {
+      const i = data.findIndex((d) =>
+        response.user?.subOrganizations?.find(
+          (s) => s.id === d.subOrganization?.id
+        )
+      );
+      if (i >= 0) {
+        data[i].num++;
+      } else {
+        data.push({
+          subOrganization: response.user?.subOrganizations[0],
+          num: 1,
+        });
+      }
+    }
+  }
+
+  return data;
+}
+
+//TODO:
+export const dashboardPerQuestionColumnDefinitions: ColumnDefinition[] = [
+  {
+    title: "Antwort",
+    field: "answerString",
+    formatter: "plaintext",
+    headerSortTristate: true,
+  },
+  { title: "Anzahl Antworten", field: "num" },
+];
+
+type DashboardPerQuestionData = {
+  answerString: string;
+  num: number;
+};
+
+export function answersPerQuestionDashboardData(
+  responses: FullResponse[],
+  question: FullQuestion
+): DashboardPerQuestionData[] {
+  let data: DashboardPerQuestionData[] = [
+    { answerString: "Keine Antwort", num: 0 },
+  ];
+  if (!question || !responses) return data;
+
+  for (const response of responses) {
+    const answer = response.answers.find((a) => a.questionId === question.id);
+    if (!answer) data[0].num++;
+    else {
+      if (question.type === "Select") {
+        if (answer.answerSelect)
+          for (const selectOption of answer.answerSelect) {
+            const i = data.findIndex(
+              (d) => d.answerString === selectOption.value
+            );
+            if (i >= 0) data[i].num++;
+            else data.push({ answerString: selectOption.value, num: 1 });
+          }
+
+        if (answer.answerSelectOtherValues)
+          for (const otherValue of answer.answerSelectOtherValues as IAnswerSelectOtherValue[]) {
+            const i = data.findIndex(
+              (d) => d.answerString === otherValue.value
+            );
+            if (i >= 0) data[i].num++;
+            else data.push({ answerString: otherValue.value, num: 1 });
+          }
+      } else {
+        const i = data.findIndex(
+          (d) => d.answerString === getAnswerString(answer)
+        );
+        if (i >= 0) data[i].num++;
+        else data.push({ answerString: getAnswerString(answer), num: 1 });
+      }
     }
   }
 

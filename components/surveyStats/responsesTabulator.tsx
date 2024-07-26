@@ -1,7 +1,13 @@
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useMyResponses, useResponses } from "@/utils/apiHooks";
-import { IFamilyFilter, IFilter, IGeneralFilter } from "@/utils/filters";
+import {
+  getGeneralWhereInput,
+  getWhereInput,
+  IFamilyFilter,
+  IFilter,
+  IGeneralFilter,
+} from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
   allResponsesColumnDefinition,
@@ -46,7 +52,7 @@ export default function ResponsesTabulator({
   const router = useRouter();
   const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
     AND: [
-      ...filters.filters.map(getWhereInput),
+      ...filters.filters.map((f) => getWhereInput(f, survey)),
       ...filters.generalFilters.map(getGeneralWhereInput),
     ],
     family: survey.hasFamily
@@ -57,7 +63,7 @@ export default function ResponsesTabulator({
   useEffect(() => {
     setWhereInput({
       AND: [
-        ...filters.filters.map(getWhereInput),
+        ...filters.filters.map((f) => getWhereInput(f, survey)),
         ...filters.generalFilters.map(getGeneralWhereInput),
       ],
       family: survey.hasFamily
@@ -65,120 +71,6 @@ export default function ResponsesTabulator({
         : undefined,
     });
   }, [filters]);
-
-  function getGeneralWhereInput(
-    generalFilter: IGeneralFilter
-  ): Prisma.ResponseWhereInput {
-    if (!generalFilter?.field) return {};
-
-    console.log(generalFilter);
-
-    switch (generalFilter.field) {
-      case "responseCreatedBy":
-        return {
-          user: {
-            name: {
-              [generalFilter.filter]: generalFilter.value,
-              mode: "insensitive",
-            },
-          },
-        };
-      case "responseCreatedAt":
-        return { createdAt: { [generalFilter.filter]: generalFilter.value } };
-      default:
-        return {};
-    }
-  }
-
-  function getWhereInput(filter: IFilter): Prisma.ResponseWhereInput {
-    if (!filter?.questionId) return {};
-
-    if (filter.value === null || filter.value === undefined) return {};
-
-    const question = survey?.questions?.find(
-      (q) => q.id === filter?.questionId
-    );
-
-    let answerField: string;
-
-    switch (question?.type) {
-      case "Text":
-        answerField = "answerText";
-        break;
-      case "Bool":
-        answerField = "answerBool";
-        break;
-      case "Int":
-        answerField = "answerInt";
-        break;
-      case "Num":
-        answerField = "answerNum";
-        break;
-      case "Select":
-        answerField = "answerSelect";
-        break;
-      case "Date":
-        answerField = "answerDate";
-        break;
-      case "Scale":
-        answerField = "answerSelect";
-        break;
-    }
-
-    if (filter?.filter === "empty")
-      return {
-        answers: {
-          some: {
-            questionId: question?.id || undefined,
-
-            [answerField]: {
-              equals: null,
-            },
-          },
-        },
-      };
-
-    if (filter?.filter === "notEmpty")
-      return {
-        answers: {
-          some: {
-            questionId: question?.id || undefined,
-            [answerField]: {
-              not: null,
-            },
-          },
-        },
-      };
-
-    if (answerField === "answerSelect")
-      return {
-        answers: {
-          some: {
-            questionId: question?.id,
-            answerSelect: {
-              some: {
-                id: { [filter.filter]: filter.value.map((o) => o.id) },
-              },
-            },
-          },
-        },
-      };
-    else
-      return {
-        answers: {
-          some: {
-            questionId: question?.id || undefined,
-            [answerField]: filter
-              ? {
-                  [filter.filter]: filter.value,
-                  mode:
-                    answerField === "answerText" ? "insensitive" : undefined,
-                }
-              : null,
-          },
-        },
-      };
-  }
 
   const { responses } = myResponses
     ? useMyResponses(survey.id, whereInput)
