@@ -207,8 +207,6 @@ export function getGeneralWhereInput(
 ): Prisma.ResponseWhereInput {
   if (!generalFilter?.field) return {};
 
-  console.log(generalFilter);
-
   switch (generalFilter.field) {
     case "responseCreatedBy":
       return {
@@ -225,3 +223,4 @@ export function getGeneralWhereInput(
       return {};
   }
 }
+

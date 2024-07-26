@@ -53,7 +53,6 @@ export default async function families(
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
-  console.log(whereInput);
   let where: Prisma.FamilyWhereInput = whereInput
     ? JSON.parse(whereInput as string)
     : {};
@@ -63,7 +62,6 @@ export default async function families(
 
   switch (req.method) {
     case "GET":
-      console.log(where);
       const families = await prisma.family
         .findMany({
           include: {
