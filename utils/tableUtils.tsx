@@ -76,7 +76,11 @@ export function responsesToAllAnswersTable(
 
     data.id = response.id;
     data.surveyId = response.surveyId;
-    data.responseCreatedBy = response.user;
+    data.responseCreatedBy = {
+      ...response.user,
+      //@ts-ignore
+      subOrganizations: response?.user?.subOrganizations?.map((o) => o.name),
+    };
     data.responseCreatedAt = new Date(response.createdAt);
 
     for (const answer of response.answers) {
@@ -174,7 +178,11 @@ export function getFamilyData(family: FullFamily): FamilyTableData {
 
   data["underage"] = underageCaregiverAtBegin(family);
 
-  data["createdBy"] = family.createdBy;
+  data["createdBy"] = {
+    ...family.createdBy,
+    subOrganizations:
+      family?.createdBy?.subOrganizations?.map((o) => o.name) || [],
+  };
   data["createdAt"] = new Date(family.createdAt);
 
   return data;
@@ -408,10 +416,29 @@ export function familyColumnsDefinition(
           },
           {
             title: "Verantwortlich",
-            field: "createdBy",
-            formatter: userFormatter,
-            formatterParams: { allowEmpty: true },
-            headerSortTristate: true,
+            columns: [
+              {
+                title: "Fachkraft",
+                field: "createdBy.name",
+                headerSortTristate: true,
+              },
+              {
+                title: "Organisation",
+                field: "createdBy.organization.name",
+                headerSortTristate: true,
+              },
+              {
+                title: "Unterorganisation",
+                field: "createdBy.subOrganizations",
+                formatter: (cell) => {
+                  if (!cell?.getValue()) return "";
+                  return (cell.getValue() as string[]).reduce(
+                    (acc, n) => (acc === "" ? n : acc + ", " + n),
+                    ""
+                  );
+                },
+              },
+            ],
           },
           {
             title: "Minderjährigkeit bei Betreuungsbeginn",
@@ -429,10 +456,29 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
   return [
     {
       title: "Erstellt von",
-      field: "responseCreatedBy",
-      formatter: userFormatter,
-      sorter: userSorter,
-      headerSortTristate: true,
+      columns: [
+        {
+          title: "Fachkraft",
+          field: "responseCreatedBy.name",
+          headerSortTristate: true,
+        },
+        {
+          title: "Organisation",
+          field: "responseCreatedBy.organization.name",
+          headerSortTristate: true,
+        },
+        {
+          title: "Unterorganisation",
+          field: "responseCreatedBy.subOrganizations",
+          formatter: (cell) => {
+            if (!cell?.getValue()) return "";
+            return (cell.getValue() as string[]).reduce(
+              (acc, n) => (acc === "" ? n : acc + ", " + n),
+              ""
+            );
+          },
+        },
+      ],
     },
     {
       title: "Erstellt am",
