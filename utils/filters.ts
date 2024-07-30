@@ -15,10 +15,15 @@ export interface IFamilyFilter {
   value?: any;
 }
 
+export type GeneralFilterFields =
+  | "responseCreatedBy"
+  | "responseCreatedAt"
+  | "responseCreatedByOrg";
+
 export interface IGeneralFilter {
   name?: string;
   filter?: FilterType;
-  field?: "responseCreatedBy" | "responseCreatedAt";
+  field?: GeneralFilterFields;
   value?: any;
 }
 
@@ -218,6 +223,15 @@ export function getGeneralWhereInput(
       };
     case "responseCreatedAt":
       return { createdAt: { [generalFilter.filter]: generalFilter.value } };
+    case "responseCreatedByOrg":
+      const org = generalFilter?.value?.organization;
+      const subOrg = generalFilter?.value?.subOrganization;
+      return {
+        user: {
+          organizationId: org?.id,
+          subOrganizations: subOrg ? { some: { id: subOrg?.id } } : undefined,
+        },
+      };
     default:
       return {};
   }

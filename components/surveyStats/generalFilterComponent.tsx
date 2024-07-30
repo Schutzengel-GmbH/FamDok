@@ -1,8 +1,10 @@
+import SelectOrgOrSubOrg from "@/components/surveyStats/selectOrgOrSubOrg";
 import UserSelectId from "@/components/surveyStats/userSelectId";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import {
   DateFilters,
   FilterType,
+  GeneralFilterFields,
   IFilter,
   IGeneralFilter,
   TextFilters,
@@ -16,6 +18,7 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
+import { Organization, SubOrganization } from "@prisma/client";
 
 interface GeneralFilterProps {
   survey: FullSurvey;
@@ -28,6 +31,7 @@ export default function GeneralFilterComponent({
   generalFilter,
   onChange,
 }: GeneralFilterProps) {
+  console.log(generalFilter);
   return (
     <Box
       sx={{
@@ -61,7 +65,12 @@ function SelectField({ generalFilter, onChange }: GeneralFilterSelectProps) {
         labelId="fieldLabel"
         label={"Eigenschaft"}
         value={generalFilter?.field || ""}
-        onChange={(e) => onChange({ ...generalFilter, field: e.target.value })}
+        onChange={(e) =>
+          onChange({
+            ...generalFilter,
+            field: e.target.value as GeneralFilterFields,
+          })
+        }
       >
         <MenuItem key={0} value={"responseCreatedBy"}>
           Erstellt von
@@ -69,15 +78,16 @@ function SelectField({ generalFilter, onChange }: GeneralFilterSelectProps) {
         <MenuItem key={1} value={"responseCreatedAt"}>
           Erstellt am
         </MenuItem>
+        <MenuItem key={2} value={"responseCreatedByOrg"}>
+          Organisation/Unterorganisation
+        </MenuItem>
       </Select>
     </FormControl>
   );
 }
 
 function SelectFilter({ generalFilter, onChange }: GeneralFilterSelectProps) {
-  function availableFilters(
-    field: "responseCreatedBy" | "responseCreatedAt"
-  ): IFilter[] {
+  function availableFilters(field: GeneralFilterFields): IFilter[] {
     switch (field) {
       case "responseCreatedBy":
         return [];
@@ -130,6 +140,19 @@ function ValueInput({ generalFilter, onChange }: GeneralFilterSelectProps) {
           onChange={(id) => onChange({ ...generalFilter, value: id })}
         />
       );
+    case "responseCreatedByOrg":
+      return (
+        <SelectOrgOrSubOrg
+          organization={generalFilter?.value?.organization}
+          subOrganization={generalFilter?.value?.subOrganization}
+          onChange={(org, subOrg) =>
+            onChange({
+              ...generalFilter,
+              value: { organization: org, subOrganization: subOrg },
+            })
+          }
+        />
+      );
     default:
       return <></>;
   }
@@ -137,6 +160,6 @@ function ValueInput({ generalFilter, onChange }: GeneralFilterSelectProps) {
 
 interface GeneralFilterSelectProps {
   generalFilter: IGeneralFilter;
-  onChange: (IGeneralFilter) => void;
+  onChange: (filter: IGeneralFilter) => void;
 }
 
