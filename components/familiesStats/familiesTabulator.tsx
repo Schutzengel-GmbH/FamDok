@@ -30,8 +30,6 @@ export default function FamiliesTabulator() {
   const [familyFilters, setFamilyFilters] = useState<IFamilyFilter[]>([]);
   const tableRef = useRef(null);
 
-  console.log(getWhereInputFromFamilyFilters(familyFilters));
-
   const { families } =
     user?.role === "USER"
       ? useMyFamilies(getWhereInputFromFamilyFilters(familyFilters))

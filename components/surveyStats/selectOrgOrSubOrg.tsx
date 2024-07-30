@@ -50,6 +50,9 @@ export default function SelectOrgOrSubOrg({
             )
           }
         >
+          <MenuItem key={"ALL"} value={undefined}>
+            Alle
+          </MenuItem>
           {suborganizations.map((s) => (
             <MenuItem key={s.id} value={s.id}>
               {s.name}
