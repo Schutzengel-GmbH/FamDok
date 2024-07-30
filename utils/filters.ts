@@ -211,9 +211,8 @@ export function getGeneralWhereInput(
     case "responseCreatedBy":
       return {
         user: {
-          name: {
-            [generalFilter.filter]: generalFilter.value,
-            mode: "insensitive",
+          id: {
+            equals: generalFilter.value,
           },
         },
       };

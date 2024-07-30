@@ -564,7 +564,7 @@ export function getWhereInputFromFamilyFilters(
   let whereInputs: Prisma.FamilyWhereInput[] = [];
 
   for (const filter of familyFilters) {
-    if (!filter?.field || !filter.filter) break;
+    if (!filter?.field) break;
 
     switch (filter.field as FamilyFields) {
       case "familyNumber":
@@ -650,6 +650,9 @@ export function getWhereInputFromFamilyFilters(
           whereInputs.push({
             children: { none: { psychDiagosis: true } },
           });
+        break;
+      case "createdBy":
+        whereInputs.push({ createdBy: { id: filter.value } });
         break;
     }
   }

@@ -1,3 +1,4 @@
+import UserSelectId from "@/components/surveyStats/userSelectId";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import {
   DateFilters,
@@ -79,13 +80,15 @@ function SelectFilter({ generalFilter, onChange }: GeneralFilterSelectProps) {
   ): IFilter[] {
     switch (field) {
       case "responseCreatedBy":
-        return TextFilters;
+        return [];
       case "responseCreatedAt":
         return DateFilters;
       default:
         return [];
     }
   }
+
+  if (availableFilters(generalFilter?.field).length < 1) return <></>;
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -121,11 +124,10 @@ function ValueInput({ generalFilter, onChange }: GeneralFilterSelectProps) {
       );
     case "responseCreatedBy":
       return (
-        <TextField
-          value={generalFilter.value}
-          onChange={(e) =>
-            onChange({ ...generalFilter, value: e.target.value || undefined })
-          }
+        <UserSelectId
+          sx={{ width: "60%" }}
+          userId={generalFilter.value}
+          onChange={(id) => onChange({ ...generalFilter, value: id })}
         />
       );
     default:

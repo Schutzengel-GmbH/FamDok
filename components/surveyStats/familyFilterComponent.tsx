@@ -1,3 +1,4 @@
+import UserSelectId from "@/components/surveyStats/userSelectId";
 import survey from "@/pages/api/surveys/[survey]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import {
@@ -104,6 +105,9 @@ function SelectField({ familyFilter, onChange }: FamilyFilterSelectProps) {
         <MenuItem key={12} value={"endOfCare"}>
           Ende der Betreuung
         </MenuItem>
+        <MenuItem key={13} value={"createdBy"}>
+          Verantwortlich
+        </MenuItem>
       </Select>
     </FormControl>
   );
@@ -122,9 +126,14 @@ export type FamilyFields =
   | "highestEducation"
   | "otherInstalledProfessionals"
   | "comingFrom"
-  | "endOfCare";
+  | "endOfCare"
+  | "createdBy";
 
 function SelectFilter({ familyFilter, onChange }: FamilyFilterSelectProps) {
+  const filters = availableFilters(familyFilter?.field as FamilyFields);
+
+  if (filters.length < 1) return <></>;
+
   return (
     <FormControl sx={{ width: "25%" }}>
       <InputLabel id="filterLabel">Filter</InputLabel>
@@ -172,6 +181,8 @@ function availableFilters(field: FamilyFields): IFilter[] {
       return [];
     case "endOfCare":
       return DateFilters;
+    case "createdBy":
+      return [];
     default:
       return [];
   }
@@ -220,6 +231,14 @@ function ValueInput({ familyFilter, onChange }: FamilyFilterSelectProps) {
     case "caregiverWithPsychDiagnosis":
     case "migrationBackground":
       return <></>;
+    case "createdBy":
+      return (
+        <UserSelectId
+          sx={{ width: "60%" }}
+          userId={familyFilter.value}
+          onChange={(id) => onChange({ ...familyFilter, value: id })}
+        />
+      );
     default:
       return <></>;
   }
