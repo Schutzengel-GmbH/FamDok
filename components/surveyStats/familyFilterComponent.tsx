@@ -1,5 +1,5 @@
+import SelectOrgOrSubOrg from "@/components/surveyStats/selectOrgOrSubOrg";
 import UserSelectId from "@/components/surveyStats/userSelectId";
-import survey from "@/pages/api/surveys/[survey]";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import {
   BoolFilters,
@@ -106,7 +106,10 @@ function SelectField({ familyFilter, onChange }: FamilyFilterSelectProps) {
           Ende der Betreuung
         </MenuItem>
         <MenuItem key={13} value={"createdBy"}>
-          Verantwortlich
+          Verantwortliche Fachkraft
+        </MenuItem>
+        <MenuItem key={14} value={"createdByOrgOrSubOrg"}>
+          Verantwortliche Organisation/Unterorganisation
         </MenuItem>
       </Select>
     </FormControl>
@@ -127,7 +130,8 @@ export type FamilyFields =
   | "otherInstalledProfessionals"
   | "comingFrom"
   | "endOfCare"
-  | "createdBy";
+  | "createdBy"
+  | "createdByOrgOrSubOrg";
 
 function SelectFilter({ familyFilter, onChange }: FamilyFilterSelectProps) {
   const filters = availableFilters(familyFilter?.field as FamilyFields);
@@ -182,6 +186,7 @@ function availableFilters(field: FamilyFields): IFilter[] {
     case "endOfCare":
       return DateFilters;
     case "createdBy":
+    case "createdByOrgOrSubOrg":
       return [];
     default:
       return [];
@@ -237,6 +242,19 @@ function ValueInput({ familyFilter, onChange }: FamilyFilterSelectProps) {
           sx={{ width: "60%" }}
           userId={familyFilter.value}
           onChange={(id) => onChange({ ...familyFilter, value: id })}
+        />
+      );
+    case "createdByOrgOrSubOrg":
+      return (
+        <SelectOrgOrSubOrg
+          organization={familyFilter?.value?.organization}
+          subOrganization={familyFilter?.value?.subOrganization}
+          onChange={(org, subOrg) =>
+            onChange({
+              ...familyFilter,
+              value: { organization: org, subOrganization: subOrg },
+            })
+          }
         />
       );
     default:

@@ -40,7 +40,7 @@ export default function SelectOrgOrSubOrg({
           ))}
         </Select>
       )}
-      {suborganizations && (
+      {suborganizations && suborganizations.length > 0 && (
         <Select
           value={subOrganization?.id}
           onChange={(e) =>

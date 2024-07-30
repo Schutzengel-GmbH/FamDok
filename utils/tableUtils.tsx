@@ -654,6 +654,16 @@ export function getWhereInputFromFamilyFilters(
       case "createdBy":
         whereInputs.push({ createdBy: { id: filter.value } });
         break;
+      case "createdByOrgOrSubOrg":
+        const org = filter?.value?.organization;
+        const subOrg = filter?.value?.subOrganization;
+        whereInputs.push({
+          createdBy: {
+            organizationId: org?.id,
+            subOrganizations: subOrg ? { some: { id: subOrg?.id } } : undefined,
+          },
+        });
+        break;
     }
   }
 
