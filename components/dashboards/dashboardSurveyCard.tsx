@@ -25,7 +25,7 @@ export default function DashboardSurveyCard({
           action: navigate(`/surveys/${survey.id}/stats`),
         },
         {
-          title: "Dashboard?",
+          title: "Dashboard",
           icon: <QueryStats />,
           action: navigate(`/surveys/${survey.id}/dashboard`),
         },
@@ -33,3 +33,4 @@ export default function DashboardSurveyCard({
     />
   );
 }
+

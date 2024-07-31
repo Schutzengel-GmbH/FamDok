@@ -674,9 +674,7 @@ export function getWhereInputFromFamilyFilters(
 export const dashboardPerUserColumnDefinitions: ColumnDefinition[] = [
   {
     title: "Benutzer*in",
-    field: "user",
-    formatter: userFormatter,
-    sorter: userSorter,
+    field: "user.name",
     headerSortTristate: true,
   },
   { title: "Anzahl Antworten", field: "num" },
@@ -709,9 +707,7 @@ export function answersPerUserDashboardData(
 export const dashboardPerOrgColumnDefinitions: ColumnDefinition[] = [
   {
     title: "Organisation",
-    field: "organization",
-    formatter: organizationFormatter,
-    sorter: organizationSorter,
+    field: "organization.name",
     headerSortTristate: true,
   },
   { title: "Anzahl Antworten", field: "num" },
@@ -753,9 +749,7 @@ export function answersPerOrgDashboardData(
 export const dashboardPerSubOrgColumnDefinitions: ColumnDefinition[] = [
   {
     title: "Unterorganisation",
-    field: "subOrganization",
-    formatter: subOrganizationFormatter,
-    sorter: subOrganizationSorter,
+    field: "subOrganization.name",
     headerSortTristate: true,
   },
   { title: "Anzahl Antworten", field: "num" },

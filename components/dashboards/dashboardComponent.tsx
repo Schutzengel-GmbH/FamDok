@@ -1,5 +1,5 @@
+import DashboardDownloadButtons from "@/components/dashboards/dashboardDownloadButtons";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
-import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
 import {
@@ -127,6 +127,7 @@ export default function Dashboard({ survey }: DashboardProps) {
           onChange={setFilters}
         />
       </Box>
+      <DashboardDownloadButtons tableRef={tableRef} />
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columnDef}
