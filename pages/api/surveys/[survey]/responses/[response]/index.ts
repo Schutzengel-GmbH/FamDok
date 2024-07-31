@@ -78,7 +78,12 @@ export default async function response(
         answers: {
           include: {
             answerSelect: true,
-            question: { include: { selectOptions: true } },
+            question: {
+              include: {
+                defaultAnswerSelectOptions: true,
+                selectOptions: true,
+              },
+            },
           },
         },
         user: { include: { organization: true, subOrganizations: true } },
@@ -92,8 +97,8 @@ export default async function response(
             },
           },
         },
-        caregiver: true,
         child: true,
+        caregiver: true,
       },
     });
 
@@ -162,3 +167,4 @@ export default async function response(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

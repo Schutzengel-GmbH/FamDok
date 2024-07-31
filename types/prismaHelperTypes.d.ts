@@ -4,7 +4,6 @@ export type FullResponse = Prisma.ResponseGetPayload<{
   include: {
     answers: {
       include: {
-        defaultAnswerSelectOptions: true;
         answerSelect: true;
         question: {
           include: { defaultAnswerSelectOptions: true; selectOptions: true };
