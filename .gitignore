@@ -48,3 +48,6 @@ certbot/
 # logging
 logfile.log
 app.log
+
+# editor files
+packer.nvim

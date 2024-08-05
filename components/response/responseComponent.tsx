@@ -22,6 +22,7 @@ import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
 import { useFamily } from "@/utils/apiHooks";
 import { IFamilies } from "@/pages/api/families";
+import { Prisma } from "@prisma/client";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
@@ -101,7 +102,11 @@ export default function ResponseComponent({
   }
 
   async function createResponseForFamily(familyNumber: number) {
-    const res = await apiGet<IFamilies>(`/api/families?number=${familyNumber}`);
+    const res = await apiGet<IFamilies>(
+      `/api/families?whereInput=${JSON.stringify({
+        number: familyNumber,
+      } as Prisma.FamilyWhereInput)}`
+    );
     if (res instanceof FetchError) {
       addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
@@ -269,3 +274,4 @@ function isSameRelation(
     relationA?.child?.id == relationB?.child?.id
   );
 }
+

@@ -1,9 +1,11 @@
 import {
   AppBar,
   IconButton,
+  Paper,
   SwipeableDrawer,
   Toolbar,
   Typography,
+  useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AccountCircle } from "@mui/icons-material";
@@ -15,11 +17,14 @@ import Session, {
 import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
 import { useRouter } from "next/router";
 import NavMenuComponent from "@/components/appBar/navMenu";
-import { env } from "process";
+import { useConfig } from "../utilityComponents/conficContext";
 
 export default function MainAppBar() {
   let sessionContext = Session.useSessionContext() as SessionContextType &
     SessionContextUpdate;
+
+  const theme = useTheme();
+  const settings = useConfig();
 
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<
     HTMLElement | undefined
@@ -85,6 +90,18 @@ export default function MainAppBar() {
           onClose={() => setNavMenuOpen(false)}
         />
       </SwipeableDrawer>
+      {settings?.maintenanceMessage && (
+        <Paper
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: theme.palette.error.light,
+          }}
+          elevation={6}
+        >
+          {settings.maintenanceMessage}
+        </Paper>
+      )}
     </AppBar>
   );
 }

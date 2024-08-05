@@ -7,6 +7,7 @@ import {
   Typography,
   Tooltip,
   LinearProgress,
+  Divider,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { NextRouter } from "next/router";
@@ -60,6 +61,12 @@ export default function UserMenuComponent({
           </ListItemIcon>
           <ListItemText>Abmelden</ListItemText>
         </MenuItem>
+        <Divider />
+        {process.env.NEXT_PUBLIC_VER && (
+          <Typography sx={{ textAlign: "right", fontSize: "small" }}>
+            v{process.env.NEXT_PUBLIC_VER}
+          </Typography>
+        )}
       </Box>
     </Menu>
   );

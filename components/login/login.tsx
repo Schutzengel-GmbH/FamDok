@@ -2,6 +2,7 @@ import { Alert, Box, Button, TextField } from "@mui/material";
 import Link from "next/link";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { signIn } from "supertokens-auth-react/recipe/emailpassword";
+import { useConfig } from "../utilityComponents/conficContext";
 
 export function LoginComponent() {
   const [email, setEmail] = useState("");
@@ -59,10 +60,9 @@ export function LoginComponent() {
           onChange={handlePasswordInput}
           type="password"
         />
-        <Link href={"/requestPassword"}>Passwort vergessen? Hier klicken.</Link>
+        {process.env.NEXT_PUBLIC_MANUAL_INVITATION !== "true" && <Link href={"/requestPassword"}>Passwort vergessen? Hier klicken.</Link>}
         <Button type="submit">Anmelden</Button>
       </Box>
     </form>
   );
 }
-

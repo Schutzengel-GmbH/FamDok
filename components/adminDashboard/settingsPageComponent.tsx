@@ -40,7 +40,7 @@ export default function SettingsPageComponent() {
     Object.keys(settings).reduce(
       (prev, key) =>
         prev && settings[key] === config.find((c) => c.name === key)?.value,
-      true
+      true,
     );
 
   return (
@@ -51,10 +51,21 @@ export default function SettingsPageComponent() {
         id={settings?.endOfCareAutoSurveyId || "none"}
         onChange={(name, value) => setSettings({ ...settings, [name]: value })}
       />
+      <StringSettingComponent
+        title="Maintenance-Nachricht"
+        name="maintenanceMessage"
+        value={settings?.maintenanceMessage}
+        onChange={(name, value) => setSettings({ ...settings, [name]: value })}
+      />
+      <StringSettingComponent
+        title="Text für Cookie-Banner"
+        name="cookieOKMessage"
+        value={settings?.cookieOKMessage}
+        onChange={(name, value) => setSettings({ ...settings, [name]: value })}
+      />
       <Button variant="contained" disabled={noChanges} onClick={updateSettings}>
         Update
       </Button>
     </Box>
   );
 }
-

@@ -45,7 +45,7 @@ export default async function myResponses(
     res
   );
   // if it comes here, it means that the session verification was successful
-  const { survey: surveyId } = req.query;
+  const { survey: surveyId, whereInput } = req.query;
 
   let session = req.session;
   const user = await prisma.user
@@ -83,6 +83,9 @@ export default async function myResponses(
     survey: { id: surveyId as string },
   };
   where.userId = user.id;
+
+  const extraWhereInput = whereInput ? JSON.parse(whereInput as string) : {};
+  where = { ...extraWhereInput, ...where };
 
   switch (req.method) {
     case "GET":

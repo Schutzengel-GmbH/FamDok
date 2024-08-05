@@ -1,5 +1,6 @@
 import { useConfigRaw } from "@/utils/apiHooks";
 import { AppConfiguration, AppConfigurationDict } from "@/utils/appConfigUtils";
+import { useTheme } from "@mui/material";
 import { createContext, useContext } from "react";
 
 const ConfigContext = createContext<AppConfiguration>(undefined);
@@ -15,9 +16,23 @@ export function ConfigProvider({ children }) {
     }
   const value = configObject as AppConfiguration;
 
+  const theme = useTheme();
+
   return (
-    <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>
+    <ConfigContext.Provider value={value}>
+      <link
+        rel="stylesheet"
+        type="text/css"
+        href={
+          theme.palette.mode === "dark"
+            ? "/css/css/tabulator_midnight.css"
+            : "/css/css/tabulator_simple.css"
+        }
+      />
+      {children}
+    </ConfigContext.Provider>
   );
 }
 
 export const useConfig = () => useContext(ConfigContext);
+

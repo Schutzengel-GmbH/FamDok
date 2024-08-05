@@ -87,6 +87,13 @@ declare namespace NodeJS {
 /**
      * @example
      * ```
+    process.env.NEXT_PUBLIC_VER
+    ```
+     */
+    NEXT_PUBLIC_VER: string
+/**
+     * @example
+     * ```
     process.env.API_KEY
     ```
      */
@@ -101,10 +108,10 @@ declare namespace NodeJS {
 /**
      * @example
      * ```
-    process.env.MANUAL_INVITATION
+    process.env.NEXT_PUBLIC_MANUAL_INVITATION
     ```
      */
-    MANUAL_INVITATION: string
+    NEXT_PUBLIC_MANUAL_INVITATION: string
 /**
      * @example
      * ```

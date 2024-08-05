@@ -1,10 +1,20 @@
-import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Select,
+  TextField,
+  Typography,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
 import { useUserData } from "@/utils/authUtils";
 import Loading from "@/components/utilityComponents/loadingMainContent";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IUserMe } from "@/pages/api/user/me";
 import useToast from "@/components/notifications/notificationContext";
+import { ColorModeContext, ColorMode } from "@/pages/_app";
 
 export default function EditMe() {
   const { user, isLoading, error, mutate } = useUserData();
@@ -49,6 +59,12 @@ export default function EditMe() {
     }
   }
 
+  const { setColorMode, mode } = useContext(ColorModeContext);
+
+  function handleChangeTheme(e: SelectChangeEvent<typeof mode>) {
+    setColorMode(e.target.value as ColorMode);
+  }
+
   return (
     <Box
       sx={{
@@ -57,7 +73,23 @@ export default function EditMe() {
         gap: "1rem",
       }}
     >
-      <Typography variant="h4">Meine Daten bearbeiten</Typography>
+      <Typography variant="h4">Meine Einstellungen bearbeiten</Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "2rem",
+        }}
+      >
+        <Typography>Farbschema: </Typography>
+        <Select value={mode} onChange={handleChangeTheme}>
+          <MenuItem value={"system"}>System</MenuItem>
+          <MenuItem value={"light"}>Hell</MenuItem>
+          <MenuItem value={"dark"}>Dunkel</MenuItem>
+        </Select>
+      </Box>
 
       <TextField value={name} onChange={handleNameChange} label={"Name"} />
 

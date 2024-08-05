@@ -10,15 +10,31 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
 import { ToastProvider } from "@/components/notifications/notificationContext";
 import { InfoDialogProvider } from "@/components/infoDialog/infoDialogContext";
-import { ThemeProvider, createTheme } from "@mui/material";
-import { DataGrid, deDE } from "@mui/x-data-grid";
+import {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  useMediaQuery,
+} from "@mui/material";
+import { deDE } from "@mui/x-data-grid";
 import { deDE as pickersDeDE } from "@mui/x-date-pickers/locales";
 import { deDE as coreDeDE } from "@mui/material/locale";
 import { ConfigProvider } from "@/components/utilityComponents/conficContext";
+//import "react-tabulator/css/tabulator_midnight.css";
+import "@/utils/tabulator.css";
+import CookieBanner from "@/components/utilityComponents/cookieBanner";
+import "@/public/fontawesome/css/fontawesome.css";
+import "@/public/fontawesome/css/solid.css";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
 }
+
+export type ColorMode = "light" | "dark" | "system";
+export const ColorModeContext = React.createContext({
+  setColorMode: (mode: ColorMode) => {},
+  mode: "system" as ColorMode,
+});
 
 function MyApp({ Component, pageProps }): JSX.Element {
   useEffect(() => {
@@ -38,22 +54,59 @@ function MyApp({ Component, pageProps }): JSX.Element {
     return null;
   }
 
-  const theme = createTheme({}, deDE, pickersDeDE, coreDeDE);
+  const systemPrefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const [mode, setMode] = React.useState<ColorMode>();
+
+  const setColorMode = (mode: ColorMode) => {
+    setMode(mode);
+    localStorage.setItem("colorMode", mode);
+  };
+
+  useEffect(() => {
+    let savedMode = localStorage.getItem("colorMode");
+    if (!savedMode) setMode("system");
+    else if (savedMode !== mode) setMode(savedMode as ColorMode);
+  }, [mode]);
+
+  const theme = React.useMemo(
+    () =>
+      createTheme(
+        {
+          palette: {
+            mode:
+              mode === "system" ? (systemPrefersDark ? "dark" : "light") : mode,
+          },
+        },
+        deDE,
+        pickersDeDE,
+        coreDeDE
+      ),
+    [systemPrefersDark, mode]
+  );
 
   return (
     <SuperTokensWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={de}>
-        <ThemeProvider theme={theme}>
-          <ConfigProvider>
-            <Layout>
-              <InfoDialogProvider>
-                <ToastProvider>
-                  <Component {...pageProps} />
-                </ToastProvider>
-              </InfoDialogProvider>
-            </Layout>
-          </ConfigProvider>
-        </ThemeProvider>
+        <ColorModeContext.Provider value={{ setColorMode, mode }}>
+          <ThemeProvider theme={theme}>
+            <ConfigProvider>
+              <CssBaseline />
+              <Layout>
+                <InfoDialogProvider>
+                  <ToastProvider>
+                    <script
+                      type="text/javascript"
+                      src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+                    ></script>
+                    <Component {...pageProps} />
+                    <CookieBanner />
+                  </ToastProvider>
+                </InfoDialogProvider>
+              </Layout>
+            </ConfigProvider>
+          </ThemeProvider>
+        </ColorModeContext.Provider>
       </LocalizationProvider>
     </SuperTokensWrapper>
   );
