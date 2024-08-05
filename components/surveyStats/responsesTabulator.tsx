@@ -73,15 +73,17 @@ export default function ResponsesTabulator({
   // }, [filters]);
 
   function applyFilters() {
-    setWhereInput({
-      AND: [
-        ...filters.filters.map((f) => getWhereInput(f, survey)),
-        ...filters.generalFilters.map(getGeneralWhereInput),
-      ],
-      family: survey.hasFamily
-        ? getWhereInputFromFamilyFilters(filters.familyFilters)
-        : undefined,
-    });
+    if (!hasFilters) setWhereInput({});
+    else
+      setWhereInput({
+        AND: [
+          ...filters.filters.map((f) => getWhereInput(f, survey)),
+          ...filters.generalFilters.map(getGeneralWhereInput),
+        ],
+        family: survey.hasFamily
+          ? getWhereInputFromFamilyFilters(filters.familyFilters)
+          : undefined,
+      });
   }
 
   const { responses, isLoading } = myResponses
