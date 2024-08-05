@@ -17,10 +17,10 @@ import {
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
 import { FilterAlt } from "@mui/icons-material";
-import { Accordion, AccordionSummary } from "@mui/material";
+import { Accordion, AccordionSummary, CircularProgress } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { startOfYear } from "date-fns";
+import { startOfMonth, startOfYear } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -45,7 +45,7 @@ export default function ResponsesTabulator({
       {
         field: "responseCreatedAt",
         filter: "gte",
-        value: startOfYear(new Date()),
+        value: startOfMonth(new Date()),
       },
     ],
   });
@@ -60,7 +60,19 @@ export default function ResponsesTabulator({
       : undefined,
   });
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   setWhereInput({
+  //     AND: [
+  //       ...filters.filters.map((f) => getWhereInput(f, survey)),
+  //       ...filters.generalFilters.map(getGeneralWhereInput),
+  //     ],
+  //     family: survey.hasFamily
+  //       ? getWhereInputFromFamilyFilters(filters.familyFilters)
+  //       : undefined,
+  //   });
+  // }, [filters]);
+
+  function applyFilters() {
     setWhereInput({
       AND: [
         ...filters.filters.map((f) => getWhereInput(f, survey)),
@@ -70,9 +82,9 @@ export default function ResponsesTabulator({
         ? getWhereInputFromFamilyFilters(filters.familyFilters)
         : undefined,
     });
-  }, [filters]);
+  }
 
-  const { responses } = myResponses
+  const { responses, isLoading } = myResponses
     ? useMyResponses(survey.id, whereInput)
     : useResponses(survey.id, whereInput);
 
@@ -142,6 +154,7 @@ export default function ResponsesTabulator({
               familyFilters={filters.familyFilters}
               generalFilters={filters.generalFilters}
               onChange={setFilters}
+              onApply={applyFilters}
             />
           </Box>
         </Accordion>
@@ -151,6 +164,8 @@ export default function ResponsesTabulator({
           survey={survey}
         />
       </Box>
+
+      {isLoading && <CircularProgress />}
 
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}

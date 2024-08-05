@@ -21,9 +21,15 @@ import {
   getWhereInputFromFamilyFilters,
   globalOptions,
 } from "@/utils/tableUtils";
-import { Box, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import { Prisma } from "@prisma/client";
-import { startOfYear } from "date-fns";
+import { startOfMonth, startOfYear } from "date-fns";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ColumnDefinition, ReactTabulator } from "react-tabulator";
@@ -53,7 +59,7 @@ export default function Dashboard({ survey }: DashboardProps) {
       {
         field: "responseCreatedAt",
         filter: "gte",
-        value: startOfYear(new Date()),
+        value: startOfMonth(new Date()),
       },
     ],
   });
@@ -68,7 +74,19 @@ export default function Dashboard({ survey }: DashboardProps) {
       : undefined,
   });
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   setWhere({
+  //     AND: [
+  //       ...filters.filters.map((f) => getWhereInput(f, survey)),
+  //       ...filters.generalFilters.map(getGeneralWhereInput),
+  //     ],
+  //     family: survey.hasFamily
+  //       ? getWhereInputFromFamilyFilters(filters.familyFilters)
+  //       : undefined,
+  //   });
+  // }, [filters]);
+
+  function applyFilters() {
     setWhere({
       AND: [
         ...filters.filters.map((f) => getWhereInput(f, survey)),
@@ -78,7 +96,7 @@ export default function Dashboard({ survey }: DashboardProps) {
         ? getWhereInputFromFamilyFilters(filters.familyFilters)
         : undefined,
     });
-  }, [filters]);
+  }
 
   const { responses, isLoading, error } = useResponses(survey.id, where);
 
@@ -125,9 +143,11 @@ export default function Dashboard({ survey }: DashboardProps) {
           generalFilters={filters.generalFilters}
           survey={survey}
           onChange={setFilters}
+          onApply={applyFilters}
         />
       </Box>
       <DashboardDownloadButtons tableRef={tableRef} />
+      {isLoading && <CircularProgress />}
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columnDef}

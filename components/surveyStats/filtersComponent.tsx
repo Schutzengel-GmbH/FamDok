@@ -21,6 +21,7 @@ interface FiltersComponentProps {
     familyFilters?: IFamilyFilter[];
     generalFilters?: IGeneralFilter[];
   }) => void;
+  onApply?: () => void;
 }
 
 export default function FiltersComponent({
@@ -28,6 +29,7 @@ export default function FiltersComponent({
   familyFilters,
   generalFilters,
   survey,
+  onApply,
   onChange,
 }: FiltersComponentProps) {
   function addFilter() {
@@ -198,6 +200,7 @@ export default function FiltersComponent({
           </Box>
         ))}
       </Box>
+      {onApply && <Button onClick={onApply}>Filter anwenden</Button>}
     </Box>
   );
 }
