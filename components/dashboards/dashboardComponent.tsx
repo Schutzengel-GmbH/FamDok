@@ -87,15 +87,18 @@ export default function Dashboard({ survey }: DashboardProps) {
   // }, [filters]);
 
   function applyFilters() {
-    setWhere({
-      AND: [
-        ...filters.filters.map((f) => getWhereInput(f, survey)),
-        ...filters.generalFilters.map(getGeneralWhereInput),
-      ],
-      family: survey.hasFamily
-        ? getWhereInputFromFamilyFilters(filters.familyFilters)
-        : undefined,
-    });
+    console.log(hasFilters);
+    if (!hasFilters) setWhere({});
+    else
+      setWhere({
+        AND: [
+          ...filters.filters.map((f) => getWhereInput(f, survey)),
+          ...filters.generalFilters.map(getGeneralWhereInput),
+        ],
+        family: survey.hasFamily
+          ? getWhereInputFromFamilyFilters(filters.familyFilters)
+          : undefined,
+      });
   }
 
   const { responses, isLoading, error } = useResponses(survey.id, where);
@@ -118,6 +121,11 @@ export default function Dashboard({ survey }: DashboardProps) {
         return [];
     }
   }, [responses, countBy, selectedQuestion]);
+
+  const hasFilters =
+    filters.familyFilters?.length > 0 ||
+    filters.filters?.length > 0 ||
+    filters.generalFilters?.length > 0;
 
   return (
     <Box
