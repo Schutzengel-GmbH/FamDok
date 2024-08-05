@@ -12,28 +12,33 @@ import {
   AccordionSummary,
   Box,
   Button,
+  CircularProgress,
   IconButton,
 } from "@mui/material";
 import { useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { IFamilyFilter } from "@/utils/filters";
-import { format } from "date-fns";
+import { format, startOfYear } from "date-fns";
 import { useUserData } from "@/utils/authUtils";
 import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponent";
 import { exportBlob } from "@/utils/utils";
 import { getFamiliesJson } from "@/components/surveyStats/getJson";
 import FamiliesStatsDownloadButtons from "@/components/familiesStats/familiesStatsDownloadButtons";
+import { Prisma } from "@prisma/client";
 
 export default function FamiliesTabulator() {
   const { user } = useUserData();
-  const [familyFilters, setFamilyFilters] = useState<IFamilyFilter[]>([]);
+  const [familyFilters, setFamilyFilters] = useState<IFamilyFilter[]>([
+    { filter: "gte", field: "beginOfCare", value: startOfYear(new Date()) },
+  ]);
+  const [where, setWhere] = useState<Prisma.FamilyWhereInput>(
+    getWhereInputFromFamilyFilters(familyFilters)
+  );
   const tableRef = useRef(null);
 
-  const { families } =
-    user?.role === "USER"
-      ? useMyFamilies(getWhereInputFromFamilyFilters(familyFilters))
-      : useFamilies(getWhereInputFromFamilyFilters(familyFilters));
+  const { families, isLoading } =
+    user?.role === "USER" ? useMyFamilies(where) : useFamilies(where);
 
   const data = useMemo(() => families?.map(getFamilyData), [families]);
   const columns = useMemo(() => familyColumnsDefinition(), []);
@@ -50,6 +55,10 @@ export default function FamiliesTabulator() {
 
   function deleteFamilyFilter(index: number) {
     setFamilyFilters(familyFilters.filter((_, i) => i !== index));
+  }
+
+  function applyFilters() {
+    setWhere(getWhereInputFromFamilyFilters(familyFilters));
   }
 
   return (
@@ -94,9 +103,12 @@ export default function FamiliesTabulator() {
               </IconButton>
             </Box>
           ))}
+          <Button onClick={applyFilters}>Filter anwenden</Button>
         </Accordion>
         <FamiliesStatsDownloadButtons tableRef={tableRef} families={families} />
       </Box>
+
+      {isLoading && <CircularProgress />}
 
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
