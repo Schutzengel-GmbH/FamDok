@@ -19,8 +19,7 @@ function ProtectedPage() {
     fetcher
   );
 
-  if (!user || user.role === Role.USER)
-    return <Error statusCode={403} title="Forbidden" />;
+  if (!user) return <Error statusCode={403} title="Forbidden" />;
 
   if (isLoading) return <Loading />;
 
@@ -42,4 +41,3 @@ export default function MyResponsesPage() {
     </SessionReact.SessionAuth>
   );
 }
-
