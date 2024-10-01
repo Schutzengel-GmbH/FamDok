@@ -3,6 +3,7 @@ import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { logger as _logger } from "@/config/logger";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
+import { getUserByEmail } from "@/utils/authUtils";
 
 export interface IRequestPassword {}
 
@@ -27,10 +28,12 @@ export default async function requestPassword(
 
   const { email } = req.body as { email: string };
 
-  const user = await EmailPassword.getUserByEmail(email);
+  const user = await getUserByEmail(email);
 
   let passwordResetToken = await EmailPassword.createResetPasswordToken(
-    user.id
+    "public",
+    user.id,
+    email
   );
 
   if (!user) {
@@ -51,10 +54,15 @@ export default async function requestPassword(
     type: "PASSWORD_RESET",
     passwordResetLink: inviteLink,
     user: {
-      email: user.email,
       id: user.id,
+      recipeUserId: user.loginMethods.find(
+        (r) => r.recipeId === "emailpassword"
+      ).recipeUserId,
+      email: user.emails[0],
     },
+    tenantId: "public",
   });
 
   return;
 }
+

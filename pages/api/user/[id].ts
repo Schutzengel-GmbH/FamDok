@@ -11,6 +11,7 @@ import EmailPassword from "supertokens-node/recipe/emailpassword";
 import { isValidEmail } from "@/utils/validationUtils";
 import { logger as _logger } from "@/config/logger";
 import { FullUser } from "@/types/prismaHelperTypes";
+import { getUserByEmail } from "@/utils/authUtils";
 
 supertokens.init(backendConfig());
 
@@ -132,12 +133,17 @@ export default async function user(
         if (!isValidEmail(req.body.email))
           return res.status(400).json({ error: "INVALID_EMAIL" });
 
-        const authUser = await EmailPassword.getUserByEmail(user.email);
+        const authUser = await getUserByEmail(user.email);
 
         if (!authUser) return res.status(404).json({ error: "NOT_FOUND" });
 
+        const recipeUserId = authUser.loginMethods.find(
+          (r) => r.recipeId === "emailpassword"
+        ).recipeUserId;
+        if (!recipeUserId) return res.status(404).json({ error: "NOT_FOUND" });
+
         const result = await EmailPassword.updateEmailOrPassword({
-          userId: authUser.id,
+          recipeUserId: recipeUserId,
           email: req.body.email,
         });
 
@@ -164,3 +170,4 @@ export default async function user(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

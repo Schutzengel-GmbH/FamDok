@@ -8,6 +8,7 @@ import { backendConfig } from "@/config/backendConfig";
 import { prisma } from "@/db/prisma";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import { logger as _logger } from "@/config/logger";
+import { getUser } from "supertokens-node";
 
 supertokens.init(backendConfig());
 
@@ -48,11 +49,11 @@ export default async function createAdminUser(
 
   const session = req.session;
   const authId = session.getUserId();
-  let userInfo = await EmailPassword.getUserById(authId);
+  let userInfo = await getUser(authId);
 
   const user = await prisma.user
     .create({
-      data: { authId: authId, email: userInfo.email, role: "ADMIN" },
+      data: { authId: authId, email: userInfo.emails[0], role: "ADMIN" },
     })
     .catch((err) => logger.error(err));
 
@@ -60,3 +61,4 @@ export default async function createAdminUser(
 
   return res.status(200).json({ user });
 }
+

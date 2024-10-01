@@ -18,7 +18,7 @@ type LogEntryProps = {
   logEntry: LogEntry;
 };
 
-export default function LogEntry({ logEntry }: LogEntryProps) {
+export default function LogEntryComponent({ logEntry }: LogEntryProps) {
   const data = logEntry.data as unknown as ILogEntryData;
   return (
     <div>

@@ -7,6 +7,7 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { logger as _logger } from "@/config/logger";
 import { Response } from "express";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
+import { getUserByEmail } from "@/utils/authUtils";
 
 export interface IPasswordResetLink {
   link?: string;
@@ -45,10 +46,14 @@ export default async function users(
 
   const { email } = req.body as { email: string };
 
-  const user = await EmailPassword.getUserByEmail(email);
+  const user = await getUserByEmail(email);
+
+  if (!user) return res.status(404).json({ error: "USER_NOT_FOUND" });
 
   let passwordResetToken = await EmailPassword.createResetPasswordToken(
-    user.id
+    "public",
+    user.id,
+    email
   );
 
   if (passwordResetToken.status === "UNKNOWN_USER_ID_ERROR") {

@@ -15,7 +15,7 @@ services:
       - app_network
     restart: unless-stopped
   supertokens:
-    image: "registry.supertokens.io/supertokens/supertokens-postgresql:5.0"
+    image: "registry.supertokens.io/supertokens/supertokens-postgresql"
     depends_on:
       - db
     environment:
@@ -44,3 +44,4 @@ networks:
   app_network:
     driver: bridge
     internal: false
+

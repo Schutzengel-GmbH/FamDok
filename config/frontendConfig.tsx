@@ -10,7 +10,7 @@ export let frontendConfig = () => {
     // use from SuperTokens. See the full list here: https://supertokens.com/docs/guides
     recipeList: [
       EmailPasswordReact.init({
-        signInAndUpFeature: { disableDefaultUI: true },
+        signInAndUpFeature: { signInForm: {}, signUpForm: {} },
         resetPasswordUsingTokenFeature: { disableDefaultUI: true },
       }),
       SessionReact.init(),
@@ -29,3 +29,4 @@ export let frontendConfig = () => {
     },
   };
 };
+
