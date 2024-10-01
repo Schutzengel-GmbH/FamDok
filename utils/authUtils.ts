@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { IUserMe } from "../pages/api/user/me";
 import { fetcher } from "./swrConfig";
+import { listUsersByAccountInfo } from "supertokens-node";
 
 /**
  * Get user data, if no id is provided, uses /user/me
@@ -36,3 +37,9 @@ export function generateTempPassword(): string {
 
   return `${gen(upperCase, 1)}${gen(lowerCase, 2)}${gen(numbers, 4)}`;
 }
+
+export async function getUserByEmail(email: string) {
+  const users = await listUsersByAccountInfo("public", { email });
+  return users[0];
+}
+

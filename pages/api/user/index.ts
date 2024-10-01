@@ -20,10 +20,10 @@ export interface IUsers {
   users?: FullUser[];
   inviteLink?: string;
   error?:
-  | "NOT_FOUND"
-  | "INTERNAL_SERVER_ERROR"
-  | "METHOD_NOT_ALLOWED"
-  | "FORBIDDEN";
+    | "NOT_FOUND"
+    | "INTERNAL_SERVER_ERROR"
+    | "METHOD_NOT_ALLOWED"
+    | "FORBIDDEN";
 }
 
 export default async function users(
@@ -84,6 +84,7 @@ export default async function users(
 
     case "POST":
       let signUpResult = await EmailPassword.signUp(
+        "public",
         req.body.email,
         FAKE_PASSWORD
       ).catch((err) => logger.error(err));
@@ -112,7 +113,9 @@ export default async function users(
 
       // we successfully created the user. Now we should send them their invite link
       let passwordResetToken = await EmailPassword.createResetPasswordToken(
-        signUpResult.user.id
+        "public",
+        signUpResult.user.id,
+        signUpResult.user.emails[0]
       );
 
       if (passwordResetToken.status === "UNKNOWN_USER_ID_ERROR") {
@@ -120,8 +123,9 @@ export default async function users(
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
       }
 
-      let inviteLink = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        }/auth/set-password?token=${passwordResetToken.token}`;
+      let inviteLink = `${
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      }/auth/set-password?token=${passwordResetToken.token}`;
 
       if (process.env.NEXT_PUBLIC_MANUAL_INVITATION !== "true")
         await EmailPassword.sendEmail({
@@ -129,15 +133,19 @@ export default async function users(
           type: "INVITE_EMAIL",
           passwordResetLink: inviteLink,
           user: {
-            email: signUpResult.user.email,
             id: signUpResult.user.id,
+            recipeUserId: signUpResult.recipeUserId,
+            email: newUser.email,
           },
+          tenantId: "public",
         });
 
       return res.status(200).json({
         user: newUser,
         inviteLink:
-          process.env.NEXT_PUBLIC_MANUAL_INVITATION === "true" ? inviteLink : undefined,
+          process.env.NEXT_PUBLIC_MANUAL_INVITATION === "true"
+            ? inviteLink
+            : undefined,
       });
 
     default:

@@ -20,7 +20,7 @@ services:
       - 5432
     restart: unless-stopped
   supertokens:
-    image: "registry.supertokens.io/supertokens/supertokens-postgresql:5.0"
+    image: "registry.supertokens.io/supertokens/supertokens-postgresql"
     depends_on:
       - db
     environment:

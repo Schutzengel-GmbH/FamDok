@@ -32,7 +32,11 @@ export default async function resetPassword(
   if (!passwordValidator(password).valid)
     return res.status(400).json({ error: "PASSWORD_INVALID" });
 
-  const result = await EmailPassword.resetPasswordUsingToken(token, password);
+  const result = await EmailPassword.resetPasswordUsingToken(
+    "public",
+    token,
+    password
+  );
 
   if (result.status === "RESET_PASSWORD_INVALID_TOKEN_ERROR")
     res.status(400).json({ error: "RESET_PASSWORD_INVALID_TOKEN_ERROR" });
@@ -40,3 +44,4 @@ export default async function resetPassword(
     res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   else res.status(200).json({});
 }
+

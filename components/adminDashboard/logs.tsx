@@ -1,4 +1,4 @@
-import LogEntry from "@/components/adminDashboard/logEntry";
+import LogEntryComponent from "@/components/adminDashboard/logEntry";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import ErrorPage from "@/components/utilityComponents/error";
 import Loading from "@/components/utilityComponents/loadingMainContent";
@@ -59,7 +59,7 @@ export function LogsComponent({}: LogsComponentProps) {
       {logs
         .sort((a, b) => compareDesc(new Date(a.time), new Date(b.time)))
         .map((entry) => (
-          <LogEntry logEntry={entry} />
+          <LogEntryComponent logEntry={entry} />
         ))}
     </Box>
   );

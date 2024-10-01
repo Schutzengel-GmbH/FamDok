@@ -22,8 +22,8 @@
     "react-dom": "^18.2.0",
     "react-markdown": "^8.0.7",
     "react-tabulator": "^0.19.0",
-    "supertokens-auth-react": "^0.33.1",
-    "supertokens-node": "^14.1.2",
+    "supertokens-auth-react": "^0.47.1",
+    "supertokens-node": "^20.1.2",
     "swr": "^2.2.0"
   },
   "prisma": {
