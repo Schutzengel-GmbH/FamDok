@@ -39,6 +39,10 @@ function getInputErrorMessage(question: Question, error: InputErrors) {
       return `Die Frage ${
         question.questionTitle || question.questionText
       } ist nicht optional.`;
+    case InputErrors.NUM_OUT_OF_BOUNDS:
+      return `Die Antwort zur Frage ${
+        question.questionTitle || question.questionText
+      } ist zu groß oder zu klein für 32bit-signed-Integer.`;
     default:
       return `Bei der Frage ${
         question.questionTitle || question.questionText
