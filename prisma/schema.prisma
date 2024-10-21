@@ -53,6 +53,7 @@ model Organization {
   User            User[]
   Survey          Survey[]
   SubOrganization SubOrganization[]
+  MasterDataType  MasterDataType[]
 }
 
 enum Role {
@@ -107,14 +108,16 @@ model Question {
 }
 
 model SelectOption {
-  id         String     @id @default(uuid())
-  isOpen     Boolean    @default(false)
-  value      String
-  question   Question   @relation(name: "SelectOptionAnswer", fields: [questionId], references: [id], onDelete: Cascade)
-  questionId String
-  questions  Question[] @relation(name: "DefaultSelectOptionQuestion")
-  answer     Answer[]
-  info       String?
+  id                String           @id @default(uuid())
+  isOpen            Boolean          @default(false)
+  value             String
+  question          Question         @relation(name: "SelectOptionAnswer", fields: [questionId], references: [id], onDelete: Cascade)
+  questionId        String
+  questions         Question[]       @relation(name: "DefaultSelectOptionQuestion")
+  answer            Answer[]
+  info              String?
+  DataFieldAnswer   DataFieldAnswer? @relation(fields: [dataFieldAnswerId], references: [id])
+  dataFieldAnswerId String?
 }
 
 model Response {
@@ -181,6 +184,78 @@ model Family {
   comingFrom           ComingFromOption? @relation(fields: [comingFromOptionId], references: [id])
   comingFromOptionId   String?
   comingFromOtherValue String?
+}
+
+model MasterDataType {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dataFields DataField[]
+  masterData MasterData[]
+
+  name String
+
+  isLimitedToOrg Boolean?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+}
+
+model MasterData {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  masterDataType MasterDataType @relation(fields: [masterDataTypeId], references: [id])
+
+  answers          DataFieldAnswer[]
+  masterDataTypeId String
+}
+
+model DataField {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  MasterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id])
+  masterDataTypeId String?
+
+  answers DataFieldAnswer[]
+
+  type DataFieldType
+
+  required Boolean?
+
+  text        String
+  description String?
+}
+
+model DataFieldAnswer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  masterData   MasterData? @relation(fields: [masterDataId], references: [id])
+  masterDataId String?
+
+  dataField DataField @relation(fields: [dataFieldId], references: [id])
+
+  answerText   String?
+  answerBool   Boolean?
+  answerInt    Int?
+  answerNum    Float?
+  answerSelect SelectOption[]
+  answerDate   DateTime?
+  dataFieldId  String
+}
+
+enum DataFieldType {
+  Text
+  Bool
+  Int
+  Num
+  Select
+  Date
 }
 
 model ComingFromOption {
