@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { IUserMe } from "../pages/api/user/me";
 import { fetcher } from "./swrConfig";
-import { listUsersByAccountInfo } from "supertokens-node";
+import { getUser, listUsersByAccountInfo } from "supertokens-node";
 
 /**
  * Get user data, if no id is provided, uses /user/me
@@ -40,6 +40,12 @@ export function generateTempPassword(): string {
 
 export async function getUserByEmail(email: string) {
   const users = await listUsersByAccountInfo("public", { email });
+  console.log(email, users);
   return users[0];
 }
 
+export async function getUserByAuthId(authId: string) {
+  const user = await getUser(authId);
+  console.log(authId, user);
+  return user;
+}
