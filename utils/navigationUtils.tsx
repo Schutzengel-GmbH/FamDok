@@ -65,4 +65,10 @@ export const navigationList: {
     url: "/families",
     canAccess: (user) => (user ? true : false),
   },
+  {
+    title: "Stammdaten",
+    icon: <FamilyRestroom />,
+    url: "/masterData",
+    canAccess: (user) => (user ? true : false),
+  },
 ];

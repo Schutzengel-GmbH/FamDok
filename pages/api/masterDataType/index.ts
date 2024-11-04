@@ -6,11 +6,19 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
+import { hasOneOfRole } from "@/utils/authUtils";
+import { ApiError } from "@/utils/utils";
 
 supertokens.init(backendConfig());
 
-export default async function comingFromOptions(
+export interface IMasterDataType {
+  masterDataType?: Prisma.MasterDataTypeGetPayload<{ include: { dataFields: { include: { selectOptions: true } } } }>;
+  masterDataTypes?: Prisma.MasterDataTypeGetPayload<{ include: { dataFields: { include: { selectOptions: true } } } }>[];
+  error?: ApiError;
+}
+
+export default async function masterData(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
@@ -63,6 +71,8 @@ export default async function comingFromOptions(
       )
         data.organization = { connect: { id: reqUser.organizationId } };
 
+      if (!hasOneOfRole(reqUser, [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER], data?.organization?.connect?.id)) return res.status(403).json({ error: "FORBIDDEN" })
+
       const masterDataType = await prisma.masterDataType
         .create({ data })
         .catch((e) => {
@@ -71,9 +81,8 @@ export default async function comingFromOptions(
             .status(500)
             .json({ error: "INTERNAL_SERVER_ERROR", message: e });
         });
-      res.status(200).json({ data });
+      res.status(200).json({ masterDataType });
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

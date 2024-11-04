@@ -33,6 +33,7 @@ model User {
   Survey           Survey[]
   Family           Family[]
   subOrganizations SubOrganization[]
+  MasterData       MasterData[]
 }
 
 model SubOrganization {
@@ -76,6 +77,7 @@ model Survey {
   questions      Question[]
   responses      Response[]
   hasFamily      Boolean       @default(false)
+  hasMasterData  Boolean       @default(false)
 }
 
 model Question {
@@ -108,34 +110,36 @@ model Question {
 }
 
 model SelectOption {
-  id                String           @id @default(uuid())
-  isOpen            Boolean          @default(false)
-  value             String
-  question          Question         @relation(name: "SelectOptionAnswer", fields: [questionId], references: [id], onDelete: Cascade)
-  questionId        String
-  questions         Question[]       @relation(name: "DefaultSelectOptionQuestion")
-  answer            Answer[]
-  info              String?
-  DataFieldAnswer   DataFieldAnswer? @relation(fields: [dataFieldAnswerId], references: [id])
-  dataFieldAnswerId String?
+  id         String     @id @default(uuid())
+  isOpen     Boolean    @default(false)
+  value      String
+  question   Question   @relation(name: "SelectOptionAnswer", fields: [questionId], references: [id], onDelete: Cascade)
+  questionId String
+  questions  Question[] @relation(name: "DefaultSelectOptionQuestion")
+  answer     Answer[]
+  info       String?
 }
 
 model Response {
-  id          String     @id @default(cuid())
-  name        String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  answers     Answer[]
-  surveyId    String
-  user        User?      @relation(fields: [userId], references: [id])
-  userId      String?
-  family      Family?    @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  familyId    String?
-  child       Child?     @relation(fields: [childId], references: [id], onDelete: Cascade)
-  childId     String?
-  caregiver   Caregiver? @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
-  caregiverId String?
+  id                           String      @id @default(cuid())
+  name                         String?
+  createdAt                    DateTime    @default(now())
+  updatedAt                    DateTime    @updatedAt
+  survey                       Survey      @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers                      Answer[]
+  surveyId                     String
+  user                         User?       @relation(fields: [userId], references: [id])
+  userId                       String?
+  family                       Family?     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId                     String?
+  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
+  masterDataId                 String?
+  masterDataMasterDataTypeName String?
+  masterDataNumber             BigInt?
+  child                        Child?      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId                      String?
+  caregiver                    Caregiver?  @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId                  String?
 }
 
 model Answer {
@@ -194,22 +198,31 @@ model MasterDataType {
   dataFields DataField[]
   masterData MasterData[]
 
-  name String
+  name String @unique
 
   isLimitedToOrg Boolean?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   organizationId String?
+
+  @@unique([id, name])
 }
 
 model MasterData {
-  id        String   @id @default(cuid())
+  number    BigInt   @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  masterDataType MasterDataType @relation(fields: [masterDataTypeId], references: [id])
+  createdBy User @relation(fields: [userId], references: [id])
 
-  answers          DataFieldAnswer[]
-  masterDataTypeId String
+  masterDataType     MasterDataType @relation(fields: [masterDataTypeId, masterDataTypeName], references: [id, name])
+  masterDataTypeId   String
+  masterDataTypeName String
+
+  answers   DataFieldAnswer[]
+  userId    String
+  responses Response[]
+
+  @@id(name: "id", fields: [masterDataTypeName, number])
 }
 
 model DataField {
@@ -222,7 +235,8 @@ model DataField {
 
   answers DataFieldAnswer[]
 
-  type DataFieldType
+  type          DataFieldType
+  selectOptions DataFieldSelectOption[]
 
   required Boolean?
 
@@ -235,18 +249,48 @@ model DataFieldAnswer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  masterData   MasterData? @relation(fields: [masterDataId], references: [id])
-  masterDataId String?
+  answerText                 String?
+  answerBool                 Boolean?
+  answerInt                  Int?
+  answerNum                  Float?
+  answerSelect               DataFieldSelectOption[]
+  dataFieldSelectOtherOption DataFieldSelectOtherOption[]
+  answerDate                 DateTime?
 
-  dataField DataField @relation(fields: [dataFieldId], references: [id])
+  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
+  masterDataMasterDataTypeName String?
+  masterDataNumber             BigInt?
 
-  answerText   String?
-  answerBool   Boolean?
-  answerInt    Int?
-  answerNum    Float?
-  answerSelect SelectOption[]
-  answerDate   DateTime?
-  dataFieldId  String
+  dataField   DataField @relation(fields: [dataFieldId], references: [id])
+  dataFieldId String
+}
+
+model DataFieldSelectOption {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isOpen Boolean @default(false)
+  value  String
+
+  dataFieldAnswer DataFieldAnswer[]
+  dataField       DataField[]
+
+  dataFieldSelectOtherOption DataFieldSelectOtherOption[]
+}
+
+model DataFieldSelectOtherOption {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value String
+
+  dataFieldSelectOption   DataFieldSelectOption @relation(fields: [dataFieldSelectOptionId], references: [id])
+  dataFieldSelectOptionId String
+
+  dataFieldAnswer   DataFieldAnswer @relation(fields: [dataFieldAnswerId], references: [id])
+  dataFieldAnswerId String
 }
 
 enum DataFieldType {

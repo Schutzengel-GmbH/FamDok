@@ -2,6 +2,7 @@ import useSWR from "swr";
 import { IUserMe } from "../pages/api/user/me";
 import { fetcher } from "./swrConfig";
 import { getUser, listUsersByAccountInfo } from "supertokens-node";
+import { Role, User } from "@prisma/client";
 
 /**
  * Get user data, if no id is provided, uses /user/me
@@ -48,4 +49,18 @@ export async function getUserByAuthId(authId: string) {
   const user = await getUser(authId);
   console.log(authId, user);
   return user;
+}
+
+/**
+ * Returns true if user has one of roles. 
+  * @param User user user to test
+  * @param Role[] roles roles to test for
+  * @param string organizationId (optional) if this parameter is given and the user is USER or ORGCONTROLLER, only return true if user is also in that organization
+  */
+export function hasOneOfRole(user: User, roles: Role[], organizationId?: string) {
+  if (organizationId) {
+    if (!roles.includes(user.role)) return false;
+    if (user.role === Role.USER || user.role === Role.ORGCONTROLLER) return user.organizationId === organizationId;
+  }
+  else return roles.includes(user.role);
 }
