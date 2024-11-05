@@ -1,11 +1,7 @@
-import NavItem from "@/components/mainPage/navItem";
 import SearchTextField from "@/components/utilityComponents/searchTextField";
-import { IMasterDataType } from "@/pages/api/masterDataType";
 import { Add } from "@mui/icons-material";
-import { useMasterData, useMasterDataTypes } from "@/utils/apiHooks";
+import { useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
-import { apiDelete, apiPostJson } from "@/utils/fetchApiUtils";
-import { Poll } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -13,26 +9,38 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { Prisma } from "@prisma/client";
-import { ChangeEvent, useState } from "react";
-import MasterDataDialog from "@/components/masterData/masterDataDialog";
+import { useState } from "react";
+import { addMasterData } from "@/utils/masterDataUtils";
+import useToast from "@/components/notifications/notificationContext";
+import { useRouter } from "next/router";
 
 export default function MasterDataComponent() {
   const [filter, setFilter] = useState<string>("");
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
 
   const { user } = useUserData();
   const { masterDataTypes, mutate } = useMasterDataTypes();
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
-  const { masterData } = useMasterData(selectedMdt);
 
   const handleMdtChange = (e: SelectChangeEvent) => {
     setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
   };
 
-  const handleAddButton = () => {
-    setDialogOpen(true);
+  const { addToast } = useToast();
+
+  const handleAddButton = async () => {
+    let number = -1;
+    try {
+      const res = await addMasterData(selectedMdt, {
+        masterDataType: { connect: { id: selectedMdt.id } },
+        createdBy: { connect: { id: user.id } },
+      });
+      number = Number(res.number);
+      router.push(`/masterData/${selectedMdt.id}/${number}`);
+    } catch (e) {
+      addToast({ message: `Fehler: ${e}`, severity: "error" });
+    }
   };
 
   return (
@@ -66,14 +74,6 @@ export default function MasterDataComponent() {
           {selectedMdt?.name}
         </Button>
       </Box>
-      <MasterDataDialog
-        // make sure dialog can only open if MDT is selected
-        open={selectedMdt && dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-        }}
-        masterDataType={selectedMdt}
-      />
     </>
   );
 }

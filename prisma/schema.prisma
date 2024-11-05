@@ -135,7 +135,7 @@ model Response {
   masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
   masterDataId                 String?
   masterDataMasterDataTypeName String?
-  masterDataNumber             BigInt?
+  masterDataNumber             Int?
   child                        Child?      @relation(fields: [childId], references: [id], onDelete: Cascade)
   childId                      String?
   caregiver                    Caregiver?  @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
@@ -208,7 +208,7 @@ model MasterDataType {
 }
 
 model MasterData {
-  number    BigInt   @unique @default(autoincrement())
+  number    Int      @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -259,7 +259,7 @@ model DataFieldAnswer {
 
   masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
   masterDataMasterDataTypeName String?
-  masterDataNumber             BigInt?
+  masterDataNumber             Int?
 
   dataField   DataField @relation(fields: [dataFieldId], references: [id])
   dataFieldId String

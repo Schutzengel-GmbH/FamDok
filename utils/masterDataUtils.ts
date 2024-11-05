@@ -2,7 +2,13 @@ import { IMasterDataType } from "@/pages/api/masterDataType";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
-import { DataField, MasterData, MasterDataType, Prisma } from "@prisma/client";
+import {
+  DataField,
+  DataFieldAnswer,
+  MasterData,
+  MasterDataType,
+  Prisma,
+} from "@prisma/client";
 
 export async function createMasterDataType(
   masterDataType: Prisma.MasterDataTypeCreateInput
@@ -144,4 +150,23 @@ export async function deleteMasterData(
 
   if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.deleteRes;
+}
+
+export async function addDataFieldAnswers(
+  masterDataTypeId: string,
+  masterDataNumber: string,
+  answersToDelete: { id: string }[],
+  answers: Prisma.DataFieldAnswerCreateManyMasterDataInput[]
+) {
+  const res = await apiPostJson<
+    IMasterDataByNumber,
+    Prisma.MasterDataUpdateInput
+  >(`/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}`, {
+    answers: { delete: answersToDelete, createMany: { data: answers } },
+  }).catch((e) => {
+    throw new Error(e);
+  });
+
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
+  return res.updateRes;
 }

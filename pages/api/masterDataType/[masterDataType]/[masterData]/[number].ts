@@ -6,10 +6,12 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { prisma } from "@/db/prisma";
 import { MasterData, Prisma, Role } from "@prisma/client";
 import { ApiError } from "@/utils/utils";
+import { FullMasterData } from "@/types/prismaHelperTypes";
 
 export interface IMasterDataByNumber {
   updateRes?: MasterData;
   deleteRes?: MasterData;
+  masterData?: FullMasterData;
   error?: ApiError;
 }
 
@@ -90,9 +92,11 @@ export default async function masterDataType(
       if (!canEdit) return res.status(403).json({ error: "FORBIDDEN" });
 
       const data = req.body as Prisma.MasterDataUpdateInput;
+
       const updateRes = await prisma.masterData
         .update({ where, data })
-        .catch(logger.error);
+        .catch((e) => logger.error(e));
+
       return res.status(200).json({ updateRes });
     case "DELETE":
       if (!canEdit) return res.status(403).json({ error: "FORBIDDEN" });

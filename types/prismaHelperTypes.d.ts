@@ -143,3 +143,10 @@ export type FullMasterDataType = Prisma.MasterDataTypeGetPayload<{
 export type FullDataField = Prisma.DataFieldGetPayload<{
   include: { selectOptions: true };
 }>;
+
+export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{
+  include: {
+    answerSelect: true;
+    dataFieldSelectOtherOption: true;
+  };
+}>;
