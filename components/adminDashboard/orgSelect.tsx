@@ -12,10 +12,17 @@ import { fetcher } from "@/utils/swrConfig";
 
 export interface OrgSelectInterface {
   value?: string;
+  dontShowNoOrg?: boolean;
+  dontShowNewOrg?: boolean;
   onChange: (organizationId: string) => void;
 }
 
-const OrgSelect = ({ value, onChange }: OrgSelectInterface) => {
+const OrgSelect = ({
+  value,
+  dontShowNoOrg,
+  dontShowNewOrg,
+  onChange,
+}: OrgSelectInterface) => {
   const [organizationId, setOrganizationId] = useState<string | undefined>(
     value
   );
@@ -40,11 +47,15 @@ const OrgSelect = ({ value, onChange }: OrgSelectInterface) => {
       {isLoading && <CircularProgress />}
       {data && (
         <Select value={organizationId} onChange={handleChange}>
-          <MenuItem onClick={handleAddOrg}>Neu...</MenuItem>
+          {!dontShowNewOrg && (
+            <MenuItem onClick={handleAddOrg}>Neu...</MenuItem>
+          )}
 
-          <MenuItem key={"none"} value={"none"}>
-            Keine Organisation
-          </MenuItem>
+          {!dontShowNoOrg && (
+            <MenuItem key={"none"} value={"none"}>
+              Keine Organisation
+            </MenuItem>
+          )}
           {data &&
             data.organizations?.map((o) => (
               <MenuItem key={o.id} value={o.id}>

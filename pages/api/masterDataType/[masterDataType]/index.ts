@@ -63,7 +63,7 @@ export default async function masterDataType(
 
       return res.status(200).json({ masterDataType });
     case "POST":
-      const data = req.body as Prisma.MasterDataUpdateInput;
+      const data = req.body as Prisma.MasterDataTypeUpdateInput;
       const update = await prisma.masterDataType
         .update({
           where: { id: id as string },

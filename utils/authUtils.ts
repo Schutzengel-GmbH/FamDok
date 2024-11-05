@@ -52,15 +52,20 @@ export async function getUserByAuthId(authId: string) {
 }
 
 /**
- * Returns true if user has one of roles. 
-  * @param User user user to test
-  * @param Role[] roles roles to test for
-  * @param string organizationId (optional) if this parameter is given and the user is USER or ORGCONTROLLER, only return true if user is also in that organization
-  */
-export function hasOneOfRole(user: User, roles: Role[], organizationId?: string) {
+ * Returns true if user has one of roles.
+ * @param User user user to test
+ * @param Role[] roles roles to test for
+ * @param string organizationId (optional) if this parameter is given and the user is USER or ORGCONTROLLER, only return true if user is also in that organization
+ */
+export function hasOneOfRole(
+  user: User,
+  roles: Role[],
+  organizationId?: string
+) {
   if (organizationId) {
     if (!roles.includes(user.role)) return false;
-    if (user.role === Role.USER || user.role === Role.ORGCONTROLLER) return user.organizationId === organizationId;
-  }
-  else return roles.includes(user.role);
+    if (user.role === Role.USER || user.role === Role.ORGCONTROLLER)
+      return user.organizationId === organizationId;
+    else return roles.includes(user.role);
+  } else return roles.includes(user.role);
 }

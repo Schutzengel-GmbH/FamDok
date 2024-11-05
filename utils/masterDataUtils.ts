@@ -5,16 +5,16 @@ import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import { DataField, MasterData, MasterDataType, Prisma } from "@prisma/client";
 
 export async function createMasterDataType(
-  masterDataType: Prisma.MasterDataCreateInput
+  masterDataType: Prisma.MasterDataTypeCreateInput
 ) {
-  const res = await apiPostJson<IMasterDataType, Prisma.MasterDataCreateInput>(
-    "/api/masterDataType",
-    masterDataType
-  ).catch((e) => {
+  const res = await apiPostJson<
+    IMasterDataType,
+    Prisma.MasterDataTypeCreateInput
+  >("/api/masterDataType", masterDataType).catch((e) => {
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.masterDataType;
 }
 
@@ -29,7 +29,7 @@ export async function updateMasterDataType(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
 
@@ -40,7 +40,7 @@ export async function deleteMasterDataType(masterDataType: MasterDataType) {
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.deleteRes;
 }
 
@@ -48,6 +48,7 @@ export async function addDataField(
   masterDataType: MasterDataType,
   dataField: Prisma.DataFieldCreateInput
 ) {
+  console.log("update", dataField);
   const res = await apiPostJson<
     IMasterDataByNumber,
     Prisma.MasterDataTypeUpdateInput
@@ -57,10 +58,11 @@ export async function addDataField(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
 
+//TODO: Broken
 export async function updateDataField(
   masterDataType: MasterDataType,
   dataField: DataField,
@@ -75,7 +77,7 @@ export async function updateDataField(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
 
@@ -92,7 +94,7 @@ export async function deleteDataField(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
 
@@ -107,7 +109,7 @@ export async function addMasterData(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.createRes;
 }
 
@@ -126,7 +128,7 @@ export async function updateMasterData(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
 
@@ -140,7 +142,6 @@ export async function deleteMasterData(
     throw new Error(e);
   });
 
-  if (res instanceof FetchError) throw new Error(res.error);
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.deleteRes;
 }
-

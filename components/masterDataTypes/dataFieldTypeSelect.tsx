@@ -1,4 +1,10 @@
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
 import { DataFieldType } from "@prisma/client";
 
 interface DataFieldTypeSelectProps {
@@ -16,11 +22,19 @@ export default function DataFieldTypeSelect({
   };
 
   return (
-    <Select value={type} onChange={handleChange}>
-      {getTypes().map((t) => (
-        <MenuItem value={t}>{t}</MenuItem>
-      ))}
-    </Select>
+    <FormControl>
+      <InputLabel>Datenfeldtyp</InputLabel>
+      <Select
+        label={"Datenfeldtyp"}
+        value={type || "NONE"}
+        onChange={handleChange}
+      >
+        <MenuItem value="NONE"></MenuItem>
+        {getTypes().map((t) => (
+          <MenuItem value={t}>{getTypeName(t)}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }
 
@@ -35,3 +49,21 @@ function getTypes() {
   return types;
 }
 
+function getTypeName(type: DataFieldType): string {
+  switch (type) {
+    case "Text":
+      return "Text";
+    case "Bool":
+      return "Ja/Nein";
+    case "Int":
+      return "Ganze Zahl";
+    case "Num":
+      return "Zahl";
+    case "Select":
+      return "Auswahl";
+    case "Date":
+      return "Datum";
+    default:
+      return type;
+  }
+}

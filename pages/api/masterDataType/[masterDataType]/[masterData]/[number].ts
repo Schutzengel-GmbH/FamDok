@@ -5,7 +5,7 @@ import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { prisma } from "@/db/prisma";
 import { MasterData, Prisma, Role } from "@prisma/client";
-import { ApiError } from "next/dist/server/api-utils";
+import { ApiError } from "@/utils/utils";
 
 export interface IMasterDataByNumber {
   updateRes?: MasterData;
