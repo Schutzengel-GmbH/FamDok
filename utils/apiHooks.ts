@@ -15,7 +15,7 @@ import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
-import { Prisma } from "@prisma/client";
+import { MasterDataType, Prisma } from "@prisma/client";
 import useSWR from "swr";
 
 export function useFamilies(whereInput?: Prisma.FamilyWhereInput) {
@@ -52,8 +52,8 @@ export function useFamily(number: number) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<IFamilies>(
     user && number
       ? `/api/families?whereInput=${JSON.stringify({
-        number: number,
-      } as Prisma.FamilyWhereInput)}`
+          number: number,
+        } as Prisma.FamilyWhereInput)}`
       : null,
     fetcher
   );
@@ -137,7 +137,8 @@ export function useFooterPageContent(uri: string) {
 
 export function useLogs(level?: number, from?: Date, til?: Date) {
   const { data, error, isLoading, isValidating, mutate } = useSWR<ILogs>(
-    `/api/logs?level=${level ?? 40
+    `/api/logs?level=${
+      level ?? 40
     }&from=${from?.toISOString()}?til=${til?.toISOString()}`,
     fetcher,
     { refreshInterval: 1000 }
@@ -292,7 +293,8 @@ export function useConfigRaw() {
 }
 
 export function useMasterDataTypes() {
-  const { data, error, isLoading, isValidating, mutate } = useSWR<IMasterDataType>("/api/masterDataType", fetcher);
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IMasterDataType>("/api/masterDataType", fetcher);
 
   return {
     masterDataTypes: data?.masterDataTypes,
@@ -300,21 +302,23 @@ export function useMasterDataTypes() {
     isLoading,
     isValidating,
     mutate,
-  }
-
+  };
 }
 
 export function useMasterData(
-  masterDataTypeName: string,
+  masterDataType: MasterDataType,
   whereInput?: Prisma.MasterDataWhereInput
 ) {
   const input = whereInput ? JSON.stringify(whereInput) : undefined;
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IMasterData>(
-    masterDataTypeName
-      ? `/api/${masterDataTypeName}/masterData${input ? `?whereInput=${input}` : ""}`
-      : null
-    , fetcher);
+    masterDataType
+      ? `/api/${masterDataType.id}/masterData${
+          input ? `?whereInput=${input}` : ""
+        }`
+      : null,
+    fetcher
+  );
 
   return {
     masterData: data?.masterData,
@@ -322,5 +326,5 @@ export function useMasterData(
     isLoading,
     isValidating,
     mutate,
-  }
+  };
 }

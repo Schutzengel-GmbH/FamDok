@@ -72,6 +72,16 @@ export default function AdminDashboard() {
       url: "/settings",
       canAccess: (user) => user && user.role === Role.ADMIN,
     },
+    {
+      title: "Stammdatenarten",
+      icon: <Settings />,
+      url: "/masterDataTypes",
+      canAccess: (user) =>
+        user &&
+        (user.role === Role.ADMIN ||
+          user.role === Role.CONTROLLER ||
+          user.role === Role.ORGCONTROLLER),
+    },
   ];
   return (
     <Box
@@ -93,3 +103,4 @@ export default function AdminDashboard() {
     </Box>
   );
 }
+

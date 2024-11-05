@@ -1,10 +1,8 @@
-import { FamilyCard } from "@/components/family/familyCard";
-import FamilyDialog from "@/components/family/familyDialog";
 import NavItem from "@/components/mainPage/navItem";
 import SearchTextField from "@/components/utilityComponents/searchTextField";
 import { IMasterDataType } from "@/pages/api/masterDataType";
 import { Add } from "@mui/icons-material";
-import { useMasterDataTypes } from "@/utils/apiHooks";
+import { useMasterData, useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import { apiDelete, apiPostJson } from "@/utils/fetchApiUtils";
 import { Poll } from "@mui/icons-material";
@@ -14,45 +12,27 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  TextField,
-  Typography,
 } from "@mui/material";
-import { MasterDataType, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { ChangeEvent, useState } from "react";
+import MasterDataDialog from "@/components/masterData/masterDataDialog";
 
-export default function MasterDataPage() {
-  const [name, setName] = useState<string>("");
+export default function MasterDataComponent() {
   const [filter, setFilter] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { user } = useUserData();
   const { masterDataTypes, mutate } = useMasterDataTypes();
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
-
-  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setName(e.target.value);
-
-  const handleSave = async () => {
-    const res = await apiPostJson<
-      IMasterDataType,
-      Prisma.MasterDataTypeCreateInput
-    >("/api/masterDataType", { name });
-
-    if (res.error) alert(res.error);
-
-    mutate();
-    setName("");
-  };
-
-  const handleDelete = async (id: string) => {
-    const res = await apiDelete<IMasterDataType>(`api/masterDataType/${id}`);
-
-    if (res.error) alert(res.error);
-    mutate();
-  };
+  const { masterData } = useMasterData(selectedMdt);
 
   const handleMdtChange = (e: SelectChangeEvent) => {
     setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
+  };
+
+  const handleAddButton = () => {
+    setDialogOpen(true);
   };
 
   return (
@@ -70,22 +50,30 @@ export default function MasterDataPage() {
         <Box sx={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
           <SearchTextField
             sx={{ flexGrow: 1 }}
-            label="Filter: Familiennummer"
+            label="Filter"
             filter={filter}
             onChange={setFilter}
           />
-          <NavItem
+          {/* <NavItem
             title={user?.role === "USER" ? "Meine Familien" : "Statistik"}
             icon={<Poll />}
             url={"/familiesStats"}
             canAccess={user ? true : false}
-          />
+          /> */}
         </Box>
-        <Button>
+        <Button disabled={!selectedMdt} onClick={handleAddButton}>
           <Add />
-          Neue Familie
+          {selectedMdt?.name}
         </Button>
       </Box>
+      <MasterDataDialog
+        // make sure dialog can only open if MDT is selected
+        open={selectedMdt && dialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+        }}
+        masterDataType={selectedMdt}
+      />
     </>
   );
 }

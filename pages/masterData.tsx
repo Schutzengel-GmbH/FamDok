@@ -1,11 +1,11 @@
-import MasterDataPage from "@/components/masterData/masterDataPage";
+import MasterDataComponent from "@/components/masterData/masterDataComponent";
 import SessionReact from "supertokens-auth-react/recipe/session";
 
 function ProtectedPage() {
-  return <MasterDataPage />;
+  return <MasterDataComponent />;
 }
 
-export default function MePage() {
+export default function MasterDataPage() {
   return (
     <SessionReact.SessionAuth>
       <ProtectedPage />

@@ -7,9 +7,13 @@ import { prisma } from "@/db/prisma";
 import { MasterDataType, Prisma, Role } from "@prisma/client";
 import { hasOneOfRole } from "@/utils/authUtils";
 import { ApiError } from "@/utils/utils";
+import { FullMasterDataType } from "@/types/prismaHelperTypes";
 
 export interface IMasterDataTypeByID {
-  update?: Prisma.MasterDataTypeGetPayload<{ include: { dataFields: { include: { selectOptions: true } } } }>;
+  masterDataType: FullMasterDataType;
+  update?: Prisma.MasterDataTypeGetPayload<{
+    include: { dataFields: { include: { selectOptions: true } } };
+  }>;
   deleteRes?: MasterDataType;
   error?: ApiError;
 }
@@ -48,14 +52,24 @@ export default async function masterDataType(
   switch (req.method) {
     case "GET":
       const masterDataType = await prisma.masterDataType
-        .findUnique({ where: { id: id as string } })
+        .findUnique({
+          where: { id: id as string },
+          include: {
+            dataFields: { include: { selectOptions: true } },
+            organization: true,
+          },
+        })
         .catch((e) => logger.error(e));
 
       return res.status(200).json({ masterDataType });
     case "POST":
       const data = req.body as Prisma.MasterDataUpdateInput;
       const update = await prisma.masterDataType
-        .update({ where: { id: id as string }, data, include: { dataFields: { include: { selectOptions: true } } } })
+        .update({
+          where: { id: id as string },
+          data,
+          include: { dataFields: { include: { selectOptions: true } } },
+        })
         .catch((e) => logger.error(e));
 
       if (!update)

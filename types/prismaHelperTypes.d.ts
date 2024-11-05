@@ -118,3 +118,28 @@ export type FullSubOrganization = Prisma.SubOrganizationGetPayload<{
     User: { include: { organization: true; subOrganizations: true } };
   };
 }>;
+
+export type FullMasterData = Prisma.MasterDataGetPayload<{
+  include: {
+    masterDataType: {
+      include: {
+        dataFields: { include: { selectOptions: true } };
+        organization: true;
+      };
+    };
+    answers: {
+      include: { answerSelect: true; dataFieldSelectOtherOption: true };
+    };
+  };
+}>;
+
+export type FullMasterDataType = Prisma.MasterDataTypeGetPayload<{
+  include: {
+    dataFields: { include: { selectOptions: true } };
+    organization: true;
+  };
+}>;
+
+export type FullDataField = Prisma.DataFieldGetPayload<{
+  include: { selectOptions: true };
+}>;

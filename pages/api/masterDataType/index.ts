@@ -9,12 +9,13 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { Prisma, Role } from "@prisma/client";
 import { hasOneOfRole } from "@/utils/authUtils";
 import { ApiError } from "@/utils/utils";
+import { FullMasterDataType } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IMasterDataType {
-  masterDataType?: Prisma.MasterDataTypeGetPayload<{ include: { dataFields: { include: { selectOptions: true } } } }>;
-  masterDataTypes?: Prisma.MasterDataTypeGetPayload<{ include: { dataFields: { include: { selectOptions: true } } } }>[];
+  masterDataType?: FullMasterDataType;
+  masterDataTypes?: FullMasterDataType[];
   error?: ApiError;
 }
 
@@ -52,12 +53,18 @@ export default async function masterData(
               { organizationId: reqUser.organizationId },
             ],
           },
-          include: { dataFields: true },
+          include: {
+            dataFields: { include: { selectOptions: true } },
+            organization: true,
+          },
         });
         return;
       } else {
         masterDataTypes = await prisma.masterDataType.findMany({
-          include: { dataFields: true },
+          include: {
+            dataFields: { include: { selectOptions: true } },
+            organization: true,
+          },
         });
         return res.status(200).json({ masterDataTypes });
       }
@@ -71,7 +78,14 @@ export default async function masterData(
       )
         data.organization = { connect: { id: reqUser.organizationId } };
 
-      if (!hasOneOfRole(reqUser, [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER], data?.organization?.connect?.id)) return res.status(403).json({ error: "FORBIDDEN" })
+      if (
+        !hasOneOfRole(
+          reqUser,
+          [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
+          data?.organization?.connect?.id
+        )
+      )
+        return res.status(403).json({ error: "FORBIDDEN" });
 
       const masterDataType = await prisma.masterDataType
         .create({ data })

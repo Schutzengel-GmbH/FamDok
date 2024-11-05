@@ -7,13 +7,14 @@ import { prisma } from "@/db/prisma";
 import { MasterData, Prisma, Role } from "@prisma/client";
 import { ApiError } from "next/dist/server/api-utils";
 
-export interface IMasterDataById {
+export interface IMasterDataByNumber {
   updateRes?: MasterData;
   deleteRes?: MasterData;
   error?: ApiError;
 }
 
-export default async function masterDataType(req: NextApiRequest & SessionRequest,
+export default async function masterDataType(
+  req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
 ) {
   const logger = _logger.child({
@@ -44,22 +45,30 @@ export default async function masterDataType(req: NextApiRequest & SessionReques
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const { masterDataType: masterDataTypeID, number } = req.query;
-  if (!Number.isInteger(Number(number))) return res.status(400).json({ error: "BAD_INPUT" })
+  if (!Number.isInteger(Number(number)))
+    return res.status(400).json({ error: "BAD_INPUT" });
 
-
-  const masterDataType = await prisma.masterDataType.findUnique({ where: { id: masterDataTypeID as string } }).catch(logger.error);
+  const masterDataType = await prisma.masterDataType
+    .findUnique({ where: { id: masterDataTypeID as string } })
+    .catch(logger.error);
 
   if (!masterDataType) return res.status(404).json({ error: "NOT_FOUND" });
 
-  const where: Prisma.MasterDataWhereUniqueInput = { id: { masterDataTypeName: masterDataType.name, number: Number(number) } }
+  const where: Prisma.MasterDataWhereUniqueInput = {
+    id: { masterDataTypeName: masterDataType.name, number: Number(number) },
+  };
 
-  const masterData = await prisma.masterData.findUnique({
-    where,
-    include:
-      { masterDataType: { include: { dataFields: true } }, answers: { include: { answerSelect: true } } }
-  }).catch(e => logger.error(e));
+  const masterData = await prisma.masterData
+    .findUnique({
+      where,
+      include: {
+        masterDataType: { include: { dataFields: true } },
+        answers: { include: { answerSelect: true } },
+      },
+    })
+    .catch((e) => logger.error(e));
 
-  if (!masterData) return res.status(404).json({ error: "NOT_FOUND" })
+  if (!masterData) return res.status(404).json({ error: "NOT_FOUND" });
 
   let canEdit = true;
 
@@ -67,9 +76,11 @@ export default async function masterDataType(req: NextApiRequest & SessionReques
     if (masterData.userId !== user.id) canEdit = false;
 
   if (user.role === Role.ORGCONTROLLER)
-    if (masterDataType.isLimitedToOrg
-      && masterDataType.organizationId
-      && masterDataType.organizationId !== user.organizationId)
+    if (
+      masterDataType.isLimitedToOrg &&
+      masterDataType.organizationId &&
+      masterDataType.organizationId !== user.organizationId
+    )
       canEdit = false;
 
   switch (req.method) {
@@ -79,12 +90,16 @@ export default async function masterDataType(req: NextApiRequest & SessionReques
       if (!canEdit) return res.status(403).json({ error: "FORBIDDEN" });
 
       const data = req.body as Prisma.MasterDataUpdateInput;
-      const updateRes = await prisma.masterData.update({ where, data }).catch(logger.error);
+      const updateRes = await prisma.masterData
+        .update({ where, data })
+        .catch(logger.error);
       return res.status(200).json({ updateRes });
     case "DELETE":
       if (!canEdit) return res.status(403).json({ error: "FORBIDDEN" });
 
-      const deleteRes = await prisma.masterData.delete({ where }).catch(logger.error);
+      const deleteRes = await prisma.masterData
+        .delete({ where })
+        .catch(logger.error);
       return res.status(200).json({ deleteRes });
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
