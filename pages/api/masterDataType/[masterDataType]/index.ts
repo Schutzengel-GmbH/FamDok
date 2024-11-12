@@ -76,9 +76,9 @@ export default async function masterDataType(
         }[];
       };
 
-      const currentSelectOptions = masterDataType.dataFields.find(
-        (df) => df.id === data.dataFieldId
-      ).selectOptions;
+      const currentSelectOptions =
+        masterDataType.dataFields.find((df) => df.id === data.dataFieldId)
+          ?.selectOptions || [];
 
       const selectOptionsToDelete = currentSelectOptions.filter(
         (c) => !data.selectOptions?.map((o) => o.id).includes(c.id)
@@ -90,22 +90,24 @@ export default async function masterDataType(
         .update({
           where: { id: id as string },
           data: {
-            dataFields: {
-              update: {
-                where: { id: data.dataFieldId },
-                data: {
-                  ...data.update,
-                  selectOptions: {
-                    deleteMany: selectOptionsToDelete,
-                    updateMany: selectOptionsToUpdate?.map((so) => ({
-                      where: { id: so.id },
-                      data: so,
-                    })),
-                    create: selectOptionsToCreate,
+            dataFields: data.selectOptions
+              ? {
+                  update: {
+                    where: { id: data.dataFieldId },
+                    data: {
+                      ...data.update,
+                      selectOptions: {
+                        deleteMany: selectOptionsToDelete,
+                        updateMany: selectOptionsToUpdate?.map((so) => ({
+                          where: { id: so.id },
+                          data: so,
+                        })),
+                        create: selectOptionsToCreate,
+                      },
+                    },
                   },
-                },
-              },
-            },
+                }
+              : undefined,
           },
           include: { dataFields: { include: { selectOptions: true } } },
         })
