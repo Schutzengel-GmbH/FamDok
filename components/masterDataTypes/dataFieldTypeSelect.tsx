@@ -1,3 +1,4 @@
+import { getDataFieldTypeName } from "@/utils/masterDataUtils";
 import {
   FormControl,
   InputLabel,
@@ -31,7 +32,7 @@ export default function DataFieldTypeSelect({
       >
         <MenuItem value="NONE"></MenuItem>
         {getTypes().map((t) => (
-          <MenuItem value={t}>{getTypeName(t)}</MenuItem>
+          <MenuItem value={t}>{getDataFieldTypeName(t)}</MenuItem>
         ))}
       </Select>
     </FormControl>
@@ -49,21 +50,3 @@ function getTypes() {
   return types;
 }
 
-function getTypeName(type: DataFieldType): string {
-  switch (type) {
-    case "Text":
-      return "Text";
-    case "Bool":
-      return "Ja/Nein";
-    case "Int":
-      return "Ganze Zahl";
-    case "Num":
-      return "Zahl";
-    case "Select":
-      return "Auswahl";
-    case "Date":
-      return "Datum";
-    default:
-      return type;
-  }
-}

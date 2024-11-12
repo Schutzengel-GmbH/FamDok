@@ -1,10 +1,13 @@
+import { IDataFieldState } from "@/components/masterDataTypes/editDataFieldDialog";
 import { IMasterDataType } from "@/pages/api/masterDataType";
+import { IMasterDataTypeByID } from "@/pages/api/masterDataType/[masterDataType]";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
   DataField,
   DataFieldAnswer,
+  DataFieldType,
   MasterData,
   MasterDataType,
   Prisma,
@@ -68,23 +71,38 @@ export async function addDataField(
   return res.updateRes;
 }
 
-//TODO: Broken
 export async function updateDataField(
-  masterDataType: MasterDataType,
   dataField: DataField,
-  update: Prisma.DataFieldUpdateInput
+  update: Prisma.DataFieldUpdateInput,
+  selectOptions?: {
+    id?: string;
+    value: string;
+    isOpen?: boolean;
+    info?: string;
+  }[]
 ) {
   const res = await apiPostJson<
-    IMasterDataByNumber,
-    Prisma.MasterDataTypeUpdateInput
-  >(`/api/masterDataType/${masterDataType.id}`, {
-    dataFields: { update: { where: { id: dataField.id }, data: update } },
+    IMasterDataTypeByID,
+    {
+      dataFieldId: string;
+      update: Prisma.DataFieldUpdateInput;
+      selectOptions?: {
+        id?: string;
+        value: string;
+        isOpen?: boolean;
+        info?: string;
+      }[];
+    }
+  >(`/api/masterDataType/${dataField.masterDataTypeId}`, {
+    dataFieldId: dataField.id,
+    update,
+    selectOptions,
   }).catch((e) => {
     throw new Error(e);
   });
 
   if (res instanceof FetchError || res.error) throw new Error(res.error);
-  return res.updateRes;
+  return res.update;
 }
 
 export async function deleteDataField(
@@ -170,3 +188,23 @@ export async function addDataFieldAnswers(
   if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
 }
+
+export function getDataFieldTypeName(type: DataFieldType): string {
+  switch (type) {
+    case "Text":
+      return "Text";
+    case "Bool":
+      return "Ja/Nein";
+    case "Int":
+      return "Ganze Zahl";
+    case "Num":
+      return "Zahl";
+    case "Select":
+      return "Auswahl";
+    case "Date":
+      return "Datum";
+    default:
+      return type;
+  }
+}
+

@@ -19,7 +19,7 @@ export interface IMasterData {
         include: { dataFields: { include: { selectOptions: true } } };
       };
     };
-  }>;
+  }>[];
   error?: ApiError;
 }
 

@@ -1,6 +1,10 @@
 import SearchTextField from "@/components/utilityComponents/searchTextField";
 import { Add } from "@mui/icons-material";
-import { useMasterDataTypes } from "@/utils/apiHooks";
+import {
+  useMasterData,
+  useMasterDataByNumber,
+  useMasterDataTypes,
+} from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import {
   Box,
@@ -9,10 +13,12 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addMasterData } from "@/utils/masterDataUtils";
 import useToast from "@/components/notifications/notificationContext";
 import { useRouter } from "next/router";
+import { FullMasterData } from "@/types/prismaHelperTypes";
+import MasterDataBigCard from "@/components/masterData/masterDataBigCard";
 
 export default function MasterDataComponent() {
   const [filter, setFilter] = useState<string>("");
@@ -26,6 +32,8 @@ export default function MasterDataComponent() {
   const handleMdtChange = (e: SelectChangeEvent) => {
     setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
   };
+
+  const { masterData } = useMasterDataByNumber(selectedMdt?.id, Number(filter));
 
   const { addToast } = useToast();
 
@@ -62,13 +70,8 @@ export default function MasterDataComponent() {
             filter={filter}
             onChange={setFilter}
           />
-          {/* <NavItem
-            title={user?.role === "USER" ? "Meine Familien" : "Statistik"}
-            icon={<Poll />}
-            url={"/familiesStats"}
-            canAccess={user ? true : false}
-          /> */}
         </Box>
+        {masterData && <MasterDataBigCard masterData={masterData} />}
         <Button disabled={!selectedMdt} onClick={handleAddButton}>
           <Add />
           {selectedMdt?.name}

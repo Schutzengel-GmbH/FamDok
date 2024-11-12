@@ -1,13 +1,9 @@
-import DataFields from "@/components/masterDataTypes/dataFields";
-import EditDataField from "@/components/masterDataTypes/editDataField";
 import NewMasterdataTypeDialog from "@/components/masterDataTypes/newMasterDataTypeDialog";
 import useToast from "@/components/notifications/notificationContext";
-import masterDataTypes from "@/pages/masterDataTypes";
-import { FullMasterDataType } from "@/types/prismaHelperTypes";
 import { useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import { deleteMasterDataType } from "@/utils/masterDataUtils";
-import { Add, Sledding } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import {
   Select,
   MenuItem,
@@ -16,7 +12,8 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useState } from "react";
 
 export default function MasterDataTypesComponent() {
   const { user } = useUserData();
@@ -26,16 +23,7 @@ export default function MasterDataTypesComponent() {
     useState<(typeof masterDataTypes)[number]>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-  // TODO: Change this ugly hacky thing
-  useEffect(() => {
-    if (!selectedMdt) return;
-
-    const newSelMdt = masterDataTypes.find(
-      (mdt) => mdt.name === selectedMdt.name
-    );
-
-    setSelectedMdt(newSelMdt);
-  }, [masterDataTypes]);
+  const router = useRouter();
 
   const { addToast } = useToast();
 
@@ -49,7 +37,9 @@ export default function MasterDataTypesComponent() {
 
   console.log(selectedMdt?.dataFields);
 
-  const onCancel = () => {};
+  const onEdit = () => {
+    router.push(`/masterDataTypes/${selectedMdt.id}/edit`);
+  };
 
   const onDelete = async () => {
     try {
@@ -67,8 +57,6 @@ export default function MasterDataTypesComponent() {
       });
     }
   };
-
-  const onSave = () => {};
 
   return (
     <>
@@ -99,24 +87,22 @@ export default function MasterDataTypesComponent() {
           <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <Typography variant="h4">{selectedMdt.name}</Typography>
             <Typography variant="h5">Datenfelder:</Typography>
-            <DataFields
-              masterDataType={selectedMdt}
-              onChange={mutateMasterDataTypes}
-            />
-            <Typography variant="h5">Neues Datenfeld hinzufügen:</Typography>
-            <EditDataField
-              masterDataType={selectedMdt}
-              dataField={undefined}
-              onSave={() => mutateMasterDataTypes()}
-            />
+            {selectedMdt &&
+              selectedMdt.dataFields.map((df) => (
+                <Box>
+                  <Typography>{df.text}</Typography>
+                  <Typography>{df.type}</Typography>
+                </Box>
+              ))}
           </Box>
         )}
 
-        <Button onClick={onSave}>Speichern</Button>
-        <Button onClick={onDelete} color="error">
+        <Button onClick={onEdit} disabled={!selectedMdt}>
+          Bearbeiten
+        </Button>
+        <Button onClick={onDelete} color="error" disabled={!selectedMdt}>
           Löschen
         </Button>
-        <Button onClick={onCancel}>Zurücksetzen</Button>
       </Box>
       <NewMasterdataTypeDialog
         open={addDialogOpen}
@@ -128,3 +114,4 @@ export default function MasterDataTypesComponent() {
     </>
   );
 }
+

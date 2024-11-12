@@ -6,6 +6,7 @@ import { IFooter } from "@/pages/api/footer/[uri]";
 import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
 import { IMasterDataType } from "@/pages/api/masterDataType";
+import { IMasterDataTypeByID } from "@/pages/api/masterDataType/[masterDataType]";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { IOrganizations } from "@/pages/api/organizations";
@@ -299,6 +300,22 @@ export function useMasterDataTypes() {
 
   return {
     masterDataTypes: data?.masterDataTypes,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMasterDataTypeById(id: string) {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IMasterDataTypeByID>(
+      id ? `/api/masterDataType/${id}` : null,
+      fetcher
+    );
+
+  return {
+    masterDataType: data?.masterDataType,
     error,
     isLoading,
     isValidating,

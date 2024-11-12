@@ -49,25 +49,64 @@ export default async function masterDataType(
 
   const { masterDataType: id } = req.query;
 
+  const masterDataType = await prisma.masterDataType
+    .findUniqueOrThrow({
+      where: { id: id as string },
+      include: {
+        dataFields: { include: { selectOptions: true } },
+        organization: true,
+      },
+    })
+    .catch((e) => logger.error(e));
+
+  if (!masterDataType) return res.status(404).json({ error: "NOT_FOUND" });
+
   switch (req.method) {
     case "GET":
-      const masterDataType = await prisma.masterDataType
-        .findUnique({
-          where: { id: id as string },
-          include: {
-            dataFields: { include: { selectOptions: true } },
-            organization: true,
-          },
-        })
-        .catch((e) => logger.error(e));
-
       return res.status(200).json({ masterDataType });
     case "POST":
-      const data = req.body as Prisma.MasterDataTypeUpdateInput;
+      const data = req.body as {
+        dataFieldId: string;
+        update: Prisma.DataFieldUpdateInput;
+        selectOptions?: {
+          id?: string;
+          value: string;
+          isOpen?: boolean;
+          info?: string;
+        }[];
+      };
+
+      const currentSelectOptions = masterDataType.dataFields.find(
+        (df) => df.id === data.dataFieldId
+      ).selectOptions;
+
+      const selectOptionsToDelete = currentSelectOptions.filter(
+        (c) => !data.selectOptions?.map((o) => o.id).includes(c.id)
+      );
+      const selectOptionsToUpdate = data.selectOptions?.filter((so) => so.id);
+      const selectOptionsToCreate = data.selectOptions?.filter((so) => !so.id);
+
       const update = await prisma.masterDataType
         .update({
           where: { id: id as string },
-          data,
+          data: {
+            dataFields: {
+              update: {
+                where: { id: data.dataFieldId },
+                data: {
+                  ...data.update,
+                  selectOptions: {
+                    deleteMany: selectOptionsToDelete,
+                    updateMany: selectOptionsToUpdate?.map((so) => ({
+                      where: { id: so.id },
+                      data: so,
+                    })),
+                    create: selectOptionsToCreate,
+                  },
+                },
+              },
+            },
+          },
           include: { dataFields: { include: { selectOptions: true } } },
         })
         .catch((e) => logger.error(e));
