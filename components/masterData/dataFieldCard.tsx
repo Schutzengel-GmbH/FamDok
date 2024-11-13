@@ -1,19 +1,29 @@
+import TextDataFieldInput from "@/components/masterData/masterDataTypes/textDataFieldInput";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
-import { Paper, Typography } from "@mui/material";
+import { Cancel, Save } from "@mui/icons-material";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { DataFieldAnswer, DataField } from "@prisma/client";
 
 interface DataFieldCardProps {
   dataField: FullDataField;
-  answer: FullDataFieldAnswer;
+  answer: Partial<FullDataFieldAnswer>;
+  onChange: (answer: Partial<FullDataFieldAnswer>) => void;
 }
 
 export default function DataFieldCard({
   dataField,
   answer,
+  onChange,
 }: DataFieldCardProps) {
-  const getAnswerString = () => {
+  const getAnswerComponent = () => {
     switch (dataField.type) {
       case "Text":
-        return answer?.answerText;
+        return (
+          <TextDataFieldInput
+            dataField={dataField}
+            onChange={(a) => onChange(a)}
+          />
+        );
       case "Bool":
       case "Int":
       case "Num":
@@ -35,8 +45,17 @@ export default function DataFieldCard({
       }}
     >
       <Typography variant="h6">{dataField.text}:</Typography>
-      <Typography>{getAnswerString()}</Typography>
+      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        {getAnswerComponent()}
+      </Box>
+      <Box sx={{ ml: "auto" }}>
+        <Button>
+          <Save />
+        </Button>
+        <Button>
+          <Cancel />
+        </Button>
+      </Box>
     </Paper>
   );
 }
-

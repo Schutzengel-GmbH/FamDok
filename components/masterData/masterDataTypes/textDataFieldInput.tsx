@@ -1,12 +1,11 @@
-import { FullDataField } from "@/types/prismaHelperTypes";
-import { Paper, TextField, Typography } from "@mui/material";
-import { DataField, DataFieldAnswer } from "@prisma/client";
+import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import { TextField } from "@mui/material";
 import { ChangeEvent } from "react";
 
 interface TextDataFieldInputProps {
   dataField: FullDataField;
-  answer?: Partial<DataFieldAnswer>;
-  onChange: (answer: Partial<DataFieldAnswer>, dataField: DataField) => void;
+  answer?: Partial<FullDataFieldAnswer>;
+  onChange: (answer: Partial<FullDataFieldAnswer>) => void;
 }
 
 export default function TextDataFieldInput({
@@ -15,23 +14,11 @@ export default function TextDataFieldInput({
   onChange,
 }: TextDataFieldInputProps) {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onChange(
-      { ...answer, answerText: e.target.value, dataFieldId: dataField.id },
-      dataField
-    );
+    onChange({
+      ...answer,
+      answerText: e.target.value,
+      dataFieldId: dataField.id,
+    });
 
-  return (
-    <Paper
-      sx={{
-        p: ".5rem",
-        display: "flex",
-        flexDirection: "row",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h6">{dataField.text}</Typography>
-      <TextField value={answer?.answerText || ""} onChange={handleChange} />
-    </Paper>
-  );
+  return <TextField value={answer?.answerText || ""} onChange={handleChange} />;
 }

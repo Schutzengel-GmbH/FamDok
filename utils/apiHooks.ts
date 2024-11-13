@@ -352,7 +352,7 @@ export function useMasterData(
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IMasterData>(
     masterDataType
-      ? `/api/${masterDataType.id}/masterData${
+      ? `/api/masterDataType/${masterDataType.id}/masterData${
           input ? `?whereInput=${input}` : ""
         }`
       : null,

@@ -8,18 +8,13 @@ import { superTokensNextWrapper } from "supertokens-node/nextjs";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
 import { MasterData, Prisma, Role } from "@prisma/client";
 import { ApiError } from "@/utils/utils";
+import { FullMasterData } from "@/types/prismaHelperTypes";
 
 supertokens.init(backendConfig());
 
 export interface IMasterData {
   createRes?: MasterData;
-  masterData?: Prisma.MasterDataGetPayload<{
-    include: {
-      masterDataType: {
-        include: { dataFields: { include: { selectOptions: true } } };
-      };
-    };
-  }>[];
+  masterData?: FullMasterData[];
   error?: ApiError;
 }
 
@@ -62,7 +57,28 @@ export default async function comingFromOptions(
       const masterData = await prisma.masterData.findMany({
         include: {
           masterDataType: {
-            include: { dataFields: { include: { selectOptions: true } } },
+            include: {
+              dataFields: { include: { selectOptions: true } },
+              organization: true,
+            },
+          },
+          createdBy: { include: { organization: true } },
+          answers: {
+            include: {
+              answerSelect: {
+                include: {
+                  dataFieldSelectOtherOption: true,
+                },
+              },
+              answerCollection: {
+                include: {
+                  collectionDataDate: true,
+                  collectionDataFloat: true,
+                  collectionDataInt: true,
+                  collectionDataString: true,
+                },
+              },
+            },
           },
         },
       });

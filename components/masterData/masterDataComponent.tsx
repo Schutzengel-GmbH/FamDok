@@ -1,10 +1,6 @@
 import SearchTextField from "@/components/utilityComponents/searchTextField";
 import { Add } from "@mui/icons-material";
-import {
-  useMasterData,
-  useMasterDataByNumber,
-  useMasterDataTypes,
-} from "@/utils/apiHooks";
+import { useMasterData, useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import {
   Box,
@@ -18,22 +14,32 @@ import { addMasterData } from "@/utils/masterDataUtils";
 import useToast from "@/components/notifications/notificationContext";
 import { useRouter } from "next/router";
 import { FullMasterData } from "@/types/prismaHelperTypes";
-import MasterDataBigCard from "@/components/masterData/masterDataBigCard";
+import MasterDataCard from "@/components/masterData/masterDataCard";
 
 export default function MasterDataComponent() {
   const [filter, setFilter] = useState<string>("");
   const router = useRouter();
-
   const { user } = useUserData();
-  const { masterDataTypes, mutate } = useMasterDataTypes();
+  const { masterDataTypes, mutate: mutateMdt } = useMasterDataTypes();
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
+  const { masterData, mutate } = useMasterData(selectedMdt);
+  const [displayedMasterData, setDisplayedMasterData] =
+    useState<FullMasterData[]>(masterData);
+
+  useEffect(() => {
+    if (filter) {
+      setDisplayedMasterData(
+        masterData.filter((md) => md.number === parseInt(filter))
+      );
+    } else {
+      setDisplayedMasterData(masterData);
+    }
+  }, [filter, masterData]);
 
   const handleMdtChange = (e: SelectChangeEvent) => {
     setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
   };
-
-  const { masterData } = useMasterDataByNumber(selectedMdt?.id, Number(filter));
 
   const { addToast } = useToast();
 
@@ -71,11 +77,13 @@ export default function MasterDataComponent() {
             onChange={setFilter}
           />
         </Box>
-        {masterData && <MasterDataBigCard masterData={masterData} />}
         <Button disabled={!selectedMdt} onClick={handleAddButton}>
           <Add />
           {selectedMdt?.name}
         </Button>
+        {displayedMasterData?.map((m) => (
+          <MasterDataCard key={m.number} masterData={m} />
+        ))}
       </Box>
     </>
   );

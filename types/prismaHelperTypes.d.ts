@@ -127,8 +127,23 @@ export type FullMasterData = Prisma.MasterDataGetPayload<{
         organization: true;
       };
     };
+    createdBy: { include: { organization: true } };
     answers: {
-      include: { answerSelect: true; dataFieldSelectOtherOption: true };
+      include: {
+        answerSelect: {
+          include: {
+            dataFieldSelectOtherOption: true;
+          };
+        };
+        answerCollection: {
+          include: {
+            collectionDataDate: true;
+            collectionDataFloat: true;
+            collectionDataInt: true;
+            collectionDataString: true;
+          };
+        };
+      };
     };
   };
 }>;
@@ -146,7 +161,18 @@ export type FullDataField = Prisma.DataFieldGetPayload<{
 
 export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{
   include: {
-    answerSelect: true;
-    dataFieldSelectOtherOption: true;
+    answerSelect: {
+      include: {
+        dataFieldSelectOtherOption: true;
+      };
+    };
+    answerCollection: {
+      include: {
+        collectionDataDate: true;
+        collectionDataFloat: true;
+        collectionDataInt: true;
+        collectionDataString: true;
+      };
+    };
   };
 }>;
