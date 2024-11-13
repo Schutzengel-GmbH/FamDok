@@ -1,11 +1,19 @@
 import EditStringDialog from "@/components/editSurvey/editStringDialog";
 import DataFieldListItem from "@/components/masterDataTypes/dataFieldListItem";
+import EditDataFieldDialog from "@/components/masterDataTypes/editDataFieldDialog";
 import useToast from "@/components/notifications/notificationContext";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { FullMasterDataType } from "@/types/prismaHelperTypes";
 import { updateMasterDataType } from "@/utils/masterDataUtils";
-import { Edit } from "@mui/icons-material";
-import { Alert, Box, IconButton, List, Typography } from "@mui/material";
+import { Add, Edit } from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  IconButton,
+  List,
+  ListItemButton,
+  Typography,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -22,6 +30,7 @@ export default function EditMasterDataType({
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [name, setName] = useState<string>(masterDataType.name);
   const [editNameOpen, setEditNameOpen] = useState<boolean>(false);
+  const [addOpen, setAddOpen] = useState<boolean>(false);
 
   const { addToast } = useToast();
   const router = useRouter();
@@ -35,6 +44,10 @@ export default function EditMasterDataType({
       addToast({ message: `Fehler: ${e}`, severity: "error" });
     }
     onChange();
+  };
+
+  const handleAdd = () => {
+    setAddOpen(true);
   };
 
   const handleCancel = () => {
@@ -64,6 +77,9 @@ export default function EditMasterDataType({
         {masterDataType.dataFields.map((df) => (
           <DataFieldListItem dataField={df} onChange={onChange} />
         ))}
+        <ListItemButton onClick={handleAdd}>
+          <Add /> Datenfeld hinzufügen
+        </ListItemButton>
       </List>
 
       <EditStringDialog
@@ -76,7 +92,15 @@ export default function EditMasterDataType({
         }}
         onClose={() => setEditNameOpen(false)}
       />
+
+      <EditDataFieldDialog
+        open={addOpen}
+        masterDataTypeId={masterDataType.id}
+        onClose={() => {
+          onChange();
+          setAddOpen(false);
+        }}
+      />
     </Box>
   );
 }
-

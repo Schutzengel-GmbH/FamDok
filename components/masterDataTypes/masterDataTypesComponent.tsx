@@ -1,5 +1,6 @@
 import NewMasterdataTypeDialog from "@/components/masterDataTypes/newMasterDataTypeDialog";
 import useToast from "@/components/notifications/notificationContext";
+import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import { deleteMasterDataType } from "@/utils/masterDataUtils";
@@ -22,6 +23,7 @@ export default function MasterDataTypesComponent() {
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -50,6 +52,7 @@ export default function MasterDataTypesComponent() {
       });
       setSelectedMdt(undefined);
       mutateMasterDataTypes();
+      setDeleteDialogOpen(false);
     } catch (e) {
       addToast({
         message: `Fehler: ${e}`,
@@ -100,10 +103,15 @@ export default function MasterDataTypesComponent() {
         <Button onClick={onEdit} disabled={!selectedMdt}>
           Bearbeiten
         </Button>
-        <Button onClick={onDelete} color="error" disabled={!selectedMdt}>
+        <Button
+          onClick={() => setDeleteDialogOpen(true)}
+          color="error"
+          disabled={!selectedMdt}
+        >
           Löschen
         </Button>
       </Box>
+
       <NewMasterdataTypeDialog
         open={addDialogOpen}
         onClose={() => {
@@ -111,7 +119,14 @@ export default function MasterDataTypesComponent() {
           mutateMasterDataTypes();
         }}
       />
+
+      <ConfirmDialog
+        title={`Stammdatenart ${selectedMdt?.name} löschen?`}
+        body={`Soll die Stammdatenart ${selectedMdt?.name} endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden, alle Datensätze gehen verloren`}
+        open={deleteDialogOpen}
+        onConfirm={onDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
     </>
   );
 }
-

@@ -1,6 +1,9 @@
 import { IDataFieldState } from "@/components/masterDataTypes/editDataFieldDialog";
 import { IMasterDataType } from "@/pages/api/masterDataType";
-import { IMasterDataTypeByID } from "@/pages/api/masterDataType/[masterDataType]";
+import {
+  IMasterDataTypeByID,
+  IMasterDataTypeByIdBody,
+} from "@/pages/api/masterDataType/[masterDataType]";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
@@ -54,26 +57,25 @@ export async function deleteMasterDataType(masterDataType: MasterDataType) {
 }
 
 export async function addDataField(
-  masterDataType: MasterDataType,
+  masterDataTypeId: string,
   dataField: Prisma.DataFieldCreateInput
 ) {
-  console.log("update", dataField);
-  const res = await apiPostJson<
-    IMasterDataByNumber,
-    Prisma.MasterDataTypeUpdateInput
-  >(`/api/masterDataType/${masterDataType.id}`, {
-    dataFields: { create: dataField },
-  }).catch((e) => {
+  const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
+    `/api/masterDataType/${masterDataTypeId}`,
+    {
+      update: { dataFields: { create: dataField } },
+    }
+  ).catch((e) => {
     throw new Error(e);
   });
 
   if (res instanceof FetchError || res.error) throw new Error(res.error);
-  return res.updateRes;
+  return res.update;
 }
 
 export async function updateDataField(
   dataField: DataField,
-  update: Prisma.DataFieldUpdateInput,
+  dataFieldUpdate: Prisma.DataFieldUpdateInput,
   selectOptions?: {
     id?: string;
     value: string;
@@ -81,23 +83,14 @@ export async function updateDataField(
     info?: string;
   }[]
 ) {
-  const res = await apiPostJson<
-    IMasterDataTypeByID,
+  const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
+    `/api/masterDataType/${dataField.masterDataTypeId}`,
     {
-      dataFieldId: string;
-      update: Prisma.DataFieldUpdateInput;
-      selectOptions?: {
-        id?: string;
-        value: string;
-        isOpen?: boolean;
-        info?: string;
-      }[];
+      dataFieldId: dataField.id,
+      dataFieldUpdate: dataFieldUpdate,
+      selectOptions,
     }
-  >(`/api/masterDataType/${dataField.masterDataTypeId}`, {
-    dataFieldId: dataField.id,
-    update,
-    selectOptions,
-  }).catch((e) => {
+  ).catch((e) => {
     throw new Error(e);
   });
 
@@ -106,20 +99,18 @@ export async function updateDataField(
 }
 
 export async function deleteDataField(
-  masterDataType: MasterDataType,
+  masterDataTypeId: string,
   dataField: DataField
 ) {
-  const res = await apiPostJson<
-    IMasterDataByNumber,
-    Prisma.MasterDataTypeUpdateInput
-  >(`/api/masterDataType/${masterDataType.id}`, {
-    dataFields: { delete: { id: dataField.id } },
-  }).catch((e) => {
+  const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
+    `/api/masterDataType/${masterDataTypeId}`,
+    { dataFieldsToDelete: [dataField] }
+  ).catch((e) => {
     throw new Error(e);
   });
 
   if (res instanceof FetchError || res.error) throw new Error(res.error);
-  return res.updateRes;
+  return res.update;
 }
 
 export async function addMasterData(
@@ -207,4 +198,3 @@ export function getDataFieldTypeName(type: DataFieldType): string {
       return type;
   }
 }
-

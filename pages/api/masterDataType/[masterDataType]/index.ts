@@ -18,6 +18,19 @@ export interface IMasterDataTypeByID {
   error?: ApiError;
 }
 
+export interface IMasterDataTypeByIdBody {
+  dataFieldId?: string;
+  dataFieldUpdate?: Prisma.DataFieldUpdateInput;
+  dataFieldsToDelete?: { id: string }[];
+  update?: Prisma.MasterDataTypeUpdateInput;
+  selectOptions?: {
+    id?: string;
+    value: string;
+    isOpen?: boolean;
+    info?: string;
+  }[];
+}
+
 export default async function masterDataType(
   req: NextApiRequest & SessionRequest,
   res: NextApiResponse & Response
@@ -65,16 +78,7 @@ export default async function masterDataType(
     case "GET":
       return res.status(200).json({ masterDataType });
     case "POST":
-      const data = req.body as {
-        dataFieldId: string;
-        update: Prisma.DataFieldUpdateInput;
-        selectOptions?: {
-          id?: string;
-          value: string;
-          isOpen?: boolean;
-          info?: string;
-        }[];
-      };
+      const data = req.body as IMasterDataTypeByIdBody;
 
       const currentSelectOptions =
         masterDataType.dataFields.find((df) => df.id === data.dataFieldId)
@@ -86,28 +90,43 @@ export default async function masterDataType(
       const selectOptionsToUpdate = data.selectOptions?.filter((so) => so.id);
       const selectOptionsToCreate = data.selectOptions?.filter((so) => !so.id);
 
+      let dataFields: any = {};
+
+      if (
+        selectOptionsToDelete.length > 0 ||
+        selectOptionsToUpdate ||
+        selectOptionsToCreate
+      )
+        dataFields.update = {
+          where: { id: data.dataFieldId },
+          data: {
+            ...data.dataFieldUpdate,
+            selectOptions: {
+              deleteMany: selectOptionsToDelete,
+              updateMany: selectOptionsToUpdate?.map((so) => ({
+                where: { id: so.id },
+                data: so,
+              })),
+              create: selectOptionsToCreate,
+            },
+          },
+        };
+
+      if (data.update?.dataFields?.create)
+        dataFields.create = data.update.dataFields.create;
+
+      if (data.dataFieldsToDelete) {
+        dataFields.deleteMany = data.dataFieldsToDelete.map((x) => ({
+          id: x.id,
+        }));
+      }
+
       const update = await prisma.masterDataType
         .update({
           where: { id: id as string },
           data: {
-            dataFields: data.selectOptions
-              ? {
-                  update: {
-                    where: { id: data.dataFieldId },
-                    data: {
-                      ...data.update,
-                      selectOptions: {
-                        deleteMany: selectOptionsToDelete,
-                        updateMany: selectOptionsToUpdate?.map((so) => ({
-                          where: { id: so.id },
-                          data: so,
-                        })),
-                        create: selectOptionsToCreate,
-                      },
-                    },
-                  },
-                }
-              : undefined,
+            ...data.update,
+            dataFields,
           },
           include: { dataFields: { include: { selectOptions: true } } },
         })

@@ -1,6 +1,8 @@
 import EditDataFieldDialog from "@/components/masterDataTypes/editDataFieldDialog";
+import useToast from "@/components/notifications/notificationContext";
+import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { FullDataField } from "@/types/prismaHelperTypes";
-import { getDataFieldTypeName } from "@/utils/masterDataUtils";
+import { deleteDataField, getDataFieldTypeName } from "@/utils/masterDataUtils";
 import {
   Chair,
   Check,
@@ -34,10 +36,23 @@ export default function DataFieldListItem({
 }: DataFieldListItemProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [openEdit, setOpenEdit] = useState<boolean>(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+
+  const { addToast } = useToast();
 
   const handleOpen = () => setOpen(!open);
   const handleOpenEdit = () => setOpenEdit(!openEdit);
-  const handleDelete = () => {};
+  const handleDelete = () => setDeleteDialogOpen(true);
+
+  const onDelete = async () => {
+    try {
+      const res = await deleteDataField(dataField.masterDataTypeId, dataField);
+      onChange();
+      setDeleteDialogOpen(false);
+    } catch (e) {
+      addToast({ message: `Fehler: ${e}`, severity: "error" });
+    }
+  };
 
   return (
     <Box>
@@ -106,7 +121,14 @@ export default function DataFieldListItem({
         }}
         dataField={dataField}
       />
+
+      <ConfirmDialog
+        title={"Datenfeld löschen?"}
+        body={`Soll das Datenfeld ${dataField.text} endgültig gelöscht werden? Alle dazugehörigen Daten gehen verloren!`}
+        open={deleteDialogOpen}
+        onConfirm={onDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
     </Box>
   );
 }
-

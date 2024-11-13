@@ -2,7 +2,7 @@ import SelectOptionsComponent from "@/components/editSurvey/selectOptionsCompone
 import DataFieldTypeSelect from "@/components/masterDataTypes/dataFieldTypeSelect";
 import useToast from "@/components/notifications/notificationContext";
 import { FullDataField } from "@/types/prismaHelperTypes";
-import { updateDataField } from "@/utils/masterDataUtils";
+import { addDataField, updateDataField } from "@/utils/masterDataUtils";
 import { Save, Cancel } from "@mui/icons-material";
 import {
   Box,
@@ -16,10 +16,12 @@ import {
   TextField,
 } from "@mui/material";
 import { DataFieldType, Prisma } from "@prisma/client";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 interface EditDataFieldDialogProps {
   dataField?: FullDataField;
+  masterDataTypeId?: string;
   open: boolean;
   onClose: () => void;
 }
@@ -27,6 +29,7 @@ interface EditDataFieldDialogProps {
 export interface IDataFieldState {
   text: string;
   description: string;
+  selectMultiple?: boolean;
   selectOptions?: {
     id?: string;
     value: string;
@@ -39,42 +42,78 @@ export interface IDataFieldState {
 
 export default function EditDataFieldDialog({
   dataField,
+  masterDataTypeId,
   open,
   onClose,
 }: EditDataFieldDialogProps) {
   const [dataFieldState, setDataFieldState] = useState<IDataFieldState>({
-    text: dataField.text || undefined,
-    description: dataField.description || undefined,
-    selectOptions: dataField.selectOptions,
-    required: dataField.required || undefined,
-    type: dataField.type || undefined,
+    text: dataField?.text || undefined,
+    description: dataField?.description || undefined,
+    selectMultiple: dataField?.selectMultiple || undefined,
+    selectOptions: dataField?.selectOptions || [],
+    required: dataField?.required || undefined,
+    type: dataField?.type || undefined,
   });
 
   const { addToast } = useToast();
 
-  const saveDisabled = () => false;
+  const saveDisabled = () => !dataFieldState.text;
+
   const handleSave = async () => {
     if (saveDisabled()) return;
-    try {
-      const res = await updateDataField(
-        dataField,
-        {
-          text: dataFieldState.text,
-          description: dataFieldState.description,
-          required: dataFieldState.required,
-          type: dataFieldState.type,
-        },
-        dataFieldState.selectOptions.length > 0
-          ? dataFieldState.selectOptions
-          : undefined
-      );
-      addToast({ message: "Datenfeld geändert", severity: "success" });
-      onClose();
-    } catch (e) {
-      addToast({ message: `Fehler: ${e}`, severity: "error" });
+
+    if (dataField)
+      try {
+        const res = await updateDataField(
+          dataField,
+          {
+            text: dataFieldState.text,
+            description: dataFieldState.description,
+            required: dataFieldState.required,
+            type: dataFieldState.type,
+          },
+          dataFieldState.selectOptions.length > 0
+            ? dataFieldState.selectOptions
+            : undefined
+        );
+        addToast({ message: "Datenfeld geändert", severity: "success" });
+        handleClose();
+      } catch (e) {
+        addToast({ message: `Fehler: ${e}`, severity: "error" });
+      }
+
+    if (!dataField) {
+      if (!masterDataTypeId) {
+        addToast({
+          message: "Fehler: kein Stammdatensatz gefunden (no masterDataTypeId)",
+          severity: "error",
+        });
+        return;
+      }
+
+      try {
+        const res = await addDataField(masterDataTypeId, {
+          ...dataFieldState,
+          selectOptions: { create: dataFieldState.selectOptions },
+        });
+        console.log(res);
+        addToast({ message: "Datenfeld geändert", severity: "success" });
+        handleClose();
+      } catch (e) {
+        addToast({ message: `Fehler: ${e}`, severity: "error" });
+      }
     }
   };
+
   const handleClose = () => {
+    setDataFieldState({
+      text: dataField?.text || undefined,
+      description: dataField?.description || undefined,
+      selectMultiple: dataField?.selectMultiple || undefined,
+      selectOptions: dataField?.selectOptions || [],
+      required: dataField?.required || undefined,
+      type: dataField?.type || undefined,
+    });
     onClose();
   };
 
@@ -128,12 +167,28 @@ export default function EditDataFieldDialog({
             label={"Eingabe erforderlich?"}
           />
           {dataFieldState.type === "Select" && (
-            <SelectOptionsComponent
-              value={dataFieldState.selectOptions}
-              onChange={(s) =>
-                setDataFieldState({ ...dataFieldState, selectOptions: s })
-              }
-            />
+            <>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={dataFieldState.selectMultiple as boolean}
+                    onChange={(e) => {
+                      setDataFieldState({
+                        ...dataFieldState,
+                        selectMultiple: e.target.checked,
+                      });
+                    }}
+                  />
+                }
+                label={"Mehrere Antworten zulassen"}
+              />
+              <SelectOptionsComponent
+                value={dataFieldState.selectOptions}
+                onChange={(s) =>
+                  setDataFieldState({ ...dataFieldState, selectOptions: s })
+                }
+              />
+            </>
           )}
         </Box>
       </DialogContent>
@@ -148,4 +203,3 @@ export default function EditDataFieldDialog({
     </Dialog>
   );
 }
-

@@ -201,7 +201,7 @@ model MasterDataType {
   name String @unique
 
   isLimitedToOrg Boolean?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   organizationId String?
 
   @@unique([id, name])
@@ -214,7 +214,7 @@ model MasterData {
 
   createdBy User @relation(fields: [userId], references: [id])
 
-  masterDataType     MasterDataType @relation(fields: [masterDataTypeId, masterDataTypeName], references: [id, name])
+  masterDataType     MasterDataType @relation(fields: [masterDataTypeId, masterDataTypeName], references: [id, name], onDelete: Cascade)
   masterDataTypeId   String
   masterDataTypeName String
 
@@ -230,13 +230,14 @@ model DataField {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  MasterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id])
+  MasterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
   masterDataTypeId String?
 
   answers DataFieldAnswer[]
 
-  type          DataFieldType
-  selectOptions DataFieldSelectOption[]
+  type           DataFieldType
+  selectMultiple Boolean?
+  selectOptions  DataFieldSelectOption[]
 
   required Boolean?
 
@@ -257,11 +258,11 @@ model DataFieldAnswer {
   dataFieldSelectOtherOption DataFieldSelectOtherOption[]
   answerDate                 DateTime?
 
-  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
+  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number], onDelete: Cascade)
   masterDataMasterDataTypeName String?
   masterDataNumber             Int?
 
-  dataField   DataField @relation(fields: [dataFieldId], references: [id])
+  dataField   DataField @relation(fields: [dataFieldId], references: [id], onDelete: Cascade)
   dataFieldId String
 }
 
@@ -286,10 +287,10 @@ model DataFieldSelectOtherOption {
 
   value String
 
-  dataFieldSelectOption   DataFieldSelectOption @relation(fields: [dataFieldSelectOptionId], references: [id])
+  dataFieldSelectOption   DataFieldSelectOption @relation(fields: [dataFieldSelectOptionId], references: [id], onDelete: Cascade)
   dataFieldSelectOptionId String
 
-  dataFieldAnswer   DataFieldAnswer @relation(fields: [dataFieldAnswerId], references: [id])
+  dataFieldAnswer   DataFieldAnswer @relation(fields: [dataFieldAnswerId], references: [id], onDelete: Cascade)
   dataFieldAnswerId String
 }
 
