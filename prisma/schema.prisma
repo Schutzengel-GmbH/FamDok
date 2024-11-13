@@ -107,6 +107,7 @@ model Question {
   defaultAnswerNum           Float?
   defaultAnswerDate          DateTime?
   numberInSurvey             Int
+  collectionSize             Int?
 }
 
 model SelectOption {
@@ -154,9 +155,12 @@ model Answer {
   answerSelect            SelectOption[]
   answerSelectOtherValues Json?
   answerDate              DateTime?
-  response                Response       @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  responseId              String
-  questionId              String
+  answerCollection        Collection?    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId            String?
+
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  responseId String
+  questionId String
 }
 
 model PossibleLocation {
@@ -235,9 +239,11 @@ model DataField {
 
   answers DataFieldAnswer[]
 
-  type           DataFieldType
-  selectMultiple Boolean?
-  selectOptions  DataFieldSelectOption[]
+  type              DataFieldType
+  collectionType    CollectionType?
+  collectionMaxSize Int?
+  selectMultiple    Boolean?
+  selectOptions     DataFieldSelectOption[]
 
   required Boolean?
 
@@ -257,6 +263,8 @@ model DataFieldAnswer {
   answerSelect               DataFieldSelectOption[]
   dataFieldSelectOtherOption DataFieldSelectOtherOption[]
   answerDate                 DateTime?
+  answerCollection           Collection?                  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId               String?
 
   masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number], onDelete: Cascade)
   masterDataMasterDataTypeName String?
@@ -294,6 +302,68 @@ model DataFieldSelectOtherOption {
   dataFieldAnswerId String
 }
 
+model Collection {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type CollectionType
+
+  collectionDataString CollectionDataString[]
+  collectionDataInt    CollectionDataInt[]
+  collectionDataFloat  CollectionDataFloat[]
+  collectionDataDate   CollectionDataDate[]
+  DataFieldAnswer      DataFieldAnswer[]
+  Answer               Answer[]
+}
+
+model CollectionDataString {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataInt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        Int
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataFloat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        Float
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataDate {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        DateTime
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+enum CollectionType {
+  Text
+  Int
+  Num
+  Date
+}
+
 enum DataFieldType {
   Text
   Bool
@@ -301,6 +371,7 @@ enum DataFieldType {
   Num
   Select
   Date
+  Collection
 }
 
 model ComingFromOption {
@@ -403,4 +474,5 @@ enum QuestionType {
   Select
   Date
   Scale
+  Collection
 }

@@ -8,6 +8,7 @@ import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[master
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
+  CollectionType,
   DataField,
   DataFieldAnswer,
   DataFieldType,
@@ -194,7 +195,24 @@ export function getDataFieldTypeName(type: DataFieldType): string {
       return "Auswahl";
     case "Date":
       return "Datum";
+    case "Collection":
+      return "Sammlung";
     default:
       return type;
+  }
+}
+
+export function getCollectionTypeName(type: CollectionType): string {
+  switch (type) {
+    case "Text":
+      return "Text";
+    case "Int":
+      return "Ganze Zahl";
+    case "Num":
+      return "Zahl";
+    case "Date":
+      return "Datum";
+    default:
+      return type as string;
   }
 }

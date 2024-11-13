@@ -1,4 +1,5 @@
 import SelectOptionsComponent from "@/components/editSurvey/selectOptionsComponent";
+import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSelect";
 import DataFieldTypeSelect from "@/components/masterDataTypes/dataFieldTypeSelect";
 import useToast from "@/components/notifications/notificationContext";
 import { FullDataField } from "@/types/prismaHelperTypes";
@@ -15,7 +16,7 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import { DataFieldType, Prisma } from "@prisma/client";
+import { CollectionType, DataFieldType, Prisma } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -30,6 +31,8 @@ export interface IDataFieldState {
   text: string;
   description: string;
   selectMultiple?: boolean;
+  collectionType?: CollectionType;
+  collectionMaxSize?: number;
   selectOptions?: {
     id?: string;
     value: string;
@@ -49,6 +52,8 @@ export default function EditDataFieldDialog({
   const [dataFieldState, setDataFieldState] = useState<IDataFieldState>({
     text: dataField?.text || undefined,
     description: dataField?.description || undefined,
+    collectionType: dataField?.collectionType || undefined,
+    collectionMaxSize: dataField?.collectionMaxSize || undefined,
     selectMultiple: dataField?.selectMultiple || undefined,
     selectOptions: dataField?.selectOptions || [],
     required: dataField?.required || undefined,
@@ -57,7 +62,12 @@ export default function EditDataFieldDialog({
 
   const { addToast } = useToast();
 
-  const saveDisabled = () => !dataFieldState.text;
+  const saveDisabled = () => {
+    if (dataFieldState.type === "Collection")
+      return !dataFieldState.text || !dataFieldState.collectionType;
+    return !dataFieldState.text;
+  };
+  const [collectionMaxSet, setCollectionMaxSet] = useState<boolean>(false);
 
   const handleSave = async () => {
     if (saveDisabled()) return;
@@ -109,6 +119,8 @@ export default function EditDataFieldDialog({
     setDataFieldState({
       text: dataField?.text || undefined,
       description: dataField?.description || undefined,
+      collectionType: dataField?.collectionType || undefined,
+      collectionMaxSize: dataField?.collectionMaxSize || undefined,
       selectMultiple: dataField?.selectMultiple || undefined,
       selectOptions: dataField?.selectOptions || [],
       required: dataField?.required || undefined,
@@ -142,6 +154,47 @@ export default function EditDataFieldDialog({
             type={(dataFieldState.type as DataFieldType) || undefined}
             onChange={(t) => setDataFieldState({ ...dataFieldState, type: t })}
           />
+          {dataFieldState.type === "Collection" && (
+            <>
+              <CollectionTypeSelect
+                collectionType={dataFieldState.collectionType || undefined}
+                onChange={(ct) =>
+                  setDataFieldState({ ...dataFieldState, collectionType: ct })
+                }
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={collectionMaxSet}
+                    onChange={(e) => {
+                      setCollectionMaxSet(e.target.checked);
+                      if (!e.target.checked)
+                        setDataFieldState({
+                          ...dataFieldState,
+                          collectionMaxSize: undefined,
+                        });
+                    }}
+                  />
+                }
+                label={"Anzahl in der Sammlung begrenzen"}
+              />
+              {collectionMaxSet && (
+                <TextField
+                  disabled={!collectionMaxSet}
+                  sx={{ mt: ".5rem" }}
+                  label={"Max"}
+                  type={"number"}
+                  value={dataFieldState.collectionMaxSize ?? null}
+                  onChange={(e) => {
+                    setDataFieldState({
+                      ...dataFieldState,
+                      collectionMaxSize: parseInt(e.target.value) ?? null,
+                    });
+                  }}
+                />
+              )}
+            </>
+          )}
           <TextField
             label={"Beschreibung (optional)"}
             value={dataFieldState.description || ""}

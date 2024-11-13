@@ -32,7 +32,9 @@ export default function DataFieldTypeSelect({
       >
         <MenuItem value="NONE"></MenuItem>
         {getTypes().map((t) => (
-          <MenuItem value={t}>{getDataFieldTypeName(t)}</MenuItem>
+          <MenuItem key={t} value={t}>
+            {getDataFieldTypeName(t)}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>
@@ -49,4 +51,3 @@ function getTypes() {
   }
   return types;
 }
-

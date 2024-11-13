@@ -2,7 +2,11 @@ import EditDataFieldDialog from "@/components/masterDataTypes/editDataFieldDialo
 import useToast from "@/components/notifications/notificationContext";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { FullDataField } from "@/types/prismaHelperTypes";
-import { deleteDataField, getDataFieldTypeName } from "@/utils/masterDataUtils";
+import {
+  deleteDataField,
+  getCollectionTypeName,
+  getDataFieldTypeName,
+} from "@/utils/masterDataUtils";
 import {
   Chair,
   Check,
@@ -60,7 +64,7 @@ export default function DataFieldListItem({
         <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
         <ListItemText>
           {dataField.text}
-          {open ? "" : ` (${dataField.type})`}
+          {open ? "" : ` (${getDataFieldTypeName(dataField.type)})`}
         </ListItemText>
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -73,35 +77,33 @@ export default function DataFieldListItem({
               dataField.type
             )}`}</ListItemText>
           </ListItem>
-          <ListItem>
-            <ListItemText>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}
-              >
-                <Typography>{"Eingabe erforderlich?"} </Typography>
-                <Typography>
-                  {dataField.required ? (
-                    <Check color="success" />
-                  ) : (
-                    <Clear color="error" />
-                  )}
-                </Typography>
-              </Box>
-            </ListItemText>
-          </ListItem>
+          {dataField.required && (
+            <ListItem>
+              <ListItemText>{"Eingabe erforderlich"}</ListItemText>
+            </ListItem>
+          )}
           <ListItem>
             <ListItemText>{`Beschreibung: ${
               dataField.description || "- Keine Beschreibung -"
             }`}</ListItemText>
           </ListItem>
           <ListItem>
-            <ListItemText>{`Datentyp: ${dataField.type}`}</ListItemText>
+            <ListItemText>{`Datentyp: ${getDataFieldTypeName(dataField.type)}${
+              dataField.type === "Collection"
+                ? ` (${getCollectionTypeName(dataField.collectionType)})`
+                : ""
+            }`}</ListItemText>
           </ListItem>
+          {dataField.type === "Select" && (
+            <ListItem>
+              {"Auswahloptionen: "}
+              {dataField.selectOptions.map((o, i, arr) =>
+                i === arr.length - 1
+                  ? `${o.value}${o.isOpen ? ` (offen)` : ""}`
+                  : `${o.value}${o.isOpen ? ` (offen)` : ""}, `
+              )}
+            </ListItem>
+          )}
           <ListItem>
             <Button onClick={handleOpenEdit}>
               <Edit /> Bearbeiten
