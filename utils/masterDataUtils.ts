@@ -6,6 +6,8 @@ import {
 } from "@/pages/api/masterDataType/[masterDataType]";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
+import { ISubmitMasterDataAnswers } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]/submitAnswers";
+import { FullDataFieldAnswer } from "@/types/prismaHelperTypes";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
   CollectionType,
@@ -146,6 +148,25 @@ export async function updateMasterData(
 
   if (res instanceof FetchError || res.error) throw new Error(res.error);
   return res.updateRes;
+}
+
+export async function submitMasterDataAnswers(
+  masterDataTypeId: string,
+  masterDataNumber: number,
+  answerState: Partial<FullDataFieldAnswer>[]
+) {
+  const res = await apiPostJson<
+    ISubmitMasterDataAnswers,
+    Partial<FullDataFieldAnswer>[]
+  >(
+    `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}/submitAnswers`,
+    answerState
+  ).catch((e) => {
+    throw new Error(e);
+  });
+
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
+  return res;
 }
 
 export async function deleteMasterData(

@@ -81,6 +81,7 @@ export default function EditDataFieldDialog({
             description: dataFieldState.description,
             required: dataFieldState.required,
             type: dataFieldState.type,
+            selectMultiple: dataFieldState.selectMultiple,
           },
           dataFieldState.selectOptions.length > 0
             ? dataFieldState.selectOptions

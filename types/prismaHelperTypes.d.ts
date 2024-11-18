@@ -159,6 +159,10 @@ export type FullDataField = Prisma.DataFieldGetPayload<{
   include: { selectOptions: true };
 }>;
 
+export type FullDataFieldSelectOption = Prisma.DataFieldSelectOptionGetPayload<{
+  include: { dataFieldSelectOtherOption: true };
+}>;
+
 export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{
   include: {
     answerSelect: {

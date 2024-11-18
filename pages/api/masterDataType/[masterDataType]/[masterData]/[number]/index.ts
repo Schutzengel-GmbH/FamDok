@@ -7,7 +7,6 @@ import { prisma } from "@/db/prisma";
 import { MasterData, Prisma, Role } from "@prisma/client";
 import { ApiError } from "@/utils/utils";
 import { FullMasterData } from "@/types/prismaHelperTypes";
-import { tr } from "date-fns/locale";
 
 export interface IMasterDataByNumber {
   updateRes?: MasterData;
