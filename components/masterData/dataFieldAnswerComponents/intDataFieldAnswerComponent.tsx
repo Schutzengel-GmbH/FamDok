@@ -2,7 +2,7 @@ import { DataFieldAnswerComponentProps } from "@/components/masterData/dataField
 import { InputErrors } from "@/components/response/answerQuestion";
 import { isInt } from "@/utils/utils";
 import { FormControl, TextField } from "@mui/material";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 
 export default function IntDataFieldAnswerComponent({
   answer,
@@ -10,7 +10,7 @@ export default function IntDataFieldAnswerComponent({
   onChange,
 }: DataFieldAnswerComponentProps) {
   const [valueString, setValueString] = useState(
-    answer ? answer.answerInt?.toString() : undefined
+    answer ? answer.answerInt?.toString() : ""
   );
   const [error, setError] = useState<string>("");
 

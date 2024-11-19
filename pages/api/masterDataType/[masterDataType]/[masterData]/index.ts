@@ -65,11 +65,7 @@ export default async function comingFromOptions(
           createdBy: { include: { organization: true } },
           answers: {
             include: {
-              answerSelect: {
-                include: {
-                  dataFieldSelectOtherOption: true,
-                },
-              },
+              answerSelect: true,
               answerCollection: {
                 include: {
                   collectionDataDate: true,

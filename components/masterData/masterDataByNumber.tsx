@@ -6,6 +6,7 @@ import {
   updateMasterData,
 } from "@/utils/masterDataUtils";
 import { Box, Button, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 interface MasterDataByNumberProps {
@@ -42,6 +43,8 @@ export default function MasterDataByNumber({
     else setMasterDataAnswersState([...masterDataAnswersState, answer]);
   };
 
+  const router = useRouter();
+
   const saveChanges = async () => {
     try {
       const res = await submitMasterDataAnswers(
@@ -49,7 +52,8 @@ export default function MasterDataByNumber({
         Number(masterDataNumber),
         masterDataAnswersState
       );
-      console.log(res);
+      router.push("/masterData");
+      mutate();
     } catch (e) {}
   };
 

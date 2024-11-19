@@ -256,15 +256,15 @@ model DataFieldAnswer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  answerText                 String?
-  answerBool                 Boolean?
-  answerInt                  Int?
-  answerNum                  Float?
-  answerSelect               DataFieldSelectOption[]
-  dataFieldSelectOtherOption DataFieldSelectOtherOption[]
-  answerDate                 DateTime?
-  answerCollection           Collection?                  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  collectionId               String?
+  answerText        String?
+  answerBool        Boolean?
+  answerInt         Int?
+  answerNum         Float?
+  answerSelect      DataFieldSelectOption[]
+  selectOtherValues Json?
+  answerDate        DateTime?
+  answerCollection  Collection?             @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId      String?
 
   masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number], onDelete: Cascade)
   masterDataMasterDataTypeName String?
@@ -284,22 +284,6 @@ model DataFieldSelectOption {
 
   dataFieldAnswer DataFieldAnswer[]
   dataField       DataField[]
-
-  dataFieldSelectOtherOption DataFieldSelectOtherOption[]
-}
-
-model DataFieldSelectOtherOption {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  value String
-
-  dataFieldSelectOption   DataFieldSelectOption @relation(fields: [dataFieldSelectOptionId], references: [id], onDelete: Cascade)
-  dataFieldSelectOptionId String
-
-  dataFieldAnswer   DataFieldAnswer @relation(fields: [dataFieldAnswerId], references: [id], onDelete: Cascade)
-  dataFieldAnswerId String
 }
 
 model Collection {

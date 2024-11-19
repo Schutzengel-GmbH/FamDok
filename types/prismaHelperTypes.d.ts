@@ -130,11 +130,7 @@ export type FullMasterData = Prisma.MasterDataGetPayload<{
     createdBy: { include: { organization: true } };
     answers: {
       include: {
-        answerSelect: {
-          include: {
-            dataFieldSelectOtherOption: true;
-          };
-        };
+        answerSelect: true;
         answerCollection: {
           include: {
             collectionDataDate: true;
@@ -159,17 +155,9 @@ export type FullDataField = Prisma.DataFieldGetPayload<{
   include: { selectOptions: true };
 }>;
 
-export type FullDataFieldSelectOption = Prisma.DataFieldSelectOptionGetPayload<{
-  include: { dataFieldSelectOtherOption: true };
-}>;
-
 export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{
   include: {
-    answerSelect: {
-      include: {
-        dataFieldSelectOtherOption: true;
-      };
-    };
+    answerSelect: true;
     answerCollection: {
       include: {
         collectionDataDate: true;

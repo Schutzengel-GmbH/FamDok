@@ -30,7 +30,7 @@ export default function MasterDataComponent() {
   useEffect(() => {
     if (filter) {
       setDisplayedMasterData(
-        masterData.filter((md) => md.number === parseInt(filter))
+        masterData?.filter((md) => md.number === parseInt(filter))
       );
     } else {
       setDisplayedMasterData(masterData);

@@ -70,11 +70,7 @@ export default async function submitAnswers(
         createdBy: { include: { organization: true } },
         answers: {
           include: {
-            answerSelect: {
-              include: {
-                dataFieldSelectOtherOption: true,
-              },
-            },
+            answerSelect: true,
             answerCollection: {
               include: {
                 collectionDataDate: true,
@@ -118,11 +114,13 @@ export default async function submitAnswers(
   switch (req.method) {
     case "POST":
       const answerStates = req.body as Partial<FullDataFieldAnswer>[];
+      console.log(answerStates);
 
       let errors: boolean = false;
-      console.log(answerStates);
       for (let i = 0; i < answerStates.length; i++) {
         const answerState = answerStates[i];
+
+        console.log(answerState);
 
         if (answerState.id) {
           try {
@@ -130,11 +128,12 @@ export default async function submitAnswers(
               .update({
                 where: { id: answerState.id },
                 data: {
-                  answerBool: answerState.answerBool,
-                  answerDate: answerState.answerDate,
-                  answerInt: answerState.answerInt,
-                  answerNum: answerState.answerNum,
-                  answerText: answerState.answerText,
+                  answerBool: answerState.answerBool || undefined,
+                  answerDate: answerState.answerDate || undefined,
+                  answerInt: answerState.answerInt || undefined,
+                  answerNum: answerState.answerNum || undefined,
+                  answerText: answerState.answerText || undefined,
+                  selectOtherValues: answerState.selectOtherValues || undefined,
                   answerCollection: {},
                   answerSelect: answerState.answerSelect
                     ? {
@@ -150,7 +149,6 @@ export default async function submitAnswers(
                 logger.error(e);
                 errors = true;
               });
-            console.log(update);
           } catch (e) {
             logger.error(e);
             errors = true;
@@ -161,12 +159,13 @@ export default async function submitAnswers(
               .create({
                 data: {
                   dataField: { connect: { id: answerState.dataFieldId } },
-                  answerBool: answerState.answerBool,
-                  answerDate: answerState.answerDate,
-                  answerInt: answerState.answerInt,
-                  answerNum: answerState.answerNum,
-                  answerText: answerState.answerText,
+                  answerBool: answerState.answerBool || undefined,
+                  answerDate: answerState.answerDate || undefined,
+                  answerInt: answerState.answerInt || undefined,
+                  answerNum: answerState.answerNum || undefined,
+                  answerText: answerState.answerText || undefined,
                   answerCollection: undefined,
+                  selectOtherValues: answerState.selectOtherValues || undefined,
                   answerSelect: answerState.answerSelect
                     ? {
                         connect: answerState.answerSelect.map((s) => ({
@@ -181,7 +180,6 @@ export default async function submitAnswers(
                 logger.error(e);
                 errors = true;
               });
-            console.log(create);
           } catch (e) {
             logger.error(e);
             errors = true;

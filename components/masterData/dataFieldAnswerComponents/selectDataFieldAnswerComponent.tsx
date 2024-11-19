@@ -1,5 +1,8 @@
 import { DataFieldAnswerComponentProps } from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
-import { FullDataFieldSelectOption } from "@/types/prismaHelperTypes";
+import {
+  IAnswerSelectOtherValue,
+  IAnswerSelectOtherValues,
+} from "@/types/prismaHelperTypes";
 import {
   Checkbox,
   FormControl,
@@ -10,14 +13,19 @@ import {
   RadioGroup,
   TextField,
 } from "@mui/material";
+import { DataFieldSelectOption } from "@prisma/client";
+import { useState } from "react";
 
 export default function SelectDataFieldAnswerComponent({
   answer,
   dataField,
   onChange,
 }: DataFieldAnswerComponentProps) {
-  const optionChecked = (selectOption: FullDataFieldSelectOption) => {
-    console.log(answer.answerSelect);
+  const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
+    (answer?.selectOtherValues as IAnswerSelectOtherValues) || []
+  );
+
+  const optionChecked = (selectOption: DataFieldSelectOption) => {
     return (
       answer?.answerSelect.find((s) => selectOption.id === s.id) !== undefined
     );
@@ -25,38 +33,51 @@ export default function SelectDataFieldAnswerComponent({
 
   const handleChangeMultiple = (
     checked: boolean,
-    selectOption: FullDataFieldSelectOption
+    selectOption: DataFieldSelectOption
   ) => {
-    if (checked)
-      onChange({
-        ...answer,
-        answerSelect: [...answer.answerSelect, selectOption],
-      });
-    else
-      onChange({
-        ...answer,
-        answerSelect: answer.answerSelect.filter(
-          (o) => o.id !== selectOption.id
-        ),
-      });
+    if (checked) {
+      if (answer)
+        onChange({
+          ...answer,
+          answerSelect: [...answer.answerSelect, selectOption],
+        });
+      else
+        onChange({
+          dataFieldId: dataField.id,
+          answerSelect: [selectOption],
+        });
+    } else {
+      if (answer)
+        onChange({
+          ...answer,
+          answerSelect: answer.answerSelect.filter(
+            (o) => o.id !== selectOption.id
+          ),
+        });
+      else
+        onChange({
+          dataFieldId: dataField.id,
+          answerSelect: answer.answerSelect.filter(
+            (o) => o.id !== selectOption.id
+          ),
+        });
+    }
   };
 
-  const textFieldValue = (o: Partial<FullDataFieldSelectOption>) =>
-    answer?.answerSelect
-      ?.find((so) => so.id === o.id)
-      ?.dataFieldSelectOtherOption?.find(
-        (oo) =>
-          oo.dataFieldSelectOptionId === o.id &&
-          oo.dataFieldAnswerId === answer.id
-      ).value || "";
-
-  const handleOtherTextChange = (
-    o: Partial<FullDataFieldSelectOption>,
+  const handleOtherValueChange = (
+    o: Partial<DataFieldSelectOption>,
     value: string
   ) => {
-    if (textFieldValue(o)) {
+    const index = otherValues.findIndex((ov) => ov.selectOptionId === o.id);
+    let newValues = otherValues;
+    if (index > -1) {
+      newValues[index] = { selectOptionId: o.id, value };
+      setOtherValues(newValues);
     } else {
+      newValues.push({ selectOptionId: o.id, value });
+      setOtherValues([...otherValues, { selectOptionId: o.id, value }]);
     }
+    onChange({ ...answer, selectOtherValues: newValues });
   };
 
   return dataField.selectMultiple ? (
@@ -69,8 +90,11 @@ export default function SelectDataFieldAnswerComponent({
           />
           {o.isOpen ? (
             <TextField
-              value={textFieldValue(o)}
-              onChange={(e) => handleOtherTextChange(o, e.target.value)}
+              value={
+                otherValues.find((ov) => ov.selectOptionId === o.id)?.value ||
+                ""
+              }
+              onChange={(e) => handleOtherValueChange(o, e.target.value)}
               disabled={!optionChecked(o)}
             />
           ) : (
@@ -93,7 +117,7 @@ export default function SelectDataFieldAnswerComponent({
                 onClick={() => {
                   onChange({
                     ...answer,
-                    answerSelect: [{ ...o, dataFieldSelectOtherOption: [] }],
+                    answerSelect: [o],
                     dataFieldId: dataField.id,
                   });
                 }}

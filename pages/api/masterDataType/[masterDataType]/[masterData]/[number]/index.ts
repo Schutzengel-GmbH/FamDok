@@ -73,11 +73,7 @@ export default async function masterDataType(
         createdBy: { include: { organization: true } },
         answers: {
           include: {
-            answerSelect: {
-              include: {
-                dataFieldSelectOtherOption: true,
-              },
-            },
+            answerSelect: true,
             answerCollection: {
               include: {
                 collectionDataDate: true,
