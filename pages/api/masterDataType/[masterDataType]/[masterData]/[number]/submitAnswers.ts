@@ -7,6 +7,7 @@ import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { ApiError } from "@/utils/utils";
 import { FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import { de } from "date-fns/locale";
 
 export interface ISubmitMasterDataAnswers {
   error?: ApiError;
@@ -114,13 +115,11 @@ export default async function submitAnswers(
   switch (req.method) {
     case "POST":
       const answerStates = req.body as Partial<FullDataFieldAnswer>[];
-      console.log(answerStates);
+      console.log(JSON.stringify(answerStates, null, 4));
 
       let errors: boolean = false;
       for (let i = 0; i < answerStates.length; i++) {
         const answerState = answerStates[i];
-
-        console.log(answerState);
 
         if (answerState.id) {
           try {
@@ -128,13 +127,13 @@ export default async function submitAnswers(
               .update({
                 where: { id: answerState.id },
                 data: {
-                  answerBool: answerState.answerBool || undefined,
-                  answerDate: answerState.answerDate || undefined,
-                  answerInt: answerState.answerInt || undefined,
-                  answerNum: answerState.answerNum || undefined,
-                  answerText: answerState.answerText || undefined,
-                  selectOtherValues: answerState.selectOtherValues || undefined,
-                  answerCollection: {},
+                  answerBool: answerState.answerBool ?? undefined,
+                  answerDate: answerState.answerDate ?? undefined,
+                  answerInt: answerState.answerInt ?? undefined,
+                  answerNum: answerState.answerNum ?? undefined,
+                  answerText: answerState.answerText ?? undefined,
+                  selectOtherValues: answerState.selectOtherValues ?? undefined,
+
                   answerSelect: answerState.answerSelect
                     ? {
                         set: answerState.answerSelect.map((s) => ({
@@ -142,15 +141,99 @@ export default async function submitAnswers(
                         })),
                       }
                     : undefined,
-                  masterData: connectMasterData,
+                  masterDataMasterDataTypeName: masterData.masterDataTypeName,
+                  masterDataNumber: masterData.number,
                 },
               })
               .catch((e) => {
                 logger.error(e);
+                console.log(e);
                 errors = true;
               });
+            if (answerState.answerCollection) {
+              await prisma.collection.update({
+                where: { id: answerState.answerCollection.id },
+                data: {
+                  type: answerState.answerCollection.type,
+                  DataFieldAnswer: { connect: { id: answerState.id } },
+                  collectionDataDate: answerState.answerCollection
+                    .collectionDataDate
+                    ? {
+                        deleteMany:
+                          answerState.answerCollection.collectionDataFloat.map(
+                            (d) => ({ id: d.id })
+                          ),
+                        createMany: {
+                          data: answerState.answerCollection.collectionDataDate.map(
+                            (d) => {
+                              delete d.collectionId;
+                              delete d.id;
+                              return d;
+                            }
+                          ),
+                        },
+                      }
+                    : undefined,
+                  collectionDataFloat: answerState.answerCollection
+                    .collectionDataFloat
+                    ? {
+                        deleteMany:
+                          answerState.answerCollection.collectionDataFloat.map(
+                            (d) => ({ id: d.id })
+                          ),
+                        createMany: {
+                          data: answerState.answerCollection.collectionDataFloat.map(
+                            (d) => {
+                              delete d.collectionId;
+                              delete d.id;
+                              return d;
+                            }
+                          ),
+                        },
+                      }
+                    : undefined,
+                  collectionDataInt: answerState.answerCollection
+                    .collectionDataInt
+                    ? {
+                        deleteMany:
+                          answerState.answerCollection.collectionDataFloat.map(
+                            (d) => ({ id: d.id })
+                          ),
+                        createMany: {
+                          data: answerState.answerCollection.collectionDataInt.map(
+                            (d) => {
+                              delete d.collectionId;
+                              delete d.id;
+                              return d;
+                            }
+                          ),
+                        },
+                      }
+                    : undefined,
+                  collectionDataString: answerState.answerCollection
+                    .collectionDataString
+                    ? {
+                        deleteMany:
+                          answerState.answerCollection.collectionDataFloat.map(
+                            (d) => ({ id: d.id })
+                          ),
+                        createMany: {
+                          data: answerState.answerCollection.collectionDataString.map(
+                            (d) => {
+                              delete d.collectionId;
+                              delete d.id;
+                              return d;
+                            }
+                          ),
+                        },
+                      }
+                    : undefined,
+                },
+              });
+            }
           } catch (e) {
             logger.error(e);
+            console.log(e);
             errors = true;
           }
         } else {
@@ -159,13 +242,55 @@ export default async function submitAnswers(
               .create({
                 data: {
                   dataField: { connect: { id: answerState.dataFieldId } },
-                  answerBool: answerState.answerBool || undefined,
-                  answerDate: answerState.answerDate || undefined,
-                  answerInt: answerState.answerInt || undefined,
-                  answerNum: answerState.answerNum || undefined,
-                  answerText: answerState.answerText || undefined,
-                  answerCollection: undefined,
-                  selectOtherValues: answerState.selectOtherValues || undefined,
+                  answerBool: answerState.answerBool ?? undefined,
+                  answerDate: answerState.answerDate ?? undefined,
+                  answerInt: answerState.answerInt ?? undefined,
+                  answerNum: answerState.answerNum ?? undefined,
+                  answerText: answerState.answerText ?? undefined,
+                  answerCollection: answerState.answerCollection
+                    ? {
+                        create: {
+                          type: answerState.answerCollection.type,
+                          collectionDataDate: answerState.answerCollection
+                            .collectionDataDate
+                            ? {
+                                createMany: {
+                                  data: answerState.answerCollection
+                                    .collectionDataDate,
+                                },
+                              }
+                            : undefined,
+                          collectionDataFloat: answerState.answerCollection
+                            .collectionDataFloat
+                            ? {
+                                createMany: {
+                                  data: answerState.answerCollection
+                                    .collectionDataFloat,
+                                },
+                              }
+                            : undefined,
+                          collectionDataInt: answerState.answerCollection
+                            .collectionDataInt
+                            ? {
+                                createMany: {
+                                  data: answerState.answerCollection
+                                    .collectionDataInt,
+                                },
+                              }
+                            : undefined,
+                          collectionDataString: answerState.answerCollection
+                            .collectionDataString
+                            ? {
+                                createMany: {
+                                  data: answerState.answerCollection
+                                    .collectionDataString,
+                                },
+                              }
+                            : undefined,
+                        },
+                      }
+                    : undefined,
+                  selectOtherValues: answerState.selectOtherValues ?? undefined,
                   answerSelect: answerState.answerSelect
                     ? {
                         connect: answerState.answerSelect.map((s) => ({

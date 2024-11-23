@@ -42,6 +42,7 @@ export default async function comingFromOptions(
   const masterDataType = await prisma.masterDataType
     .findUnique({ where: { id: masterDataTypeId as string } })
     .catch((e) => logger.error(e));
+
   if (!masterDataType)
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
@@ -55,6 +56,7 @@ export default async function comingFromOptions(
   switch (req.method) {
     case "GET":
       const masterData = await prisma.masterData.findMany({
+        where: { masterDataTypeId: masterDataType.id },
         include: {
           masterDataType: {
             include: {

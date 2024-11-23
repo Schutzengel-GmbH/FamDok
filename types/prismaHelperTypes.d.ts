@@ -1,4 +1,13 @@
-import { Prisma, SelectOption, Answer, SelectOption } from "@prisma/client";
+import {
+  Prisma,
+  SelectOption,
+  Answer,
+  SelectOption,
+  CollectionDataDate,
+  CollectionDataFloat,
+  CollectionDataInt,
+  CollectionDataString,
+} from "@prisma/client";
 
 export type FullResponse = Prisma.ResponseGetPayload<{
   include: {
@@ -168,3 +177,18 @@ export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{
     };
   };
 }>;
+
+export type FullCollection = Prisma.CollectionGetPayload<{
+  include: {
+    collectionDataDate: true;
+    collectionDataFloat: true;
+    collectionDataInt: true;
+    collectionDataString: true;
+  };
+}>;
+
+export type CollectionData =
+  | CollectionDataDate
+  | CollectionDataInt
+  | CollectionDataFloat
+  | CollectionDataString;

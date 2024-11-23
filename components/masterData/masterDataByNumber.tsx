@@ -40,8 +40,13 @@ export default function MasterDataByNumber({
           a.dataFieldId === dataField.id ? answer : a
         )
       );
-    else setMasterDataAnswersState([...masterDataAnswersState, answer]);
+    else
+      setMasterDataAnswersState([
+        ...masterDataAnswersState,
+        { ...answer, dataFieldId: dataField.id },
+      ]);
   };
+  console.log(masterDataAnswersState);
 
   const router = useRouter();
 

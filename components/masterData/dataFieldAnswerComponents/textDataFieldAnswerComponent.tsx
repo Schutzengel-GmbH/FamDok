@@ -1,10 +1,11 @@
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import { RecursivePartial } from "@/types/utilTypes";
 import { TextField } from "@mui/material";
 
 export interface DataFieldAnswerComponentProps {
-  answer: Partial<FullDataFieldAnswer>;
+  answer: RecursivePartial<FullDataFieldAnswer>;
   dataField: FullDataField;
-  onChange: (answer: Partial<FullDataFieldAnswer>) => void;
+  onChange: (answer: RecursivePartial<FullDataFieldAnswer>) => void;
 }
 
 export default function TextDataFieldAnswerComponent({

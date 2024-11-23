@@ -65,7 +65,9 @@ export default function MasterDataComponent() {
         value={selectedMdt ? selectedMdt.name : ""}
       >
         {masterDataTypes?.map((mdt) => (
-          <MenuItem value={mdt.name}>{mdt.name}</MenuItem>
+          <MenuItem key={mdt.id} value={mdt.name}>
+            {mdt.name}
+          </MenuItem>
         ))}
       </Select>
       <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>

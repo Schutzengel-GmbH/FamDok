@@ -18,12 +18,12 @@ export default function NumDataFieldAnswerComponent({
     const _valueString = e.currentTarget.value;
     setValueString(_valueString);
 
-    if (!_valueString.match("^[0-9]*[,|.]?[0-9]*$")) {
+    if (!_valueString.match("^[-]?[0-9]*[,|.]?[0-9]*$")) {
       setError("Bitte eine Zahl eingeben.");
       return;
     }
 
-    if (_valueString.match("[0-9]*[.|,]$")) return;
+    if (_valueString.match("^[-]?[0-9]*[.|,]$")) return;
 
     if (isNaN(parseFloat(_valueString.replace(",", ".")))) {
       setError("");

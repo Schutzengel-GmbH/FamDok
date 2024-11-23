@@ -5,7 +5,6 @@ import {
   FormControlLabel,
   Radio,
 } from "@mui/material";
-import { useState, ChangeEvent } from "react";
 
 export default function BoolDataFieldAnswerComponent({
   answer,
