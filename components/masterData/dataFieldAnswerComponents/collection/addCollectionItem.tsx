@@ -25,6 +25,8 @@ export default function AddCollectionDataItem({
     onChange(collectionData);
   };
 
+  const addDisabled = collectionData.value === undefined;
+
   return (
     <Paper
       sx={{
@@ -45,7 +47,10 @@ export default function AddCollectionDataItem({
         <TextField
           value={(collectionData.value as string) || undefined}
           onChange={(e) =>
-            setCollectionData({ ...collectionData, value: e.target.value })
+            setCollectionData({
+              ...collectionData,
+              value: parseInt(e.target.value),
+            })
           }
         />
       )}
@@ -53,7 +58,10 @@ export default function AddCollectionDataItem({
         <TextField
           value={(collectionData.value as number) || undefined}
           onChange={(e) =>
-            setCollectionData({ ...collectionData, value: e.target.value })
+            setCollectionData({
+              ...collectionData,
+              value: parseFloat(e.target.value),
+            })
           }
         />
       )}
@@ -65,9 +73,10 @@ export default function AddCollectionDataItem({
           }
         />
       )}
-      <Button onClick={handleAdd}>
+      <Button onClick={handleAdd} disabled={addDisabled}>
         <Add /> Hinzufügen
       </Button>
     </Paper>
   );
 }
+

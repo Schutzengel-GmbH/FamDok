@@ -28,30 +28,29 @@ export default function CollectionDataFieldAnswerComponent({
     }
   };
 
-  const [collectionData, setCollectionData] = useState<
-    RecursivePartial<FullCollection>
-  >(answer?.answerCollection || {});
-
   const handleCollectionItemAdded = (c: RecursivePartial<CollectionData>) => {
     const newCollectionData = {
-      ...collectionData,
+      ...answer?.answerCollection,
       type: dataField.collectionType,
-      [collectionDataFieldName()]: collectionData[collectionDataFieldName()]
-        ? [...collectionData[collectionDataFieldName()], c]
+      [collectionDataFieldName()]: answer?.answerCollection[
+        collectionDataFieldName()
+      ]
+        ? [...answer.answerCollection[collectionDataFieldName()], c]
         : [c],
     };
 
-    setCollectionData(newCollectionData);
     onChange({ ...answer, answerCollection: newCollectionData });
   };
 
   const handleDelete = (i: number) => {
-    setCollectionData({
-      ...collectionData,
-      [collectionDataFieldName()]: collectionData[
+    const newCollectionData = {
+      ...answer.answerCollection,
+      [collectionDataFieldName()]: answer.answerCollection[
         collectionDataFieldName()
       ].filter((_, index) => index !== i),
-    });
+    };
+
+    onChange({ ...answer, answerCollection: newCollectionData });
   };
 
   const handleCollectionItemChanged = (
@@ -60,10 +59,10 @@ export default function CollectionDataFieldAnswerComponent({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: ".25rem" }}>
-      {collectionData[collectionDataFieldName()]?.map(
+      {answer?.answerCollection[collectionDataFieldName()]?.map(
         (v: RecursivePartial<CollectionData>, i: number) => (
           <CollectionDataItemCard
-            collectionId={collectionData.id}
+            collectionId={answer.answerCollection.id}
             collectionType={dataField.collectionType}
             collectionData={v}
             onChange={handleCollectionItemChanged}
@@ -72,10 +71,11 @@ export default function CollectionDataFieldAnswerComponent({
         )
       )}
       <AddCollectionDataItem
-        collectionId={collectionData.id}
+        collectionId={answer?.answerCollection.id}
         collectionType={dataField.collectionType}
         onChange={handleCollectionItemAdded}
       />
     </Box>
   );
 }
+

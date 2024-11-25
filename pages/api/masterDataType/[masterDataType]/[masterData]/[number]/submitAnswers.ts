@@ -71,6 +71,7 @@ export default async function submitAnswers(
         createdBy: { include: { organization: true } },
         answers: {
           include: {
+            dataField: true,
             answerSelect: true,
             answerCollection: {
               include: {
@@ -115,7 +116,6 @@ export default async function submitAnswers(
   switch (req.method) {
     case "POST":
       const answerStates = req.body as Partial<FullDataFieldAnswer>[];
-      console.log(JSON.stringify(answerStates, null, 4));
 
       let errors: boolean = false;
       for (let i = 0; i < answerStates.length; i++) {
@@ -150,85 +150,47 @@ export default async function submitAnswers(
                 console.log(e);
                 errors = true;
               });
+
             if (answerState.answerCollection) {
-              await prisma.collection.update({
-                where: { id: answerState.answerCollection.id },
-                data: {
-                  type: answerState.answerCollection.type,
-                  DataFieldAnswer: { connect: { id: answerState.id } },
-                  collectionDataDate: answerState.answerCollection
-                    .collectionDataDate
-                    ? {
-                        deleteMany:
-                          answerState.answerCollection.collectionDataFloat.map(
-                            (d) => ({ id: d.id })
-                          ),
-                        createMany: {
-                          data: answerState.answerCollection.collectionDataDate.map(
-                            (d) => {
-                              delete d.collectionId;
-                              delete d.id;
-                              return d;
-                            }
-                          ),
-                        },
-                      }
-                    : undefined,
-                  collectionDataFloat: answerState.answerCollection
-                    .collectionDataFloat
-                    ? {
-                        deleteMany:
-                          answerState.answerCollection.collectionDataFloat.map(
-                            (d) => ({ id: d.id })
-                          ),
-                        createMany: {
-                          data: answerState.answerCollection.collectionDataFloat.map(
-                            (d) => {
-                              delete d.collectionId;
-                              delete d.id;
-                              return d;
-                            }
-                          ),
-                        },
-                      }
-                    : undefined,
-                  collectionDataInt: answerState.answerCollection
-                    .collectionDataInt
-                    ? {
-                        deleteMany:
-                          answerState.answerCollection.collectionDataFloat.map(
-                            (d) => ({ id: d.id })
-                          ),
-                        createMany: {
-                          data: answerState.answerCollection.collectionDataInt.map(
-                            (d) => {
-                              delete d.collectionId;
-                              delete d.id;
-                              return d;
-                            }
-                          ),
-                        },
-                      }
-                    : undefined,
-                  collectionDataString: answerState.answerCollection
-                    .collectionDataString
-                    ? {
-                        deleteMany:
-                          answerState.answerCollection.collectionDataFloat.map(
-                            (d) => ({ id: d.id })
-                          ),
-                        createMany: {
-                          data: answerState.answerCollection.collectionDataString.map(
-                            (d) => {
-                              delete d.collectionId;
-                              delete d.id;
-                              return d;
-                            }
-                          ),
-                        },
-                      }
-                    : undefined,
-                },
+              const answer = masterData.answers.find(
+                (a) => a.id === answerState.id
+              );
+
+              const collectionDataField = () => {
+                switch (answer.dataField.collectionType) {
+                  case "Text":
+                    return "collectionDataString";
+                  case "Int":
+                    return "collectionDataInt";
+                  case "Num":
+                    return "collectionDataFloat";
+                  case "Date":
+                    return "collectionDataDate";
+                }
+              };
+
+              const collectionDataToDelete = answer.answerCollection[
+                collectionDataField()
+              ].filter(
+                (d) =>
+                  answerState.answerCollection[collectionDataField()].find(
+                    (v) => v.id === d.id
+                  ) === undefined
+              );
+
+              //@ts-ignore it's fine...
+              const del = await prisma[collectionDataField()].deleteMany({
+                where: { id: { in: collectionDataToDelete.map((v) => v.id) } },
+              });
+
+              const collectionDataToUpdate = [];
+              const collectionDataToAdd = answerState.answerCollection[
+                collectionDataField()
+              ].filter((d) => d.id === undefined);
+
+              //@ts-ignore it's fine...
+              const add = await prisma[collectionDataField()].createMany({
+                data: collectionDataToAdd,
               });
             }
           } catch (e) {
@@ -317,3 +279,4 @@ export default async function submitAnswers(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+
