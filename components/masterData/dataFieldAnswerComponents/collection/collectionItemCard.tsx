@@ -43,10 +43,12 @@ export default function CollectionDataItemCard({
       }}
       elevation={3}
     >
-      {collectionData.value.toString()}
+      //TODO: there is some fuckery
+      {(collectionData as CollectionData).value.toString()}
       <Button onClick={onDelete}>
         <Delete /> Löschen
       </Button>
     </Paper>
   );
 }
+
