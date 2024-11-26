@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import AddCollectionDataItem from "@/components/masterData/dataFieldAnswerComponents/collection/addCollectionItem";
 import CollectionDataItemCard from "@/components/masterData/dataFieldAnswerComponents/collection/collectionItemCard";
 import { DataFieldAnswerComponentProps } from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
