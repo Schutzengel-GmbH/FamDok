@@ -43,7 +43,7 @@ export default function CollectionDataItemCard({
       }}
       elevation={3}
     >
-      //TODO: there is some fuckery
+      {/* TODO: There is some fuckery */}
       {(collectionData as CollectionData).value.toString()}
       <Button onClick={onDelete}>
         <Delete /> Löschen
