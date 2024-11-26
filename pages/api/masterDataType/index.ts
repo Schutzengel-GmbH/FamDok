@@ -45,29 +45,29 @@ export default async function masterData(
         include: { dataFields: true };
       }>[];
 
-      if (reqUser.role === "USER" || reqUser.role === "ORGCONTROLLER") {
-        masterDataTypes = await prisma.masterDataType.findMany({
-          where: {
-            OR: [
-              { NOT: { isLimitedToOrg: true } },
-              { organizationId: reqUser.organizationId },
-            ],
-          },
-          include: {
-            dataFields: { include: { selectOptions: true } },
-            organization: true,
-          },
-        });
-        return;
-      } else {
-        masterDataTypes = await prisma.masterDataType.findMany({
-          include: {
-            dataFields: { include: { selectOptions: true } },
-            organization: true,
-          },
-        });
-        return res.status(200).json({ masterDataTypes });
-      }
+      // if (reqUser.role === "USER" || reqUser.role === "ORGCONTROLLER") {
+      //   masterDataTypes = await prisma.masterDataType.findMany({
+      //     where: {
+      //       OR: [
+      //         { NOT: { isLimitedToOrg: true } },
+      //         { organizationId: reqUser.organizationId },
+      //       ],
+      //     },
+      //     include: {
+      //       dataFields: { include: { selectOptions: true } },
+      //       organization: true,
+      //     },
+      //   });
+      //   return;
+      // } else {
+      masterDataTypes = await prisma.masterDataType.findMany({
+        include: {
+          dataFields: { include: { selectOptions: true } },
+          organization: true,
+        },
+      });
+      return res.status(200).json({ masterDataTypes });
+    // }
     case "POST":
       const data = req.body as Prisma.MasterDataTypeCreateInput;
 
