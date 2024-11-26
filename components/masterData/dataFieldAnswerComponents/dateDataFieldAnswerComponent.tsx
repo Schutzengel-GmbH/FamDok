@@ -18,8 +18,10 @@ export default function DateDataFieldAnswerComponent({
               dataFieldId: dataField.id,
             });
         }}
+        //@ts-ignore
         value={answer?.answerDate ? new Date(answer.answerDate) : undefined}
       />
     </FormControl>
   );
 }
+

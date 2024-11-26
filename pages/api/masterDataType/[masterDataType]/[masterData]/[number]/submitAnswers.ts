@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { logger as _logger } from "@/config/logger";

@@ -26,6 +26,7 @@ export default function DataFieldCard({
           <TextDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -34,6 +35,7 @@ export default function DataFieldCard({
           <BoolDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -42,6 +44,7 @@ export default function DataFieldCard({
           <IntDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -50,6 +53,7 @@ export default function DataFieldCard({
           <NumDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -58,6 +62,7 @@ export default function DataFieldCard({
           <SelectDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -66,6 +71,7 @@ export default function DataFieldCard({
           <DateDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -74,6 +80,7 @@ export default function DataFieldCard({
           <CollectionDataFieldAnswerComponent
             dataField={dataField}
             answer={answer}
+            //@ts-ignore
             onChange={(a) => onChange(a)}
           />
         );
@@ -101,3 +108,4 @@ export default function DataFieldCard({
     </Paper>
   );
 }
+

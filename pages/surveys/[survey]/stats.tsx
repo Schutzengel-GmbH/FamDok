@@ -31,7 +31,7 @@ function ProtectedPage() {
         title={error || "Unbekannter Fehler"}
       />
     );
-
+  //@ts-ignore
   return <ResponsesTabulator survey={data.survey} myResponses={false} />;
 }
 

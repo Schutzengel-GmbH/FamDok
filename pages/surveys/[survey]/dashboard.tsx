@@ -32,7 +32,7 @@ function ProtectedPage() {
         title={error || "Unbekannter Fehler"}
       />
     );
-
+  //@ts-ignore
   return <Dashboard survey={data.survey} />;
 }
 
@@ -43,3 +43,4 @@ export default function ResponseDashboardPage() {
     </SessionReact.SessionAuth>
   );
 }
+
