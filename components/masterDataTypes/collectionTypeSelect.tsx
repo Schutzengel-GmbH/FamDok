@@ -18,7 +18,6 @@ export default function CollectionTypeSelect({
   onChange,
 }: CollectionTypeSelectProps) {
   const handleChange = (e: SelectChangeEvent) => {
-    console.log(e.target.value);
     onChange(e.target.value as CollectionType);
   };
 
@@ -50,3 +49,4 @@ function getTypes() {
   }
   return types;
 }
+

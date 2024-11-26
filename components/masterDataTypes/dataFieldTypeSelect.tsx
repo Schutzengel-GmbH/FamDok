@@ -18,7 +18,6 @@ export default function DataFieldTypeSelect({
   onChange,
 }: DataFieldTypeSelectProps) {
   const handleChange = (e: SelectChangeEvent) => {
-    console.log(e.target.value);
     onChange(e.target.value as DataFieldType);
   };
 
@@ -51,3 +50,4 @@ function getTypes() {
   }
   return types;
 }
+

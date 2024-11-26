@@ -46,7 +46,6 @@ export default function MasterDataByNumber({
         { ...answer, dataFieldId: dataField.id },
       ]);
   };
-  console.log(masterDataAnswersState);
 
   const router = useRouter();
 
@@ -79,3 +78,4 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
+

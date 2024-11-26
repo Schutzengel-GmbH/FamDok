@@ -107,7 +107,6 @@ export default function EditDataFieldDialog({
           ...dataFieldState,
           selectOptions: { create: dataFieldState.selectOptions },
         });
-        console.log(res);
         addToast({ message: "Datenfeld geändert", severity: "success" });
         handleClose();
       } catch (e) {
@@ -257,3 +256,4 @@ export default function EditDataFieldDialog({
     </Dialog>
   );
 }
+

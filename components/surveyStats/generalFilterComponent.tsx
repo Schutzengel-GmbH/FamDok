@@ -31,7 +31,6 @@ export default function GeneralFilterComponent({
   generalFilter,
   onChange,
 }: GeneralFilterProps) {
-  console.log(generalFilter);
   return (
     <Box
       sx={{

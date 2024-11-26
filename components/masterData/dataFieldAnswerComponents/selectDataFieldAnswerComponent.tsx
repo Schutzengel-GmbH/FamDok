@@ -123,10 +123,24 @@ export default function SelectDataFieldAnswerComponent({
                 }}
               />
             }
-            label={o.isOpen ? "???" : o.value}
+            label={
+              o.isOpen ? (
+                <TextField
+                  value={
+                    otherValues.find((ov) => ov.selectOptionId === o.id)
+                      ?.value || ""
+                  }
+                  onChange={(e) => handleOtherValueChange(o, e.target.value)}
+                  disabled={!optionChecked(o)}
+                />
+              ) : (
+                o.value
+              )
+            }
           />
         ))}
       </RadioGroup>
     </FormControl>
   );
 }
+

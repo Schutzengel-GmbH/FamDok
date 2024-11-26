@@ -51,7 +51,6 @@ export default function NewMasterdataTypeDialog({
       setMasterDataType({});
       onClose();
     } catch (e) {
-      console.log(e);
       addToast({
         message: `Fehler: ${e}`,
         severity: "error",
@@ -117,3 +116,4 @@ export default function NewMasterdataTypeDialog({
     </Dialog>
   );
 }
+

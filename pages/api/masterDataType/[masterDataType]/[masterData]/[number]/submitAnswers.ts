@@ -147,7 +147,6 @@ export default async function submitAnswers(
               })
               .catch((e) => {
                 logger.error(e);
-                console.log(e);
                 errors = true;
               });
 
@@ -195,7 +194,6 @@ export default async function submitAnswers(
             }
           } catch (e) {
             logger.error(e);
-            console.log(e);
             errors = true;
           }
         } else {

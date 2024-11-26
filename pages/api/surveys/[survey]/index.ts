@@ -105,8 +105,6 @@ export default async function survey(
         if (user.organizationId !== survey.organizationId)
           return res.status(403).json({ error: "FORBIDDEN" });
 
-      console.log(req.body);
-
       const updatedSurvey = await prisma.survey
         .update({ where: { id: surveyId as string }, data: req.body })
         .catch((err) => logger.error(err));

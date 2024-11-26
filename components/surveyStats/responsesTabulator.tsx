@@ -14,14 +14,15 @@ import {
   familyColumnsDefinition,
   getWhereInputFromFamilyFilters,
   globalOptions,
+  masterDataColumnDefinitions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
 import { FilterAlt } from "@mui/icons-material";
 import { Accordion, AccordionSummary, CircularProgress } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { startOfMonth, startOfYear } from "date-fns";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startOfMonth } from "date-fns";
+import { useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DownloadButtons from "@/components/utilityComponents/tabulatorDownloadButtons";
@@ -60,18 +61,6 @@ export default function ResponsesTabulator({
       : undefined,
   });
 
-  // useEffect(() => {
-  //   setWhereInput({
-  //     AND: [
-  //       ...filters.filters.map((f) => getWhereInput(f, survey)),
-  //       ...filters.generalFilters.map(getGeneralWhereInput),
-  //     ],
-  //     family: survey.hasFamily
-  //       ? getWhereInputFromFamilyFilters(filters.familyFilters)
-  //       : undefined,
-  //   });
-  // }, [filters]);
-
   function applyFilters() {
     if (!hasFilters) setWhereInput({});
     else
@@ -103,6 +92,7 @@ export default function ResponsesTabulator({
       ...allAnswersColumnDefinition(survey),
       ...allResponsesColumnDefinition(),
       ...familyColumnsDefinition(survey),
+      ...masterDataColumnDefinitions(survey),
     ],
     [survey]
   );
@@ -166,9 +156,7 @@ export default function ResponsesTabulator({
           survey={survey}
         />
       </Box>
-
       {isLoading && <CircularProgress />}
-
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columns}

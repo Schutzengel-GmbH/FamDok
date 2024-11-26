@@ -37,8 +37,6 @@ export default function MasterDataTypesComponent() {
     setAddDialogOpen(true);
   };
 
-  console.log(selectedMdt?.dataFields);
-
   const onEdit = () => {
     router.push(`/masterDataTypes/${selectedMdt.id}/edit`);
   };
@@ -130,3 +128,4 @@ export default function MasterDataTypesComponent() {
     </>
   );
 }
+
