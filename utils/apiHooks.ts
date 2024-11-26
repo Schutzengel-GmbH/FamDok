@@ -345,14 +345,14 @@ export function useMasterDataByNumber(
 }
 
 export function useMasterData(
-  masterDataType: MasterDataType,
+  masterDataTypeId: string,
   whereInput?: Prisma.MasterDataWhereInput
 ) {
   const input = whereInput ? JSON.stringify(whereInput) : undefined;
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<IMasterData>(
-    masterDataType
-      ? `/api/masterDataType/${masterDataType.id}/masterData${
+    masterDataTypeId
+      ? `/api/masterDataType/${masterDataTypeId}/masterData${
           input ? `?whereInput=${input}` : ""
         }`
       : null,

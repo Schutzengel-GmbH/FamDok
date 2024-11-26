@@ -23,7 +23,7 @@ export default function MasterDataComponent() {
   const { masterDataTypes, mutate: mutateMdt } = useMasterDataTypes();
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
-  const { masterData, mutate } = useMasterData(selectedMdt);
+  const { masterData, mutate } = useMasterData(selectedMdt?.id);
   const [displayedMasterData, setDisplayedMasterData] =
     useState<FullMasterData[]>(masterData);
 

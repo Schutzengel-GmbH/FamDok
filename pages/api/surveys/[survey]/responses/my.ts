@@ -105,6 +105,26 @@ export default async function myResponses(
             },
             child: true,
             caregiver: true,
+            masterData: {
+              include: {
+                answers: {
+                  include: {
+                    answerCollection: {
+                      include: {
+                        collectionDataDate: true,
+                        collectionDataFloat: true,
+                        collectionDataInt: true,
+                        collectionDataString: true,
+                      },
+                    },
+                    answerSelect: true,
+                  },
+                },
+                masterDataType: {
+                  include: { dataFields: { include: { selectOptions: true } } },
+                },
+              },
+            },
           },
         })
         .catch((err) => logger.error(err));
@@ -118,3 +138,4 @@ export default async function myResponses(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

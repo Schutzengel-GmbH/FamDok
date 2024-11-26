@@ -19,6 +19,9 @@ export interface ISurveys {
           selectOptions: true;
           defaultAnswerSelectOptions: true;
         };
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } };
+        };
       };
     };
   }>[];
@@ -28,6 +31,9 @@ export interface ISurveys {
         include: {
           selectOptions: true;
           defaultAnswerSelectOptions: true;
+        };
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } };
         };
       };
     };
@@ -92,6 +98,9 @@ export default async function surveys(
                 defaultAnswerSelectOptions: true,
               },
             },
+            masterDataType: {
+              include: { dataFields: { include: { selectOptions: true } } },
+            },
           },
         })
         .catch((err) => logger.error(err));
@@ -121,6 +130,9 @@ export default async function surveys(
                 defaultAnswerSelectOptions: true,
               },
             },
+            masterDataType: {
+              include: { dataFields: { include: { selectOptions: true } } },
+            },
           },
         })
         .catch((err) => logger.error(err));
@@ -134,3 +146,4 @@ export default async function surveys(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

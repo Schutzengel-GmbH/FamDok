@@ -78,6 +78,9 @@ export default async function importSurvey(
             defaultAnswerSelectOptions: true,
           },
         },
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } },
+        },
       },
     })
     .catch((err) => logger.error(err));
@@ -94,3 +97,4 @@ export default async function importSurvey(
 
   return res.status(200).json({});
 }
+

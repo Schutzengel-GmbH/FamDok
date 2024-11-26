@@ -70,6 +70,9 @@ export default async function survey(
         questions: {
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         },
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } },
+        },
       },
     });
   } catch (err) {
@@ -101,6 +104,8 @@ export default async function survey(
       if (user.role === Role.ORGCONTROLLER)
         if (user.organizationId !== survey.organizationId)
           return res.status(403).json({ error: "FORBIDDEN" });
+
+      console.log(req.body);
 
       const updatedSurvey = await prisma.survey
         .update({ where: { id: surveyId as string }, data: req.body })

@@ -20,6 +20,26 @@ export type FullResponse = Prisma.ResponseGetPayload<{
       };
     };
     user: { include: { organization: true; subOrganizations: true } };
+    masterData: {
+      include: {
+        answers: {
+          include: {
+            answerCollection: {
+              include: {
+                collectionDataDate: true;
+                collectionDataFloat: true;
+                collectionDataInt: true;
+                collectionDataString: true;
+              };
+            };
+            answerSelect: true;
+          };
+        };
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } };
+        };
+      };
+    };
     family: {
       include: {
         caregivers: true;
@@ -53,6 +73,9 @@ export type FullSurvey = Prisma.SurveyGetPayload<{
     questions: {
       include: { selectOptions: true; defaultAnswerSelectOptions: true };
     };
+    masterDataType: {
+      include: { dataFields: { include: { selectOptions: true } } };
+    };
   };
 }>;
 
@@ -85,6 +108,26 @@ export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
                 selectOptions: true;
                 defaultAnswerSelectOptions: true;
               };
+            };
+          };
+        };
+        masterData: {
+          include: {
+            answers: {
+              include: {
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true;
+                    collectionDataFloat: true;
+                    collectionDataInt: true;
+                    collectionDataString: true;
+                  };
+                };
+                answerSelect: true;
+              };
+            };
+            masterDataType: {
+              include: { dataFields: { include: { selectOptions: true } } };
             };
           };
         };

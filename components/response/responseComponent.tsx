@@ -1,14 +1,10 @@
 import { Box } from "@mui/material";
 import {
-  FullFamily,
   FullResponse,
   FullSurvey,
   PartialAnswer,
 } from "@/types/prismaHelperTypes";
 import { useEffect, useState } from "react";
-import ResponseRelationComponent, {
-  ResponseRelation,
-} from "@/components/response/responseRelationComponent";
 import ResponseAnswerQuestionsComponent from "@/components/response/responseAnswerQuestionComponent";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
@@ -20,48 +16,39 @@ import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
-import { useFamily } from "@/utils/apiHooks";
-import { IFamilies } from "@/pages/api/families";
-import { Prisma } from "@prisma/client";
+import { MasterData } from "@prisma/client";
+import SelectMasterData from "@/components/response/selectMasterData";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
   onChange: () => void;
-  familyNumber?: number;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
   onChange,
-  familyNumber,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const [response, setResponse] = useState<FullResponse>(initialResponse);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
-  const [currentRelation, setCurrentRelation] = useState<ResponseRelation>({
-    family: response?.family,
-    caregiver: response?.caregiver,
-    child: response?.child,
-  });
   const [answersState, setAnswersState] = useState<PartialAnswer[]>(
     response?.answers || getDefaultAnswerstate(survey)
   );
   const [inputErrors, setInputErrors] = useState<
     { questionId: string; error: InputErrors }[]
   >([]);
-
-  useEffect(() => {
-    if (familyNumber) createResponseForFamily(familyNumber);
-  }, []);
+  const [masterData, setMasterData] = useState<Partial<MasterData>>(
+    initialResponse?.masterData
+  );
 
   async function handleSave() {
     if (!response) {
       const res = await apiPostJson<IResponses>(
         `/api/surveys/${survey.id}/responses`,
-        { ...currentRelation }
+        { masterData }
       );
       if (res instanceof FetchError)
         addToast({
@@ -81,7 +68,7 @@ export default function ResponseComponent({
     } else {
       const res = await apiPostJson<IResponse>(
         `/api/surveys/${survey.id}/responses/${response.id}/`,
-        { ...currentRelation }
+        { masterData }
       );
       if (res instanceof FetchError)
         addToast({
@@ -98,31 +85,6 @@ export default function ResponseComponent({
           submitAnswers(response.id);
         }
       }
-    }
-  }
-
-  async function createResponseForFamily(familyNumber: number) {
-    const res = await apiGet<IFamilies>(
-      `/api/families?whereInput=${JSON.stringify({
-        number: familyNumber,
-      } as Prisma.FamilyWhereInput)}`
-    );
-    if (res instanceof FetchError) {
-      addToast({
-        message: `Fehler bei der Verbindung zum Server: ${res.error}`,
-        severity: "error",
-      });
-    } else if (res.error) {
-      addToast({
-        message: `Fehler: ${res.error}`,
-        severity: "error",
-      });
-    } else {
-      setCurrentRelation({
-        family: res.families[0],
-        child: undefined,
-        caregiver: undefined,
-      });
     }
   }
 
@@ -187,6 +149,11 @@ export default function ResponseComponent({
       );
   }
 
+  function handleMasterDataChanged(masterData: MasterData) {
+    setMasterData(masterData);
+    setUnsavedChanges(true);
+  }
+
   function requiredQuestionsWithoutAnswers() {
     return (
       survey.questions.filter(
@@ -195,13 +162,6 @@ export default function ResponseComponent({
           answerHasNoValues(answersState.find((a) => a.questionId === q.id))
       ).length > 0
     );
-  }
-
-  function handleResponseRelationChange(changedRelation: ResponseRelation) {
-    if (!isSameRelation(changedRelation, currentRelation)) {
-      setCurrentRelation(changedRelation);
-      setUnsavedChanges(true);
-    }
   }
 
   return (
@@ -229,7 +189,7 @@ export default function ResponseComponent({
           errors={
             inputErrors.length > 0 ||
             requiredQuestionsWithoutAnswers() ||
-            (survey.hasFamily && !currentRelation.family)
+            (survey.hasMasterData && !masterData)
           }
           unsavedChanges={unsavedChanges}
           onSave={handleSave}
@@ -237,10 +197,11 @@ export default function ResponseComponent({
         />
       </Box>
       <InputErrorsComponent survey={survey} errors={inputErrors} />
-      {survey.hasFamily && (
-        <ResponseRelationComponent
-          relation={currentRelation}
-          onChange={handleResponseRelationChange}
+      {survey.hasMasterData && (
+        <SelectMasterData
+          masterDataType={survey.masterDataType}
+          masterData={masterData}
+          onChange={handleMasterDataChanged}
         />
       )}
       <ResponseAnswerQuestionsComponent
@@ -262,16 +223,5 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerSelect: q.defaultAnswerSelectOptions || [],
     answerDate: q.defaultAnswerDate || undefined,
   }));
-}
-
-function isSameRelation(
-  relationA: ResponseRelation,
-  relationB: ResponseRelation
-) {
-  return (
-    relationA?.family?.id == relationB?.family?.id &&
-    relationA?.caregiver?.id == relationB?.caregiver?.id &&
-    relationA?.child?.id == relationB?.child?.id
-  );
 }
 

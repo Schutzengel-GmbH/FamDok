@@ -65,19 +65,21 @@ enum Role {
 }
 
 model Survey {
-  id             String        @id @default(cuid())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  createdBy      User?         @relation(fields: [creatorId], references: [id])
-  creatorId      String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId String?
-  name           String?
-  description    String?
-  questions      Question[]
-  responses      Response[]
-  hasFamily      Boolean       @default(false)
-  hasMasterData  Boolean       @default(false)
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        User?           @relation(fields: [creatorId], references: [id])
+  creatorId        String?
+  organization     Organization?   @relation(fields: [organizationId], references: [id])
+  organizationId   String?
+  name             String?
+  description      String?
+  questions        Question[]
+  responses        Response[]
+  hasFamily        Boolean         @default(false)
+  hasMasterData    Boolean         @default(false)
+  masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id])
+  masterDataTypeId String?
 }
 
 model Question {
@@ -207,6 +209,7 @@ model MasterDataType {
   isLimitedToOrg Boolean?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   organizationId String?
+  Survey         Survey[]
 
   @@unique([id, name])
 }
