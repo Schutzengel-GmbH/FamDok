@@ -59,12 +59,12 @@ export const navigationList: {
     url: "/surveys",
     canAccess: (user) => (user ? true : false),
   },
-  {
-    title: "Familien",
-    icon: <FamilyRestroom />,
-    url: "/families",
-    canAccess: (user) => (user ? true : false),
-  },
+  // {
+  //   title: "Familien",
+  //   icon: <FamilyRestroom />,
+  //   url: "/families",
+  //   canAccess: (user) => (user ? true : false),
+  // },
   {
     title: "Stammdaten",
     icon: <FamilyRestroom />,
