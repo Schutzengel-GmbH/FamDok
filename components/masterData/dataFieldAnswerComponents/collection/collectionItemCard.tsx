@@ -25,15 +25,15 @@ export default function CollectionDataItemCard({
   const displayValue = () => {
     switch (collectionType) {
       case "Text":
-        return collectionData.value;
+        return collectionData.value as string;
       case "Int":
-        return collectionData.value;
+        return collectionData.value as number;
       case "Num":
-        return collectionData.value;
+        return collectionData.value as number;
       case "Date":
         return new Date(collectionData.value as string).toLocaleDateString();
       default:
-        return <Typography>???</Typography>;
+        return "??";
     }
   };
 
@@ -47,7 +47,7 @@ export default function CollectionDataItemCard({
       }}
       elevation={3}
     >
-      {displayValue()}
+      <Typography>{displayValue()}</Typography>
       <Button onClick={onDelete}>
         <Delete /> Löschen
       </Button>
