@@ -37,6 +37,11 @@ export default function MasterDataComponent() {
     }
   }, [filter, masterData]);
 
+  useEffect(
+    () => setSelectedMdt(masterDataTypes ? masterDataTypes[0] : undefined),
+    [masterDataTypes]
+  );
+
   const handleMdtChange = (e: SelectChangeEvent) => {
     setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
   };
