@@ -176,7 +176,7 @@ export default function ResponseComponent({
         sx={{
           position: "sticky",
           alignSelf: "flex-start",
-          top: ".5rem",
+          top: "4.5rem",
           zIndex: "100",
           minWidth: "100%",
 
@@ -224,4 +224,3 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerDate: q.defaultAnswerDate || undefined,
   }));
 }
-

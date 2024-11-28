@@ -1,4 +1,5 @@
 import DataFieldCard from "@/components/masterData/dataFieldCard";
+import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
 import { useMasterDataByNumber } from "@/utils/apiHooks";
 import {
@@ -30,10 +31,13 @@ export default function MasterDataByNumber({
     setMasterDataAnswersState(masterData?.answers || []);
   }, [masterData]);
 
+  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
+
   const handleAnswerChanged = (
     dataField: FullDataField,
     answer: Partial<FullDataFieldAnswer>
   ) => {
+    setUnsavedChanges(true);
     if (masterDataAnswersState?.find((a) => a.dataFieldId === dataField.id))
       setMasterDataAnswersState(
         masterDataAnswersState?.map((a) =>
@@ -56,6 +60,7 @@ export default function MasterDataByNumber({
         Number(masterDataNumber),
         masterDataAnswersState
       );
+      setUnsavedChanges(false);
       router.push("/masterData");
       mutate();
     } catch (e) {}
@@ -66,7 +71,21 @@ export default function MasterDataByNumber({
       <Typography variant="h4">
         {masterData?.masterDataTypeName} - {masterData?.number}
       </Typography>
-      <Button onClick={saveChanges}>Save</Button>
+      <Box
+        sx={{
+          position: "sticky",
+          alignSelf: "flex-start",
+          top: "4.5rem",
+          zIndex: "100",
+          minWidth: "100%",
+        }}
+      >
+        <UnsavedChangesComponent
+          unsavedChanges={unsavedChanges}
+          onSave={saveChanges}
+          onCancel={() => router.push("/masterData")}
+        />
+      </Box>
       {masterData?.masterDataType.dataFields.map((df) => (
         <DataFieldCard
           key={df.id}
@@ -78,4 +97,3 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
-
