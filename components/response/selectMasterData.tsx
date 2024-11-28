@@ -1,7 +1,7 @@
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { useMasterData } from "@/utils/apiHooks";
 import { apiGet, FetchError } from "@/utils/fetchApiUtils";
-import { Alert, Box, TextField, Typography } from "@mui/material";
+import { Alert, Box, Paper, TextField, Typography } from "@mui/material";
 import { MasterData, MasterDataType } from "@prisma/client";
 import { ChangeEvent, useEffect, useState } from "react";
 
@@ -32,10 +32,24 @@ export default function SelectMasterData({
   };
 
   return (
-    <Box>
-      {!masterData && (
+    <Paper
+      sx={{
+        p: ".5rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: ".5rem",
+        border: !masterData ? "2px solid red" : "none",
+      }}
+      elevation={3}
+    >
+      {!masterData && !numberString && (
         <Alert severity="error" key={"relationMissing"}>
-          {`Keine ${masterDataType.name} ausgewählt.`}
+          {`Kein Stammdatensatz ${masterDataType.name} ausgewählt.`}
+        </Alert>
+      )}
+      {!masterData && numberString && (
+        <Alert severity="error" key={"relationMissing"}>
+          {`Kein Stammdatensatz ${masterDataType.name} mit Nummer ${numberString} gefunden.`}
         </Alert>
       )}
       {masterData && (
@@ -47,7 +61,6 @@ export default function SelectMasterData({
           : `${masterDataType?.name} auswählen`}
       </Typography>
       <TextField value={numberString} onChange={handleChange} />
-    </Box>
+    </Paper>
   );
 }
-

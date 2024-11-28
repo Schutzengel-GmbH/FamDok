@@ -196,7 +196,11 @@ export default function ResponseComponent({
           onCancel={handleCancel}
         />
       </Box>
-      <InputErrorsComponent survey={survey} errors={inputErrors} />
+      <InputErrorsComponent
+        survey={survey}
+        errors={inputErrors}
+        noRequiredMasterData={survey.hasMasterData && !masterData}
+      />
       {survey.hasMasterData && (
         <SelectMasterData
           masterDataType={survey.masterDataType}
