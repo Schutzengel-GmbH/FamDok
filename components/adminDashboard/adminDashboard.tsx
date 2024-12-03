@@ -3,6 +3,7 @@ import { useUserData } from "@/utils/authUtils";
 import {
   Article,
   Code,
+  Description,
   House,
   HouseOutlined,
   Merge,
@@ -46,20 +47,20 @@ export default function AdminDashboard() {
       url: "/logs",
       canAccess: (user) => user && user.role === Role.ADMIN,
     },
-    {
-      title: "Mögliche Wohnorte",
-      icon: <House />,
-      url: "/locations",
-      canAccess: (user) =>
-        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
-    },
-    {
-      title: "Optionen für Zugang Über",
-      icon: <Merge />,
-      url: "/comingFromOptions",
-      canAccess: (user) =>
-        user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
-    },
+    // {
+    //   title: "Mögliche Wohnorte",
+    //   icon: <House />,
+    //   url: "/locations",
+    //   canAccess: (user) =>
+    //     user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
+    // },
+    // {
+    //   title: "Optionen für Zugang Über",
+    //   icon: <Merge />,
+    //   url: "/comingFromOptions",
+    //   canAccess: (user) =>
+    //     user && (user.role === Role.ADMIN || user.role === Role.CONTROLLER),
+    // },
     {
       title: "Organisation",
       icon: <HouseOutlined />,
@@ -74,7 +75,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Stammdatenarten",
-      icon: <Settings />,
+      icon: <Description />,
       url: "/masterDataTypes",
       canAccess: (user) =>
         user &&

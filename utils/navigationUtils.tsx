@@ -6,6 +6,7 @@ import {
   FamilyRestroom,
   Article,
   QueryStats,
+  Description,
 } from "@mui/icons-material";
 import { Prisma, Role } from "@prisma/client";
 
@@ -18,7 +19,7 @@ export const navigationList: {
   ) => boolean;
 }[] = [
   {
-    title: "Profil",
+    title: "Mein Profil",
     icon: <AccountBox />,
     url: "/me",
     canAccess: (user) => (user ? true : false),
@@ -34,7 +35,7 @@ export const navigationList: {
         user.role === Role.ORGCONTROLLER),
   },
   {
-    title: "Surveys",
+    title: "Fragebögen bearbeiten",
     icon: <Poll />,
     url: "/surveyDashboard",
     canAccess: (user) =>
@@ -54,7 +55,7 @@ export const navigationList: {
         user.role === Role.ORGCONTROLLER),
   },
   {
-    title: "Fragebögen",
+    title: "Fragebögen beantworten",
     icon: <Edit />,
     url: "/surveys",
     canAccess: (user) => (user ? true : false),
@@ -67,7 +68,7 @@ export const navigationList: {
   // },
   {
     title: "Stammdaten",
-    icon: <FamilyRestroom />,
+    icon: <Description />,
     url: "/masterData",
     canAccess: (user) => (user ? true : false),
   },

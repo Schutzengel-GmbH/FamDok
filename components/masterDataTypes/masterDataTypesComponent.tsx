@@ -3,7 +3,10 @@ import useToast from "@/components/notifications/notificationContext";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
-import { deleteMasterDataType } from "@/utils/masterDataUtils";
+import {
+  deleteMasterDataType,
+  getDataFieldTypeName,
+} from "@/utils/masterDataUtils";
 import { Add } from "@mui/icons-material";
 import {
   Select,
@@ -12,9 +15,11 @@ import {
   Box,
   Typography,
   Button,
+  Paper,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function MasterDataTypesComponent() {
   const { user } = useUserData();
@@ -87,13 +92,18 @@ export default function MasterDataTypesComponent() {
         {selectedMdt && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <Typography variant="h4">{selectedMdt.name}</Typography>
-            <Typography variant="h5">Datenfelder:</Typography>
+            <Typography variant="h5">Datenfelder (Datentyp):</Typography>
             {selectedMdt &&
               selectedMdt.dataFields.map((df) => (
-                <Box>
-                  <Typography>{df.text}</Typography>
-                  <Typography>{df.type}</Typography>
-                </Box>
+                <>
+                  <Typography>
+                    {df.text} {"("}
+                    {getDataFieldTypeName(df.type)}
+                    {")"}
+                    {df.required ? ", Pflichtangabe" : ""}
+                    {df.description ? `, Beschreibung: ${df.description}` : ""}
+                  </Typography>
+                </>
               ))}
           </Box>
         )}
