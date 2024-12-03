@@ -34,6 +34,13 @@ model User {
   Family           Family[]
   subOrganizations SubOrganization[]
   MasterData       MasterData[]
+  theme            Theme             @default(System)
+}
+
+enum Theme {
+  System
+  Dark
+  Light
 }
 
 model SubOrganization {
