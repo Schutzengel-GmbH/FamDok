@@ -1,3 +1,4 @@
+import MasterDataInfoIcon from "@/components/masterData/masterDataInfoDialog/masterDataInfoIcon";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { useMasterData } from "@/utils/apiHooks";
 import { apiGet, FetchError } from "@/utils/fetchApiUtils";
@@ -53,7 +54,12 @@ export default function SelectMasterData({
         </Alert>
       )}
       {masterData && (
-        <Alert severity="success">{`Ausgewählter Stammdatensatz: ${masterDataType?.name} ${masterData?.number}`}</Alert>
+        <Alert severity="success">
+          <Box sx={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+            {`Ausgewählter Stammdatensatz: ${masterDataType?.name} ${masterData?.number}`}{" "}
+            <MasterDataInfoIcon masterData={masterData} />
+          </Box>
+        </Alert>
       )}
       <Typography>
         {masterData
@@ -64,3 +70,4 @@ export default function SelectMasterData({
     </Paper>
   );
 }
+

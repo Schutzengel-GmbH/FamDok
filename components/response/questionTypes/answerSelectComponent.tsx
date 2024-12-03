@@ -1,4 +1,4 @@
-import SelectOptionInfo from "@/components/editSurvey/selectOptionInfo";
+import InfoItem from "@/components/editSurvey/selectOptionInfo";
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
 import { Info } from "@mui/icons-material";
@@ -31,7 +31,11 @@ export default function AnswerSelectComponent({
 
   function handleClick(option: Partial<SelectOption>) {
     if (isChecked(option))
-      onChange({ ...answer, answerSelect: [], answerSelectOtherValues: otherValues });
+      onChange({
+        ...answer,
+        answerSelect: [],
+        answerSelectOtherValues: otherValues,
+      });
   }
 
   function updateOtherValues(id: string, value: string) {
@@ -51,17 +55,19 @@ export default function AnswerSelectComponent({
     return answer
       ? answer.answerSelect.findIndex((a) => a.id === o.id) >= 0
       : question.defaultAnswerSelectOptions.findIndex((a) => a.id === o.id) >=
-      0 || false;
+          0 || false;
   }
 
   return (
     <FormControl>
-      <RadioGroup onChange={handleChange} >
+      <RadioGroup onChange={handleChange}>
         {question.selectOptions.map((o) => (
           <FormControlLabel
             key={o.id}
             value={o.id}
-            control={<Radio checked={isChecked(o)} onClick={() => handleClick(o)} />}
+            control={
+              <Radio checked={isChecked(o)} onClick={() => handleClick(o)} />
+            }
             label={
               <>
                 {o.isOpen ? (
@@ -78,7 +84,7 @@ export default function AnswerSelectComponent({
                 ) : (
                   o.value
                 )}
-                {o.info ? <SelectOptionInfo info={o.info} /> : null}
+                {o.info ? <InfoItem info={o.info} /> : null}
               </>
             }
           />

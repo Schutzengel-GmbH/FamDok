@@ -7,7 +7,13 @@ import {
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { ISubmitMasterDataAnswers } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]/submitAnswers";
-import { FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import {
+  CollectionData,
+  FullCollection,
+  FullDataFieldAnswer,
+  IAnswerSelectOtherValue,
+  IAnswerSelectOtherValues,
+} from "@/types/prismaHelperTypes";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
   CollectionType,
@@ -237,3 +243,85 @@ export function getCollectionTypeName(type: CollectionType): string {
       return type as string;
   }
 }
+
+export function getAnswerString(
+  answer: FullDataFieldAnswer | undefined,
+  type: DataFieldType
+) {
+  if (!answer) return "Keine Angabe";
+
+  switch (type) {
+    case "Text":
+      return answer.answerText;
+    case "Bool":
+      return answer.answerBool === true
+        ? "Ja"
+        : answer.answerBool === false
+        ? "Nein"
+        : "Keine Angabe";
+    case "Int":
+      return answer.answerInt;
+    case "Num":
+      return answer.answerNum;
+    case "Select":
+      return answer.answerSelect.reduce(
+        (prev, val) =>
+          prev
+            ? prev +
+              `, ${
+                val.isOpen
+                  ? (answer.selectOtherValues as IAnswerSelectOtherValues).find(
+                      (o) => o.selectOptionId === val.id
+                    ).value
+                  : val.value
+              }`
+            : `${
+                val.isOpen
+                  ? (answer.selectOtherValues as IAnswerSelectOtherValues).find(
+                      (o) => o.selectOptionId === val.id
+                    ).value
+                  : val.value
+              }`,
+        ""
+      );
+    case "Date":
+      return new Date(answer.answerDate).toLocaleDateString();
+    case "Collection":
+      return getCollectionString(answer.answerCollection);
+    default:
+      return "-/-";
+  }
+}
+
+export function getCollectionString(collection: FullCollection) {
+  if (!collection) return "Keine Angabe";
+
+  switch (collection.type) {
+    case "Text":
+      return collection.collectionDataString.reduce(
+        (prev, val) => (prev ? prev + ", " + val.value : val.value),
+        ""
+      );
+    case "Int":
+      return collection.collectionDataInt.reduce(
+        (prev, val) => (prev ? prev + ", " + val.value : val.value),
+        ""
+      );
+    case "Num":
+      return collection.collectionDataFloat.reduce(
+        (prev, val) => (prev ? prev + ", " + val.value : val.value),
+        ""
+      );
+    case "Date":
+      return collection.collectionDataDate.reduce(
+        (prev, val) =>
+          prev
+            ? prev + ", " + new Date(val.value).toLocaleDateString()
+            : new Date(val.value).toLocaleDateString(),
+        ""
+      );
+    default:
+      return "-/-";
+  }
+}
+
