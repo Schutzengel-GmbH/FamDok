@@ -66,7 +66,10 @@ export default async function masterDataType(
       include: {
         masterDataType: {
           include: {
-            dataFields: { include: { selectOptions: true } },
+            dataFields: {
+              include: { selectOptions: true },
+              orderBy: { createdAt: "asc" },
+            },
             organization: true,
           },
         },
@@ -127,3 +130,4 @@ export default async function masterDataType(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

@@ -66,7 +66,10 @@ export default async function masterDataType(
     .findUniqueOrThrow({
       where: { id: id as string },
       include: {
-        dataFields: { include: { selectOptions: true } },
+        dataFields: {
+          include: { selectOptions: true },
+          orderBy: { createdAt: "asc" },
+        },
         organization: true,
       },
     })
@@ -109,6 +112,13 @@ export default async function masterDataType(
               })),
               create: selectOptionsToCreate,
             },
+          },
+        };
+      else if (data.dataFieldUpdate)
+        dataFields.update = {
+          where: { id: data.dataFieldId },
+          data: {
+            ...data.dataFieldUpdate,
           },
         };
 

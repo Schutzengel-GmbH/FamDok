@@ -62,9 +62,13 @@ export default async function masterData(
       // } else {
       masterDataTypes = await prisma.masterDataType.findMany({
         include: {
-          dataFields: { include: { selectOptions: true } },
+          dataFields: {
+            include: { selectOptions: true },
+            orderBy: { createdAt: "asc" },
+          },
           organization: true,
         },
+        orderBy: { createdAt: "asc" },
       });
       return res.status(200).json({ masterDataTypes });
     // }

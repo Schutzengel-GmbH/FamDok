@@ -60,7 +60,10 @@ export default async function comingFromOptions(
         include: {
           masterDataType: {
             include: {
-              dataFields: { include: { selectOptions: true } },
+              dataFields: {
+                include: { selectOptions: true },
+                orderBy: { createdAt: "asc" },
+              },
               organization: true,
             },
           },
@@ -79,6 +82,7 @@ export default async function comingFromOptions(
             },
           },
         },
+        orderBy: { createdAt: "asc" },
       });
       return res.status(200).json({ masterData });
     case "POST":
