@@ -162,37 +162,6 @@ export default function EditDataFieldDialog({
                   setDataFieldState({ ...dataFieldState, collectionType: ct })
                 }
               />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={collectionMaxSet}
-                    onChange={(e) => {
-                      setCollectionMaxSet(e.target.checked);
-                      if (!e.target.checked)
-                        setDataFieldState({
-                          ...dataFieldState,
-                          collectionMaxSize: undefined,
-                        });
-                    }}
-                  />
-                }
-                label={"Anzahl in der Sammlung begrenzen"}
-              />
-              {collectionMaxSet && (
-                <TextField
-                  disabled={!collectionMaxSet}
-                  sx={{ mt: ".5rem" }}
-                  label={"Max"}
-                  type={"number"}
-                  value={dataFieldState.collectionMaxSize ?? null}
-                  onChange={(e) => {
-                    setDataFieldState({
-                      ...dataFieldState,
-                      collectionMaxSize: parseInt(e.target.value) ?? null,
-                    });
-                  }}
-                />
-              )}
             </>
           )}
           <TextField

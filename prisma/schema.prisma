@@ -90,15 +90,15 @@ model Survey {
 }
 
 model Question {
-  id                         String         @id @default(cuid())
-  createdAt                  DateTime       @default(now())
-  updatedAt                  DateTime       @updatedAt
+  id                         String          @id @default(cuid())
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
   type                       QuestionType
   required                   Boolean?
   questionTitle              String?
   questionText               String
   questionDescription        String?
-  selectOptions              SelectOption[] @relation(name: "SelectOptionAnswer")
+  selectOptions              SelectOption[]  @relation(name: "SelectOptionAnswer")
   selectMultiple             Boolean?
   intRange                   Boolean?
   intRangeLow                Int?
@@ -106,10 +106,10 @@ model Question {
   numRange                   Boolean?
   numRangeLow                Float?
   numRangeHigh               Float?
-  survey                     Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  survey                     Survey          @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   surveyId                   String
   answers                    Answer[]
-  defaultAnswerSelectOptions SelectOption[] @relation(name: "DefaultSelectOptionQuestion")
+  defaultAnswerSelectOptions SelectOption[]  @relation(name: "DefaultSelectOptionQuestion")
   defaultAnswerText          String?
   defaultAnswerBool          Boolean?
   defaultAnswerInt           Int?
@@ -117,7 +117,8 @@ model Question {
   defaultAnswerDate          DateTime?
   numberInSurvey             Int
   collectionSize             Int?
-  autocomplete               Boolean        @default(false)
+  collectionType             CollectionType?
+  autocomplete               Boolean         @default(false)
 }
 
 model SelectOption {
