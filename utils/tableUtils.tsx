@@ -41,13 +41,13 @@ type ResponseTableData = {
   responseCreatedBy?: FullUser;
   responseCreatedAt?: Date;
   [questionId: string]:
-    | string
-    | number
-    | boolean
-    | Date
-    | { [selectOptionId: string]: string | boolean }
-    | object
-    | undefined;
+  | string
+  | number
+  | boolean
+  | Date
+  | { [selectOptionId: string]: string | boolean }
+  | object
+  | undefined;
   // family data
 } & FamilyTableData &
   MasterDataTableData;
@@ -71,15 +71,15 @@ type FamilyTableData = {
 type MasterDataTableData = {
   number?: number;
   [dataFieldId: string]:
-    | string
-    | number
-    | boolean
-    | Date
-    | object
-    | undefined
-    | string[]
-    | number[]
-    | Date[];
+  | string
+  | number
+  | boolean
+  | Date
+  | object
+  | undefined
+  | string[]
+  | number[]
+  | Date[];
 };
 
 export function responsesToAllAnswersTable(
@@ -96,6 +96,7 @@ export function responsesToAllAnswersTable(
     data.surveyId = response.surveyId;
     data.responseCreatedBy = {
       ...response.user,
+      name: response.user.name || response.user.email,
       //@ts-ignore
       subOrganizations: response?.user?.subOrganizations?.map((o) => o.name),
     };
