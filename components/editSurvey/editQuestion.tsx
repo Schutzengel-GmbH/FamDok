@@ -15,9 +15,15 @@ import {
   Modal,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { Prisma, QuestionType, SelectOption } from "@prisma/client";
+import {
+  CollectionType,
+  Prisma,
+  QuestionType,
+  SelectOption,
+} from "@prisma/client";
 import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
 import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
@@ -27,6 +33,7 @@ import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import useToast from "@/components/notifications/notificationContext";
 import useInfoDialog from "../infoDialog/infoDialogContext";
+import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSelect";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -61,6 +68,8 @@ interface QuestionState {
   defaultAnswerDate?: Date | null;
   defaultAnswerBool?: boolean | null;
   numberInSurvey?: number | null;
+  autocomplete?: boolean | null;
+  collectionType?: CollectionType | null;
 }
 
 const initialQuestionState: QuestionState = {
@@ -83,6 +92,8 @@ const initialQuestionState: QuestionState = {
   defaultAnswerDate: null,
   defaultAnswerBool: null,
   numberInSurvey: null,
+  autocomplete: null,
+  collectionType: null,
 };
 
 export default function EditQuestionDialog({
@@ -97,7 +108,7 @@ export default function EditQuestionDialog({
   const [questionReady, setQuestionReady] = useState<boolean>(false);
 
   const [questionState, updateQuestionState] = useState<QuestionState>(
-    question || initialQuestionState,
+    question || initialQuestionState
   );
 
   const editingExisting = question !== undefined;
@@ -121,7 +132,7 @@ export default function EditQuestionDialog({
 
   useEffect(
     () => updateQuestionState(question || initialQuestionState),
-    [question],
+    [question]
   );
 
   function handleClose() {
@@ -136,8 +147,8 @@ export default function EditQuestionDialog({
         `/api/surveys/${survey.id}/questions`,
         getCreateInputFromState(
           { ...questionState, numberInSurvey: survey.questions.length + 1 },
-          survey.id,
-        ),
+          survey.id
+        )
       );
       if (res instanceof FetchError)
         addToast({
@@ -163,10 +174,9 @@ export default function EditQuestionDialog({
           selectOptionsToDelete: question.selectOptions
             .map((o) => o.id)
             .filter(
-              (id) =>
-                !questionState.selectOptions.map((o) => o.id).includes(id),
+              (id) => !questionState.selectOptions.map((o) => o.id).includes(id)
             ),
-        },
+        }
       );
       if (res instanceof FetchError)
         addToast({
@@ -195,17 +205,54 @@ export default function EditQuestionDialog({
       </Modal>
     );
 
-  const { showInfoDialog } = useInfoDialog()
+  const { showInfoDialog } = useInfoDialog();
 
   function handleInfoClick() {
     showInfoDialog({
-      title: "Achtung", body: <Box><Typography>Bei der Bearbeitung von Fragen können folgende Probleme auftreten:</Typography>
-        <List>
-          <ListItem>Allgemein kann jede Änderung die Natur der Frage verändern und ggf. zu inhaltlichen Problemen führen.</ListItem>
-          <ListItem>Wenn der Fragentyp geändert wird, werden alle abgegebenen Antworten ungültig (undefined).</ListItem>
-          <ListItem>Wenn bei einer Auswahlfrage oder einer Skalafrage Optionen gelöscht werden, werden die Antworten auch gelöscht.</ListItem>
-        </List>
-      </Box>
+      title: "Achtung",
+      body: (
+        <Box>
+          <Typography>
+            Bei der Bearbeitung von Fragen können folgende Probleme auftreten:
+          </Typography>
+          <List>
+            <ListItem>
+              Allgemein kann jede Änderung die Natur der Frage verändern und
+              ggf. zu inhaltlichen Problemen führen.
+            </ListItem>
+            <ListItem>
+              Wenn der Fragentyp geändert wird, werden alle abgegebenen
+              Antworten ungültig (undefined).
+            </ListItem>
+            <ListItem>
+              Wenn bei einer Auswahlfrage oder einer Skalafrage Optionen
+              gelöscht werden, werden die Antworten auch gelöscht.
+            </ListItem>
+          </List>
+        </Box>
+      ),
+    });
+  }
+
+  function handleAutocompleteClick() {
+    showInfoDialog({
+      title: "Achtung",
+      body: (
+        <Box>
+          <Typography>Die Option Autovervollständigung bewirkt:</Typography>
+          <List>
+            <ListItem>
+              Bei der Eingabe wird den Antwortenden aus allen bisher gegebenen
+              Antworten beim Tippen etwas vorgeschlagen.
+            </ListItem>
+            <ListItem>
+              Dadurch haben alle Eingebenden Zugriff auf alle bisher abgegebenen
+              Antworten zu dieser Frage. Daher sollte diese Option auf keinen
+              Fall bei potentiell sensiblen Daten verwendet werden!
+            </ListItem>
+          </List>
+        </Box>
+      ),
     });
   }
 
@@ -218,15 +265,24 @@ export default function EditQuestionDialog({
       </DialogTitle>
 
       <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-        {editingExisting &&
-          <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem", alignItems: "center" }}>
+        {editingExisting && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              gap: ".5rem",
+              alignItems: "center",
+            }}
+          >
             <Typography color={"error"}>
-              Achtung! Beim Bearbeiten einer Frage, zu der bereits Antworten vorliegen, können Daten verlorengehen oder verfälscht werden.
+              Achtung! Beim Bearbeiten einer Frage, zu der bereits Antworten
+              vorliegen, können Daten verlorengehen oder verfälscht werden.
             </Typography>
             <IconButton onClick={handleInfoClick}>
               <Info color={"error"} sx={{ ":hover": { cursor: "pointer" } }} />
             </IconButton>
-          </Box>}
+          </Box>
+        )}
         <TextField
           sx={{ mt: ".5rem" }}
           value={questionState.questionTitle || ""}
@@ -284,7 +340,7 @@ export default function EditQuestionDialog({
         />
 
         {questionState.type === QuestionType.Text && (
-          <Box sx={{ mt: ".5rem" }}>
+          <Box sx={{ mt: ".5rem", display: "flex", flexDirection: "column" }}>
             <TextField
               label={"Standardantwort"}
               value={questionState.defaultAnswerText || undefined}
@@ -295,6 +351,41 @@ export default function EditQuestionDialog({
                 });
               }}
             />
+            <Tooltip
+              title={
+                "Achtung, Autovervollständigung lässt potentiell alle Antwortenden alle bestehenden Antworten zur Frage einsehen."
+              }
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <FormControlLabel
+                  sx={{ mt: ".5rem" }}
+                  control={
+                    <Checkbox
+                      checked={questionState.autocomplete || false}
+                      onChange={(e) => {
+                        updateQuestionState({
+                          ...questionState,
+                          autocomplete: e.target.checked,
+                        });
+                      }}
+                    />
+                  }
+                  label="Autovervollständigung"
+                />
+                <IconButton onClick={handleAutocompleteClick}>
+                  <Info
+                    color={"error"}
+                    sx={{ ":hover": { cursor: "pointer" } }}
+                  />
+                </IconButton>
+              </Box>
+            </Tooltip>
           </Box>
         )}
 
@@ -329,7 +420,15 @@ export default function EditQuestionDialog({
             />
           </>
         )}
-
+        {questionState.type === QuestionType.Collection && (
+          <CollectionTypeSelect
+            sx={{ mt: "1rem" }}
+            collectionType={questionState.collectionType || undefined}
+            onChange={(ct) =>
+              updateQuestionState({ ...questionState, collectionType: ct })
+            }
+          />
+        )}
         {questionState.type === QuestionType.Num && (
           <TextField
             sx={{ mt: ".5rem" }}
@@ -427,7 +526,7 @@ export default function EditQuestionDialog({
 
 function getCreateInputFromState(
   state: QuestionState,
-  surveyId: string,
+  surveyId: string
 ): Prisma.QuestionCreateInput {
   const selectOptions = state.selectOptions?.map((o) => ({
     value: o.value,
@@ -458,6 +557,8 @@ function getCreateInputFromState(
     defaultAnswerInt: state.defaultAnswerInt,
     defaultAnswerNum: state.defaultAnswerNum,
     numberInSurvey: state.numberInSurvey,
+    autocomplete: state.autocomplete,
+    collectionType: state.collectionType,
   };
 }
 
@@ -468,7 +569,7 @@ export type QuestionUpdateInput = Omit<
 
 function getUpdateInputFromState(
   state: QuestionState,
-  surveyId: string,
+  surveyId: string
 ): QuestionUpdateInput {
   //  const selectOptions = state.selectOptions?.map((o) => ({
   //    id: o.id,
@@ -498,5 +599,7 @@ function getUpdateInputFromState(
     defaultAnswerInt: state.defaultAnswerInt,
     defaultAnswerNum: state.defaultAnswerNum,
     numberInSurvey: state.numberInSurvey,
+    autocomplete: state.autocomplete,
+    collectionType: state.collectionType,
   };
 }

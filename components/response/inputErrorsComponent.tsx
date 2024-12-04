@@ -5,13 +5,15 @@ import { Question, Survey } from "@prisma/client";
 type InputErrorsComponentProps = {
   survey: Survey & { questions: Question[] };
   errors: { questionId: string; error: InputErrors }[];
+  noRequiredMasterData?: boolean;
 };
 
 export default function InputErrorsComponent({
   survey,
   errors,
+  noRequiredMasterData,
 }: InputErrorsComponentProps) {
-  if (errors.length < 1) return <></>;
+  if (errors.length < 1 && !noRequiredMasterData) return <></>;
 
   return (
     <Paper sx={{ p: ".5rem", gap: ".5rem" }} elevation={3}>
@@ -23,6 +25,11 @@ export default function InputErrorsComponent({
           )}
         </Alert>
       ))}
+      {noRequiredMasterData === true && (
+        <Alert severity="error">
+          Die Angabe eines Stammdatensatzes ist erforderlich.
+        </Alert>
+      )}
     </Paper>
   );
 }
@@ -74,4 +81,3 @@ function getOutOfRangeMessage(question: Question) {
       question.questionTitle || question.questionText
     } liegt ein unbekannter Fehler vor. Bitte eine ganze Zahl im zulässigen Bereich angeben.`;
 }
-

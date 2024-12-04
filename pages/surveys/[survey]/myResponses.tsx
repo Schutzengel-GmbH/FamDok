@@ -30,7 +30,7 @@ function ProtectedPage() {
         title={error || "Unbekannter Fehler"}
       />
     );
-
+  //@ts-ignore
   return <ResponsesTabulator survey={data.survey} myResponses />;
 }
 
@@ -41,3 +41,4 @@ export default function MyResponsesPage() {
     </SessionReact.SessionAuth>
   );
 }
+

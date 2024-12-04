@@ -1,10 +1,17 @@
-import { FormLabel, Paper, TextField, Typography } from "@mui/material";
+import {
+  FormLabel,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { ChangeEvent } from "react";
 
 type StringSettingComponentProps = {
   title: string;
   name: string;
   value: string;
+  tooltip?: string;
   onChange: (key: string, value: string) => void;
 };
 
@@ -12,6 +19,7 @@ export default function StringSettingComponent({
   title,
   name,
   value,
+  tooltip,
   onChange,
 }: StringSettingComponentProps) {
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -29,8 +37,11 @@ export default function StringSettingComponent({
         p: ".5rem",
       }}
     >
-      <Typography>{title}:</Typography>
+      <Tooltip title={tooltip}>
+        <Typography>{title}:</Typography>
+      </Tooltip>
       <TextField sx={{ flexGrow: 1 }} value={value} onChange={handleChange} />
     </Paper>
   );
 }
+

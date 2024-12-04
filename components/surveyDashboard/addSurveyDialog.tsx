@@ -104,7 +104,7 @@ export default function AddSurveyDialog({
             value={description}
             onChange={handleDescription}
           />
-          <FormControlLabel
+          {/* <FormControlLabel
             label="Hat Stammdaten"
             control={
               <Checkbox
@@ -112,7 +112,7 @@ export default function AddSurveyDialog({
                 onChange={(e) => setHasFamily(e.target.checked)}
               />
             }
-          />
+          /> */}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -122,3 +122,4 @@ export default function AddSurveyDialog({
     </Dialog>
   );
 }
+

@@ -70,6 +70,7 @@ export default async function me(
       // ignore all fields except name
       let userUpdate: Prisma.UserUpdateInput = {};
       userUpdate.name = req.body.name;
+      userUpdate.theme = req.body.theme;
       //userUpdate.email = req.body.email;
 
       if (req.body.email && !isValidEmail(req.body.email))
@@ -113,3 +114,4 @@ export default async function me(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

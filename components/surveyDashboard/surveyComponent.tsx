@@ -81,6 +81,7 @@ export default function SurveyComponent({
           sx={{ marginRight: ".5rem" }}
           disabled={
             user?.role !== Role.ADMIN &&
+            user?.role !== Role.CONTROLLER &&
             survey.organizationId !== user.organizationId
           }
           onClick={() => router.push(`/surveys/${survey.id}/edit`)}
@@ -94,6 +95,7 @@ export default function SurveyComponent({
           onClick={handleDelete}
           disabled={
             user?.role !== Role.ADMIN &&
+            user?.role !== Role.CONTROLLER &&
             survey.organizationId !== user.organizationId
           }
         >

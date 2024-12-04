@@ -21,6 +21,7 @@ function ProtectedPage() {
 
   return (
     <ResponseComponent
+      //@ts-ignore
       survey={data.survey}
       onChange={mutate}
       familyNumber={parseInt(familyNumber as string) || undefined}
@@ -35,3 +36,4 @@ export default function EditSurveyPage() {
     </SessionReact.SessionAuth>
   );
 }
+

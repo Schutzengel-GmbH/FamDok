@@ -1,7 +1,9 @@
 import { FamilyFields } from "@/components/surveyStats/familyFilterComponent";
 import {
   FullAnswer,
+  FullCollection,
   FullFamily,
+  FullMasterData,
   FullQuestion,
   FullResponse,
   FullSurvey,
@@ -23,6 +25,7 @@ import {
   SubOrganization,
   User,
 } from "@prisma/client";
+import { randomBytes, randomInt } from "crypto";
 import {
   compareAsc,
   compareDesc,
@@ -46,7 +49,8 @@ type ResponseTableData = {
     | object
     | undefined;
   // family data
-} & FamilyTableData;
+} & FamilyTableData &
+  MasterDataTableData;
 
 type FamilyTableData = {
   familyNumber?: number;
@@ -64,6 +68,20 @@ type FamilyTableData = {
   endOfCare?: Date;
 };
 
+type MasterDataTableData = {
+  number?: number;
+  [dataFieldId: string]:
+    | string
+    | number
+    | boolean
+    | Date
+    | object
+    | undefined
+    | string[]
+    | number[]
+    | Date[];
+};
+
 export function responsesToAllAnswersTable(
   responses: FullResponse[]
 ): ResponseTableData[] {
@@ -78,6 +96,7 @@ export function responsesToAllAnswersTable(
     data.surveyId = response.surveyId;
     data.responseCreatedBy = {
       ...response.user,
+      name: response.user.name || response.user.email,
       //@ts-ignore
       subOrganizations: response?.user?.subOrganizations?.map((o) => o.name),
     };
@@ -121,16 +140,72 @@ export function responsesToAllAnswersTable(
             data[answer.question.id] =
               answer.answerSelect[0]?.value ?? undefined;
             break;
+          case QuestionType.Collection:
+            data[answer.question.id] = answer.answerCollection;
+            break;
         }
       }
     }
     if (response.family) {
       data = { ...data, ...getFamilyData(response.family) };
     }
+    if (response.masterData) {
+      //TODO: should be but actually...
+      //@ts-ignore should be fine
+      data = { ...data, ...getMasterDataData(response.masterData) };
+    }
     result.push(data);
   }
 
   return result;
+}
+
+export function getMasterDataData(
+  masterData: FullMasterData
+): MasterDataTableData {
+  let data: MasterDataTableData = {};
+  data["number"] = masterData.number;
+  for (let answer of masterData.answers) {
+    const dataField = masterData.masterDataType.dataFields.find(
+      (d) => d.id === answer.dataFieldId
+    );
+    if (!dataField) break;
+    switch (dataField.type) {
+      case "Text":
+        data[answer.dataFieldId] = answer.answerText;
+        break;
+      case "Bool":
+        data[answer.dataFieldId] = answer.answerBool;
+        break;
+      case "Int":
+        data[answer.dataFieldId] = answer.answerInt;
+        break;
+      case "Num":
+        data[answer.dataFieldId] = answer.answerNum;
+        break;
+      case "Select":
+        data[answer.dataFieldId] = answer.answerSelect.reduce<{
+          [id: string]: string | boolean;
+        }>((acc, s) => {
+          if (s.isOpen)
+            return {
+              ...acc,
+              [s.id]: (
+                (answer.selectOtherValues as IAnswerSelectOtherValue[]) ?? []
+              ).find((ov) => ov.selectOptionId === s.id)?.value,
+            };
+          else return { ...acc, [s.id]: true };
+        }, {});
+        break;
+      case "Date":
+        data[answer.dataFieldId] = answer.answerDate;
+        break;
+      case "Collection":
+        data[answer.dataFieldId] = answer.answerCollection;
+        break;
+    }
+  }
+  return data;
 }
 
 export function getFamilyData(family: FullFamily): FamilyTableData {
@@ -251,7 +326,50 @@ const dateFormatter: Tabulator.Formatter = (
   onRender
 ) => {
   const date = cell.getValue() as Date;
-  return date?.toLocaleDateString() ?? "";
+  return new Date(date).toLocaleDateString() ?? "";
+};
+
+const collectionFormatter: Tabulator.Formatter = (
+  cell: Tabulator.CellComponent,
+  formatterParams,
+  onRender
+) => {
+  const collection = cell.getValue() as FullCollection;
+  if (!collection) return;
+  switch (collection.type) {
+    case "Text":
+      return collection.collectionDataString.reduce(
+        (prev, collItem) =>
+          prev
+            ? prev + ", " + collItem.value.toString()
+            : collItem.value.toString(),
+        ""
+      );
+    case "Int":
+      return collection.collectionDataInt.reduce(
+        (prev, collItem) =>
+          prev
+            ? prev + ", " + collItem.value.toString()
+            : collItem.value.toString(),
+        ""
+      );
+    case "Num":
+      return collection.collectionDataFloat.reduce(
+        (prev, collItem) =>
+          prev
+            ? prev + ", " + collItem.value.toString()
+            : collItem.value.toString(),
+        ""
+      );
+    case "Date":
+      return collection.collectionDataDate.reduce(
+        (prev, collItem) =>
+          prev
+            ? prev + ", " + new Date(collItem?.value).toLocaleDateString()
+            : new Date(collItem?.value).toLocaleDateString(),
+        ""
+      );
+  }
 };
 
 const dateSorter = (a: Date, b: Date) => {
@@ -490,6 +608,82 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
   ];
 }
 
+export function masterDataColumnDefinitions(
+  survey: FullSurvey
+): ColumnDefinition[] {
+  if (survey && !survey.hasMasterData) return [];
+
+  return [
+    {
+      title: `Stammdatensatz ${survey.masterDataType.name}`,
+      columns: [
+        { title: "Nummer", field: "number" },
+        ...survey.masterDataType.dataFields.map(
+          (dataField): ColumnDefinition => {
+            switch (dataField.type) {
+              case "Text":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  headerSortTristate: true,
+                };
+              case "Bool":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  formatter: "tickCross",
+                  formatterParams: { allowEmpty: true },
+                  headerSortTristate: true,
+                };
+              case "Int":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  headerSortTristate: true,
+                };
+              case "Num":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  headerSortTristate: true,
+                };
+              case "Select":
+                return {
+                  title: dataField.text,
+                  columns: dataField.selectOptions.map<ColumnDefinition>(
+                    (selectOption) => ({
+                      title: selectOption.value,
+                      field: `${dataField.id}.${selectOption.id}`,
+                      formatter: selectOption.isOpen ? "textarea" : "tickCross",
+                      formatterParams: { allowEmpty: true },
+                      headerSortTristate: true,
+                    })
+                  ),
+                };
+              case "Date":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  formatter: dateFormatter,
+                  sorter: dateSorter,
+                  headerSortTristate: true,
+                };
+              case "Collection":
+                return {
+                  title: dataField.text,
+                  field: dataField.id,
+                  formatter: collectionFormatter,
+                };
+              default:
+                return { title: "--FEHLER--" };
+            }
+          }
+        ),
+      ],
+    },
+  ];
+}
+
 export function allAnswersColumnDefinition(
   survey: FullSurvey
 ): ColumnDefinition[] {
@@ -548,11 +742,18 @@ export function allAnswersColumnDefinition(
             (selectOption) => ({
               title: selectOption.value,
               field: `${question.id}.${selectOption.id}`,
-              formatter: "tickCross",
+              formatter: selectOption.isOpen ? "textarea" : "tickCross",
               formatterParams: { allowEmpty: true },
               headerSortTristate: true,
             })
           ),
+        };
+      }
+      case QuestionType.Collection: {
+        return {
+          title: question.questionText,
+          field: question.id,
+          formatter: collectionFormatter,
         };
       }
     }

@@ -31,6 +31,8 @@ export function getQuestionTypeString(type: QuestionType) {
       return "Frage nach Datum";
     case QuestionType.Scale:
       return "Skala";
+    case QuestionType.Collection:
+      return "Sammlung";
     default:
       return type;
   }
@@ -342,3 +344,9 @@ export function getAnswerString(answer: FullAnswer): string | undefined {
       return undefined;
   }
 }
+
+export type ApiError =
+  | "INTERNAL_SERVER_ERROR"
+  | "NOT_FOUND"
+  | "METHOD_NOT_ALLOWED"
+  | "FORBIDDEN";

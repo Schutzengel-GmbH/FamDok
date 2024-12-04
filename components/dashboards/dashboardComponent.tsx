@@ -87,7 +87,6 @@ export default function Dashboard({ survey }: DashboardProps) {
   // }, [filters]);
 
   function applyFilters() {
-    console.log(hasFilters);
     if (!hasFilters) setWhere({});
     else
       setWhere({

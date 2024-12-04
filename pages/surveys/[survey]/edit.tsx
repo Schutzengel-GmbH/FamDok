@@ -31,7 +31,7 @@ function ProtectedPage() {
     user.organizationId === data.survey.organizationId
   )
     return <ErrorPage message="Forbidden" />;
-
+  //@ts-ignore
   return <EditSurveyComponent survey={data.survey} onChange={mutate} />;
 }
 
@@ -42,3 +42,4 @@ export default function EditSurveyPage() {
     </SessionReact.SessionAuth>
   );
 }
+

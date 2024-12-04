@@ -5,16 +5,20 @@ import { IFooters } from "@/pages/api/footer";
 import { IFooter } from "@/pages/api/footer/[uri]";
 import { ILocations } from "@/pages/api/locations";
 import { ILogs } from "@/pages/api/logs";
+import { IMasterDataType } from "@/pages/api/masterDataType";
+import { IMasterDataTypeByID } from "@/pages/api/masterDataType/[masterDataType]";
+import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
+import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { IOrganizations } from "@/pages/api/organizations";
 import { ISubOrganizations } from "@/pages/api/subOrganizations";
 import { ISurveys } from "@/pages/api/surveys";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
+import { IAutocomplete } from "@/pages/api/surveys/[survey]/questions/[question]/getAutocomplete";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
-import { AppConfiguration } from "@/utils/appConfigUtils";
 import { useUserData } from "@/utils/authUtils";
 import { fetcher } from "@/utils/swrConfig";
-import { Prisma } from "@prisma/client";
+import { MasterDataType, Prisma } from "@prisma/client";
 import useSWR from "swr";
 
 export function useFamilies(whereInput?: Prisma.FamilyWhereInput) {
@@ -284,6 +288,98 @@ export function useConfigRaw() {
 
   return {
     config: data?.config,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMasterDataTypes() {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IMasterDataType>("/api/masterDataType", fetcher);
+
+  return {
+    masterDataTypes: data?.masterDataTypes,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMasterDataTypeById(id: string) {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IMasterDataTypeByID>(
+      id ? `/api/masterDataType/${id}` : null,
+      fetcher
+    );
+
+  return {
+    masterDataType: data?.masterDataType,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMasterDataByNumber(
+  masterDataTypeId: string,
+  number: number
+) {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IMasterDataByNumber>(
+      masterDataTypeId && number
+        ? `/api/masterDataType/${masterDataTypeId}/masterData/${number}`
+        : null,
+      fetcher
+    );
+
+  return {
+    masterData: data?.masterData,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useMasterData(
+  masterDataTypeId: string,
+  whereInput?: Prisma.MasterDataWhereInput
+) {
+  const input = whereInput ? JSON.stringify(whereInput) : undefined;
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR<IMasterData>(
+    masterDataTypeId
+      ? `/api/masterDataType/${masterDataTypeId}/masterData${
+          input ? `?whereInput=${input}` : ""
+        }`
+      : null,
+    fetcher
+  );
+
+  return {
+    masterData: data?.masterData,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useAutocomplete(surveyId: string, questionId: string) {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IAutocomplete>(
+      surveyId && questionId
+        ? `/api/surveys/${surveyId}/questions/${questionId}/getAutocomplete`
+        : null,
+      fetcher
+    );
+
+  return {
+    autocomplete: data?.autocomplete,
     error,
     isLoading,
     isValidating,

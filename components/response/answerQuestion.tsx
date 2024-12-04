@@ -19,6 +19,7 @@ import AnswerDateComponent from "@/components/response/questionTypes/answerDateC
 import AnswerScaleComponent from "@/components/response/questionTypes/answerScaleComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { useEffect, useState } from "react";
+import CollectionDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/collectionDataFieldAnswerComponent";
 
 export enum InputErrors {
   NUM_OUT_OF_RANGE,
@@ -59,6 +60,7 @@ export default function AnswerQuestion({
     setHasInputError(error !== undefined);
     onChange(_answer, error);
   }
+  console.log(answer);
 
   switch (question.type) {
     case QuestionType.Text:
@@ -126,6 +128,16 @@ export default function AnswerQuestion({
         <AnswerScaleComponent
           question={question}
           answer={answer}
+          onChange={handleChange}
+        />
+      );
+      break;
+    case QuestionType.Collection:
+      questionComponent = (
+        <CollectionDataFieldAnswerComponent
+          dataField={question}
+          answer={answer}
+          //@ts-ignore
           onChange={handleChange}
         />
       );

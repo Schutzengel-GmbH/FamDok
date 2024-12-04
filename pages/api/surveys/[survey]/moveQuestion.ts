@@ -68,6 +68,9 @@ export default async function moveQuestion(
         questions: {
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         },
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } },
+        },
       },
     });
   } catch (err) {

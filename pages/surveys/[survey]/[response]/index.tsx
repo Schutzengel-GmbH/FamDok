@@ -35,6 +35,7 @@ function ProtectedPage() {
 
   return (
     <ResponseComponent
+      //@ts-ignore
       survey={surveyData.survey}
       initialResponse={responseData.response}
       onChange={mutate}
@@ -49,3 +50,4 @@ export default function EditResponsePage() {
     </SessionReact.SessionAuth>
   );
 }
+

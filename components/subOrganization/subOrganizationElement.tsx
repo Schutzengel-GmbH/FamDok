@@ -110,7 +110,11 @@ export default function SubOrganizationElement({
         }}
       >
         <TextField
-          label="Bezeichnung"
+          label={
+            initialSubOrganization
+              ? "Bezeichnung"
+              : "Bezeichnung für neue Unterorganisation"
+          }
           sx={{ flexGrow: 1 }}
           value={subOrganization?.name || ""}
           onChange={(e) =>
