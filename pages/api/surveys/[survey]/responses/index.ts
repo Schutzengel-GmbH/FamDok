@@ -104,6 +104,14 @@ export default async function responses(
             answers: {
               include: {
                 answerSelect: true,
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
                 question: {
                   include: {
                     defaultAnswerSelectOptions: true,
@@ -178,6 +186,14 @@ export default async function responses(
             answers: {
               include: {
                 answerSelect: true,
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
                 question: { include: { selectOptions: true } },
               },
             },

@@ -79,6 +79,8 @@ export default function ResponsesTabulator({
     ? useMyResponses(survey.id, whereInput)
     : useResponses(survey.id, whereInput);
 
+  console.log(responses);
+
   const tableRef = useRef(null);
 
   const columns = useMemo(

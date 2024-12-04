@@ -5,16 +5,19 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  SxProps,
 } from "@mui/material";
 import { CollectionType } from "@prisma/client";
 
 interface CollectionTypeSelectProps {
   collectionType?: CollectionType;
+  sx?: SxProps;
   onChange: (type: CollectionType) => void;
 }
 
 export default function CollectionTypeSelect({
   collectionType,
+  sx,
   onChange,
 }: CollectionTypeSelectProps) {
   const handleChange = (e: SelectChangeEvent) => {
@@ -22,7 +25,7 @@ export default function CollectionTypeSelect({
   };
 
   return (
-    <FormControl>
+    <FormControl sx={sx}>
       <InputLabel>Datentyp Sammlung</InputLabel>
       <Select
         label={"Datentyp Sammlung"}

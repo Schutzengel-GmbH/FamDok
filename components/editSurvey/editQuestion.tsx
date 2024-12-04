@@ -18,7 +18,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Prisma, QuestionType, SelectOption } from "@prisma/client";
+import {
+  CollectionType,
+  Prisma,
+  QuestionType,
+  SelectOption,
+} from "@prisma/client";
 import QuestionTypeSelect from "@/components/editSurvey/questionTypeSelect";
 import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
@@ -28,6 +33,7 @@ import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
 import { FullSurvey } from "@/types/prismaHelperTypes";
 import useToast from "@/components/notifications/notificationContext";
 import useInfoDialog from "../infoDialog/infoDialogContext";
+import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSelect";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -63,6 +69,7 @@ interface QuestionState {
   defaultAnswerBool?: boolean | null;
   numberInSurvey?: number | null;
   autocomplete?: boolean | null;
+  collectionType?: CollectionType | null;
 }
 
 const initialQuestionState: QuestionState = {
@@ -86,6 +93,7 @@ const initialQuestionState: QuestionState = {
   defaultAnswerBool: null,
   numberInSurvey: null,
   autocomplete: null,
+  collectionType: null,
 };
 
 export default function EditQuestionDialog({
@@ -412,7 +420,15 @@ export default function EditQuestionDialog({
             />
           </>
         )}
-
+        {questionState.type === QuestionType.Collection && (
+          <CollectionTypeSelect
+            sx={{ mt: "1rem" }}
+            collectionType={questionState.collectionType || undefined}
+            onChange={(ct) =>
+              updateQuestionState({ ...questionState, collectionType: ct })
+            }
+          />
+        )}
         {questionState.type === QuestionType.Num && (
           <TextField
             sx={{ mt: ".5rem" }}
@@ -541,6 +557,8 @@ function getCreateInputFromState(
     defaultAnswerInt: state.defaultAnswerInt,
     defaultAnswerNum: state.defaultAnswerNum,
     numberInSurvey: state.numberInSurvey,
+    autocomplete: state.autocomplete,
+    collectionType: state.collectionType,
   };
 }
 
@@ -582,5 +600,6 @@ function getUpdateInputFromState(
     defaultAnswerNum: state.defaultAnswerNum,
     numberInSurvey: state.numberInSurvey,
     autocomplete: state.autocomplete,
+    collectionType: state.collectionType,
   };
 }

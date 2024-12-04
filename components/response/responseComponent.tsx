@@ -226,5 +226,13 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
     answerNum: q.defaultAnswerNum || undefined,
     answerSelect: q.defaultAnswerSelectOptions || [],
     answerDate: q.defaultAnswerDate || undefined,
+    answerCollection: {
+      type: q.collectionType,
+      collectionDataDate: undefined,
+      collectionDataFloat: undefined,
+      collectionDataInt: undefined,
+      collectionDataString: undefined,
+    },
   }));
 }
+

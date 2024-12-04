@@ -96,6 +96,14 @@ export default async function myResponses(
             answers: {
               include: {
                 answerSelect: true,
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
                 question: { include: { selectOptions: true } },
               },
             },

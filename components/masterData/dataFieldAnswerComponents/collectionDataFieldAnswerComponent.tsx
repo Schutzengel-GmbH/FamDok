@@ -4,11 +4,17 @@ import AddCollectionDataItem from "@/components/masterData/dataFieldAnswerCompon
 import CollectionDataItemCard from "@/components/masterData/dataFieldAnswerComponents/collection/collectionItemCard";
 import { DataFieldAnswerComponentProps } from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
 import { CollectionData, FullCollection } from "@/types/prismaHelperTypes";
-import { RecursivePartial } from "@/types/utilTypes";
+import { AnswerTypeUnion, RecursivePartial } from "@/types/utilTypes";
 import { Box } from "@mui/material";
 import { useState } from "react";
 
-export default function CollectionDataFieldAnswerComponent({
+export interface DataFieldCollectionAnswerComponentProps {
+  answer: RecursivePartial<AnswerTypeUnion>;
+  dataField: FullDataField;
+  onChange: (answer: RecursivePartial<FullDataFieldAnswer>) => void;
+}
+
+export default function DataFieldCollectionAnswerComponentProps({
   answer,
   dataField,
   onChange,

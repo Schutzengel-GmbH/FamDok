@@ -1,3 +1,4 @@
+import { RecursivePartial } from "@/types/utilTypes";
 import {
   Prisma,
   SelectOption,
@@ -14,6 +15,14 @@ export type FullResponse = Prisma.ResponseGetPayload<{
     answers: {
       include: {
         answerSelect: true;
+        answerCollection: {
+          include: {
+            collectionDataDate: true;
+            collectionDataFloat: true;
+            collectionDataInt: true;
+            collectionDataString: true;
+          };
+        };
         question: {
           include: { defaultAnswerSelectOptions: true; selectOptions: true };
         };
@@ -145,6 +154,14 @@ export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
 export type FullAnswer = Prisma.AnswerGetPayload<{
   include: {
     answerSelect: true;
+    answerCollection: {
+      include: {
+        collectionDataDate: true;
+        collectionDataFloat: true;
+        collectionDataInt: true;
+        collectionDataString: true;
+      };
+    };
     question: {
       include: {
         defaultAnswerSelectOptions: true;
@@ -154,9 +171,7 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
   };
 }>;
 
-export type PartialAnswer = Partial<Answer> & {
-  answerSelect: Partial<SelectOption>[];
-};
+export type PartialAnswer = RecursivePartial<FullAnswer>;
 
 export type IAnswerSelectOtherValue = {
   selectOptionId: string;

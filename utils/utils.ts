@@ -31,6 +31,8 @@ export function getQuestionTypeString(type: QuestionType) {
       return "Frage nach Datum";
     case QuestionType.Scale:
       return "Skala";
+    case QuestionType.Collection:
+      return "Sammlung";
     default:
       return type;
   }
@@ -230,15 +232,17 @@ export function range(start: number, end: number) {
 }
 
 export function getFamilyString(family: FullFamily) {
-  return `Familiennummer: ${family.number} (${family.caregivers.length
-    } Bezugspersonen, Kinder (${family.childrenInHousehold || "keine"})${family.children?.length > 0 ? ": " : ""
-    }${family.children
-      .map((c) => {
-        if (!c.dateOfBirth) return "unbekanntes Alter";
-        const age = getAge(new Date(c.dateOfBirth));
-        return `${age} Jahre`;
-      })
-      .join(", ")})`;
+  return `Familiennummer: ${family.number} (${
+    family.caregivers.length
+  } Bezugspersonen, Kinder (${family.childrenInHousehold || "keine"})${
+    family.children?.length > 0 ? ": " : ""
+  }${family.children
+    .map((c) => {
+      if (!c.dateOfBirth) return "unbekanntes Alter";
+      const age = getAge(new Date(c.dateOfBirth));
+      return `${age} Jahre`;
+    })
+    .join(", ")})`;
 }
 
 export function makeUriLegal(str: string) {
@@ -310,19 +314,21 @@ export function getAnswerString(answer: FullAnswer): string | undefined {
     case "Select":
       return answer.answerSelect.reduce((acc, a) => {
         if (acc)
-          return `${acc}, ${a.isOpen
-            ? (answer.answerSelectOtherValues as Array<any>).find(
-              (ao) => ao.selectOptionId === a.id
-            ).value
-            : a.value
-            }`;
+          return `${acc}, ${
+            a.isOpen
+              ? (answer.answerSelectOtherValues as Array<any>).find(
+                  (ao) => ao.selectOptionId === a.id
+                ).value
+              : a.value
+          }`;
         else
-          return `${a.isOpen
-            ? (answer.answerSelectOtherValues as Array<any>).find(
-              (ao) => ao.selectOptionId === a.id
-            ).value
-            : a.value
-            }`;
+          return `${
+            a.isOpen
+              ? (answer.answerSelectOtherValues as Array<any>).find(
+                  (ao) => ao.selectOptionId === a.id
+                ).value
+              : a.value
+          }`;
       }, "");
     case "Date":
       return answer.answerDate
@@ -332,11 +338,15 @@ export function getAnswerString(answer: FullAnswer): string | undefined {
       return answer.answerBool === true
         ? "Ja"
         : answer.answerBool === false
-          ? "Nein"
-          : undefined;
+        ? "Nein"
+        : undefined;
     default:
       return undefined;
   }
 }
 
-export type ApiError = "INTERNAL_SERVER_ERROR" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "FORBIDDEN";
+export type ApiError =
+  | "INTERNAL_SERVER_ERROR"
+  | "NOT_FOUND"
+  | "METHOD_NOT_ALLOWED"
+  | "FORBIDDEN";

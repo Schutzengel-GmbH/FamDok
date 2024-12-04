@@ -140,6 +140,9 @@ export function responsesToAllAnswersTable(
             data[answer.question.id] =
               answer.answerSelect[0]?.value ?? undefined;
             break;
+          case QuestionType.Collection:
+            data[answer.question.id] = answer.answerCollection;
+            break;
         }
       }
     }
@@ -744,6 +747,13 @@ export function allAnswersColumnDefinition(
               headerSortTristate: true,
             })
           ),
+        };
+      }
+      case QuestionType.Collection: {
+        return {
+          title: question.questionText,
+          field: question.id,
+          formatter: collectionFormatter,
         };
       }
     }

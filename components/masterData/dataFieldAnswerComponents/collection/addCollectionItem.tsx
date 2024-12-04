@@ -20,7 +20,6 @@ export default function AddCollectionDataItem({
   const [collectionData, setCollectionData] = useState<Partial<CollectionData>>(
     { collectionId }
   );
-
   const handleAdd = () => {
     onChange(collectionData);
   };
