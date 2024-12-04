@@ -114,7 +114,11 @@ export default function ResponsesTabulator({
     router.push(`/surveys/${surveyId}/${responseId}`);
   }
 
-  const options = {};
+  const options = {
+    pagination: true,
+    paginationSize: 12,
+    paginationSizeSelector: true,
+  };
 
   return (
     <Box

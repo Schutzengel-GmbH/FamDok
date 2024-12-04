@@ -41,13 +41,13 @@ type ResponseTableData = {
   responseCreatedBy?: FullUser;
   responseCreatedAt?: Date;
   [questionId: string]:
-  | string
-  | number
-  | boolean
-  | Date
-  | { [selectOptionId: string]: string | boolean }
-  | object
-  | undefined;
+    | string
+    | number
+    | boolean
+    | Date
+    | { [selectOptionId: string]: string | boolean }
+    | object
+    | undefined;
   // family data
 } & FamilyTableData &
   MasterDataTableData;
@@ -71,15 +71,15 @@ type FamilyTableData = {
 type MasterDataTableData = {
   number?: number;
   [dataFieldId: string]:
-  | string
-  | number
-  | boolean
-  | Date
-  | object
-  | undefined
-  | string[]
-  | number[]
-  | Date[];
+    | string
+    | number
+    | boolean
+    | Date
+    | object
+    | undefined
+    | string[]
+    | number[]
+    | Date[];
 };
 
 export function responsesToAllAnswersTable(
