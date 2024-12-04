@@ -13,6 +13,7 @@ import { IOrganizations } from "@/pages/api/organizations";
 import { ISubOrganizations } from "@/pages/api/subOrganizations";
 import { ISurveys } from "@/pages/api/surveys";
 import { ISurvey } from "@/pages/api/surveys/[survey]";
+import { IAutocomplete } from "@/pages/api/surveys/[survey]/questions/[question]/getAutocomplete";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses/my";
 import { IUsers } from "@/pages/api/user";
 import { useUserData } from "@/utils/authUtils";
@@ -361,6 +362,24 @@ export function useMasterData(
 
   return {
     masterData: data?.masterData,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  };
+}
+
+export function useAutocomplete(surveyId: string, questionId: string) {
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<IAutocomplete>(
+      surveyId && questionId
+        ? `/api/surveys/${surveyId}/questions/${questionId}/getAutocomplete`
+        : null,
+      fetcher
+    );
+
+  return {
+    autocomplete: data?.autocomplete,
     error,
     isLoading,
     isValidating,

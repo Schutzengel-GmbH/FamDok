@@ -117,6 +117,7 @@ model Question {
   defaultAnswerDate          DateTime?
   numberInSurvey             Int
   collectionSize             Int?
+  autocomplete               Boolean        @default(false)
 }
 
 model SelectOption {
