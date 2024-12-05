@@ -3,10 +3,12 @@ import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useMyResponses, useResponses } from "@/utils/apiHooks";
 import {
   getGeneralWhereInput,
+  getMasterDataWhereInput,
   getWhereInput,
   IFamilyFilter,
   IFilter,
   IGeneralFilter,
+  IMasterDataFilter,
 } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
@@ -39,6 +41,7 @@ export default function ResponsesTabulator({
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
     generalFilters?: IGeneralFilter[];
+    masterDataFilters?: IMasterDataFilter[];
   }>({
     filters: [],
     familyFilters: [],
@@ -49,6 +52,7 @@ export default function ResponsesTabulator({
         value: startOfMonth(new Date()),
       },
     ],
+    masterDataFilters: [],
   });
   const router = useRouter();
   const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
@@ -69,6 +73,14 @@ export default function ResponsesTabulator({
           ...filters.filters.map((f) => getWhereInput(f, survey)),
           ...filters.generalFilters.map(getGeneralWhereInput),
         ],
+        masterData: {
+          AND: [
+            ...filters.masterDataFilters.map((f) => {
+              console.log(getMasterDataWhereInput(f, survey.masterDataType));
+              return getMasterDataWhereInput(f, survey.masterDataType);
+            }),
+          ],
+        },
         family: survey.hasFamily
           ? getWhereInputFromFamilyFilters(filters.familyFilters)
           : undefined,
@@ -78,8 +90,6 @@ export default function ResponsesTabulator({
   const { responses, isLoading } = myResponses
     ? useMyResponses(survey.id, whereInput)
     : useResponses(survey.id, whereInput);
-
-  console.log(responses);
 
   const tableRef = useRef(null);
 
@@ -107,7 +117,8 @@ export default function ResponsesTabulator({
   const hasFilters =
     filters.familyFilters?.length > 0 ||
     filters.filters?.length > 0 ||
-    filters.generalFilters?.length > 0;
+    filters.generalFilters?.length > 0 ||
+    filters.masterDataFilters?.length > 0;
 
   function editClick(row) {
     const surveyId = row.surveyId;
@@ -140,7 +151,8 @@ export default function ResponsesTabulator({
             />{" "}
             {filters.familyFilters?.length ||
             filters.filters?.length ||
-            filters.generalFilters?.length
+            filters.generalFilters?.length ||
+            filters.masterDataFilters?.length
               ? "Filter bearbeiten"
               : "Filter hinzufügen"}
           </AccordionSummary>
@@ -151,6 +163,7 @@ export default function ResponsesTabulator({
               filters={filters.filters}
               familyFilters={filters.familyFilters}
               generalFilters={filters.generalFilters}
+              masterDataFilters={filters.masterDataFilters}
               onChange={setFilters}
               onApply={applyFilters}
             />

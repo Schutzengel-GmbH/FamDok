@@ -83,7 +83,10 @@ export type FullSurvey = Prisma.SurveyGetPayload<{
       include: { selectOptions: true; defaultAnswerSelectOptions: true };
     };
     masterDataType: {
-      include: { dataFields: { include: { selectOptions: true } } };
+      include: {
+        dataFields: { include: { selectOptions: true } };
+        organization: true;
+      };
     };
   };
 }>;

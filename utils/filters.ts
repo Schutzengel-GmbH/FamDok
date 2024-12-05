@@ -1,5 +1,16 @@
-import { FullSurvey } from "@/types/prismaHelperTypes";
-import { Prisma, QuestionType } from "@prisma/client";
+import {
+  FullDataField,
+  FullDataFieldAnswer,
+  FullMasterDataType,
+  FullSurvey,
+} from "@/types/prismaHelperTypes";
+import { getCollectionDataField } from "@/utils/masterDataUtils";
+import {
+  DataFieldAnswer,
+  DataFieldType,
+  Prisma,
+  QuestionType,
+} from "@prisma/client";
 
 export interface IFilter {
   name?: string;
@@ -24,6 +35,13 @@ export interface IGeneralFilter {
   name?: string;
   filter?: FilterType;
   field?: GeneralFilterFields;
+  value?: any;
+}
+
+export interface IMasterDataFilter {
+  name?: string;
+  filter?: FilterType;
+  dataFieldId: string;
   value?: any;
 }
 
@@ -81,6 +99,36 @@ export const ScaleFilters: IFilter[] = [
   { filter: "notIn", name: "Außerhalb des Intervalls" },
 ];
 
+export function getFiltersForDataFieldType(dataFieldType: DataFieldType) {
+  let filters = [];
+
+  switch (dataFieldType) {
+    case "Text":
+      filters = [...NullFilters, ...TextFilters];
+      break;
+    case "Bool":
+      filters = [...NullFilters, ...BoolFilters];
+      break;
+    case "Int":
+      filters = [...NullFilters, ...NumberFilters];
+      break;
+    case "Num":
+      filters = [...NullFilters, ...NumberFilters];
+      break;
+    case "Select":
+      filters = SelectFilters;
+      break;
+    case "Date":
+      filters = [...NullFilters, ...DateFilters];
+      break;
+    case "Collection":
+      filters = SelectFilters;
+      break;
+  }
+
+  return filters;
+}
+
 export function getFiltersForQuestionType(questionType: QuestionType) {
   let filters = [];
 
@@ -106,6 +154,9 @@ export function getFiltersForQuestionType(questionType: QuestionType) {
     case "Scale":
       filters = ScaleFilters;
       break;
+    case "Collection":
+      filters = SelectFilters;
+      break;
   }
 
   return filters;
@@ -115,6 +166,107 @@ export interface SelectFilterProps {
   questionType: QuestionType;
   filter: IFilter;
   onChange: (filter: IFilter, value?: any) => void;
+}
+
+export function getMasterDataWhereInput(
+  filter: IMasterDataFilter,
+  masterDataType: FullMasterDataType
+): Prisma.MasterDataWhereInput {
+  const dataField = masterDataType.dataFields.find(
+    (f) => f.id === filter.dataFieldId
+  );
+
+  let answerField: keyof FullDataFieldAnswer;
+
+  switch (dataField.type) {
+    case "Text":
+      answerField = "answerText";
+      break;
+    case "Bool":
+      answerField = "answerBool";
+      break;
+    case "Int":
+      answerField = "answerInt";
+      break;
+    case "Num":
+      answerField = "answerNum";
+      break;
+    case "Select":
+      answerField = "answerSelect";
+      break;
+    case "Date":
+      answerField = "answerDate";
+      break;
+    case "Collection":
+      answerField = "answerCollection";
+      break;
+  }
+
+  if (filter?.filter === "empty")
+    return {
+      answers: {
+        some: {
+          dataFieldId: filter.dataFieldId,
+          [answerField]: { equals: null },
+        },
+      },
+    };
+
+  if (filter?.filter === "notEmpty")
+    return {
+      answers: {
+        some: {
+          dataFieldId: filter.dataFieldId,
+          [answerField]: {
+            not: null,
+          },
+        },
+      },
+    };
+
+  if (answerField === "answerSelect")
+    return {
+      answers: {
+        some: {
+          dataFieldId: filter.dataFieldId,
+          answerSelect: {
+            some: {
+              id: { [filter.filter]: filter.value.map((o) => o.id) },
+            },
+          },
+        },
+      },
+    };
+
+  if (answerField === "answerCollection")
+    return {
+      answers: {
+        some: {
+          dataFieldId: filter.dataFieldId,
+          answerCollection: {
+            [getCollectionDataField(dataField.collectionType)]: {
+              some: {
+                id: { [filter.filter]: filter.value.map((data) => data.id) },
+              },
+            },
+          },
+        },
+      },
+    };
+
+  return {
+    answers: {
+      some: {
+        dataFieldId: filter.dataFieldId,
+        [answerField]: filter
+          ? {
+              [filter.filter]: filter.value,
+              mode: answerField === "answerText" ? "insensitive" : undefined,
+            }
+          : null,
+      },
+    },
+  };
 }
 
 export function getWhereInput(

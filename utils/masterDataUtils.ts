@@ -16,6 +16,7 @@ import {
 } from "@/types/prismaHelperTypes";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
+  Collection,
   CollectionType,
   DataField,
   DataFieldAnswer,
@@ -241,6 +242,21 @@ export function getCollectionTypeName(type: CollectionType): string {
       return "Datum";
     default:
       return type as string;
+  }
+}
+
+export function getCollectionDataField(
+  type: CollectionType
+): keyof Omit<FullCollection, "id" | "createdAt" | "type" | "updatedAt"> {
+  switch (type) {
+    case "Text":
+      return "collectionDataString";
+    case "Int":
+      return "collectionDataInt";
+    case "Num":
+      return "collectionDataFloat";
+    case "Date":
+      return "collectionDataDate";
   }
 }
 
