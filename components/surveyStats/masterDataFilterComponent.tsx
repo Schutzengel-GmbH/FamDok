@@ -108,7 +108,7 @@ interface SelectFilterProps {
 function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
   const filters = getFiltersForDataFieldType(
     dataField?.type,
-    dataField.selectMultiple
+    dataField?.selectMultiple
   );
 
   return (

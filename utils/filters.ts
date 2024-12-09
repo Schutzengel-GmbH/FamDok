@@ -151,7 +151,7 @@ export function getFiltersForQuestionType(
 ) {
   let filters = [];
 
-  switch (question.type) {
+  switch (question?.type) {
     case "Text":
       filters = [...NullFilters, ...TextFilters];
       break;
@@ -226,9 +226,11 @@ export function getMasterDataWhereInput(
   if (filter?.filter === "empty")
     return {
       answers: {
-        some: {
+        none: {
           dataFieldId: filter.dataFieldId,
-          [answerField]: { equals: null },
+          [answerField]: {
+            not: null,
+          },
         },
       },
     };
@@ -386,11 +388,10 @@ export function getWhereInput(
   if (filter?.filter === "empty")
     return {
       answers: {
-        some: {
+        none: {
           questionId: question?.id || undefined,
-
           [answerField]: {
-            equals: null,
+            not: null,
           },
         },
       },

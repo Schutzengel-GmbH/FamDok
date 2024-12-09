@@ -94,7 +94,7 @@ function SelectQuestion({ survey, question, onChange }: SelectQuestionProps) {
 }
 
 function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForQuestionType(question, question.selectMultiple);
+  const filters = getFiltersForQuestionType(question, question?.selectMultiple);
 
   return (
     <FormControl sx={{ width: "25%" }}>
