@@ -1,3 +1,4 @@
+import CollectionValues from "@/components/surveyStats/collectionValues";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import {
@@ -5,7 +6,11 @@ import {
   FullMasterDataType,
   FullSurvey,
 } from "@/types/prismaHelperTypes";
-import { getFiltersForDataFieldType, IMasterDataFilter } from "@/utils/filters";
+import {
+  getFiltersForDataFieldType,
+  IMasterDataFilter,
+  NO_VALUE_FILTERS,
+} from "@/utils/filters";
 import {
   Box,
   FormControl,
@@ -140,7 +145,7 @@ interface ValueInputProps {
 }
 
 function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
-  if (filter?.filter === "empty" || filter?.filter === "notEmpty") return <></>;
+  if (NO_VALUE_FILTERS.includes(filter?.filter)) return <></>;
 
   switch (dataField?.type) {
     case "Text":
@@ -185,7 +190,13 @@ function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
         />
       );
     case "Collection":
-      return <>COLLECTION NOT IMPLEMENTED</>;
+      return (
+        <CollectionValues
+          dataField={dataField}
+          value={filter.value}
+          onChange={(o) => onChange({ ...filter, value: o })}
+        />
+      );
 
     default:
       return <></>;

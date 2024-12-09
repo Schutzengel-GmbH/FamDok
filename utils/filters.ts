@@ -60,9 +60,22 @@ export type FilterType =
   | "endsWith"
   | "empty"
   | "notEmpty"
-  | SelectFilterType;
+  | SelectFilterType
+  | CollectionFilterType;
 
 export type SelectFilterType = "oneOf" | "allOf" | "noneOf" | "exactly";
+export type CollectionFilterType =
+  | "emptyOrNoCollection"
+  | "collectionHasValue"
+  | "collectionContains"
+  | "collectionDoesNotContain";
+
+export const NO_VALUE_FILTERS: FilterType[] = [
+  "empty",
+  "notEmpty",
+  "emptyOrNoCollection",
+  "collectionHasValue",
+];
 
 const NullFilters: IFilter[] = [
   { filter: "empty", name: "Hat keinen Wert", value: true },
@@ -109,6 +122,12 @@ export const ScaleFilters: IFilter[] = [
   { filter: "in", name: "Innerhalb des Intervalls" },
   { filter: "notIn", name: "Außerhalb des Intervalls" },
 ];
+export const CollectionFilters: IFilter[] = [
+  { filter: "collectionContains", name: "Sammlung enthält" },
+  { filter: "collectionDoesNotContain", name: "Sammlung enthält nicht" },
+  { filter: "collectionHasValue", name: "Sammlung hat Wert(e)" },
+  { filter: "emptyOrNoCollection", name: "Sammlung hat kein(e) Wert(e)" },
+];
 
 export function getFiltersForDataFieldType(
   dataFieldType: DataFieldType,
@@ -138,7 +157,7 @@ export function getFiltersForDataFieldType(
       filters = [...NullFilters, ...DateFilters];
       break;
     case "Collection":
-      filters = SelectMultipleFilters;
+      filters = CollectionFilters;
       break;
   }
 
@@ -176,7 +195,7 @@ export function getFiltersForQuestionType(
       filters = ScaleFilters;
       break;
     case "Collection":
-      filters = SelectMultipleFilters;
+      filters = [...NullFilters, ...CollectionFilters];
       break;
   }
 
@@ -319,20 +338,60 @@ export function getMasterDataWhereInput(
     }
 
   if (answerField === "answerCollection")
-    return {
-      answers: {
-        some: {
-          dataFieldId: filter.dataFieldId,
-          answerCollection: {
-            [getCollectionDataField(dataField.collectionType)]: {
-              some: {
-                id: { [filter.filter]: filter.value.map((data) => data.id) },
+    switch (filter.filter as CollectionFilterType) {
+      case "emptyOrNoCollection":
+        return {
+          answers: {
+            none: {
+              dataFieldId: filter.dataFieldId,
+              answerCollection: {
+                [getCollectionDataField(dataField.collectionType)]: {
+                  some: {},
+                },
               },
             },
           },
-        },
-      },
-    };
+        };
+      case "collectionHasValue":
+        return {
+          answers: {
+            some: {
+              dataFieldId: filter.dataFieldId,
+              answerCollection: {
+                [getCollectionDataField(dataField.collectionType)]: {
+                  some: {},
+                },
+              },
+            },
+          },
+        };
+      case "collectionContains":
+        return {
+          answers: {
+            some: {
+              dataFieldId: filter.dataFieldId,
+              answerCollection: {
+                [getCollectionDataField(dataField.collectionType)]: {
+                  some: { value: filter.value },
+                },
+              },
+            },
+          },
+        };
+      case "collectionDoesNotContain":
+        return {
+          answers: {
+            none: {
+              dataFieldId: filter.dataFieldId,
+              answerCollection: {
+                [getCollectionDataField(dataField.collectionType)]: {
+                  some: { value: filter.value },
+                },
+              },
+            },
+          },
+        };
+    }
 
   return {
     answers: {
@@ -410,32 +469,145 @@ export function getWhereInput(
     };
 
   if (answerField === "answerSelect")
-    return {
-      answers: {
-        some: {
-          questionId: question?.id,
-          answerSelect: {
+    switch (filter.filter as SelectFilterType) {
+      case "oneOf":
+        return {
+          answers: {
             some: {
-              id: { [filter.filter]: filter.value.map((o) => o.id) },
+              questionId: filter.questionId,
+              answerSelect: {
+                some: {
+                  id: { in: filter.value.map((o) => o.id) },
+                },
+              },
             },
           },
-        },
+        };
+      case "allOf":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  questionId: filter.questionId,
+                  answerSelect: {
+                    some: { id: o.id },
+                  },
+                })),
+              ],
+            },
+          },
+        };
+      case "noneOf":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  questionId: filter.questionId,
+                  answerSelect: {
+                    none: { id: o.id },
+                  },
+                })),
+              ],
+            },
+          },
+        };
+
+      case "exactly":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  questionId: filter.questionId,
+                  answerSelect: {
+                    some: { id: o.id },
+                  },
+                })),
+                ...question.selectOptions
+                  .filter((o) => !filter.value.map((o) => o.id).includes(o.id))
+                  .map((o) => ({
+                    questionId: filter.questionId,
+                    answerSelect: {
+                      none: { id: o.id },
+                    },
+                  })),
+              ],
+            },
+          },
+        };
+    }
+
+  if (answerField === "answerCollection")
+    switch (filter.filter as CollectionFilterType) {
+      case "emptyOrNoCollection":
+        return {
+          answers: {
+            none: {
+              questionId: filter.questionId,
+              answerCollection: {
+                [getCollectionDataField(question.collectionType)]: {
+                  some: {},
+                },
+              },
+            },
+          },
+        };
+      case "collectionHasValue":
+        return {
+          answers: {
+            some: {
+              questionId: filter.questionId,
+              answerCollection: {
+                [getCollectionDataField(question.collectionType)]: {
+                  some: {},
+                },
+              },
+            },
+          },
+        };
+      case "collectionContains":
+        return {
+          answers: {
+            some: {
+              questionId: filter.questionId,
+              answerCollection: {
+                [getCollectionDataField(question.collectionType)]: {
+                  some: { value: filter.value },
+                },
+              },
+            },
+          },
+        };
+      case "collectionDoesNotContain":
+        return {
+          answers: {
+            none: {
+              questionId: filter.questionId,
+              answerCollection: {
+                [getCollectionDataField(question.collectionType)]: {
+                  some: { value: filter.value },
+                },
+              },
+            },
+          },
+        };
+    }
+
+  return {
+    answers: {
+      some: {
+        questionId: question?.id || undefined,
+        [answerField]: filter
+          ? {
+              [filter.filter]: filter.value,
+              mode: answerField === "answerText" ? "insensitive" : undefined,
+            }
+          : null,
       },
-    };
-  else
-    return {
-      answers: {
-        some: {
-          questionId: question?.id || undefined,
-          [answerField]: filter
-            ? {
-                [filter.filter]: filter.value,
-                mode: answerField === "answerText" ? "insensitive" : undefined,
-              }
-            : null,
-        },
-      },
-    };
+    },
+  };
 }
 
 export function getGeneralWhereInput(
