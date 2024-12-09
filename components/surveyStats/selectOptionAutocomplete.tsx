@@ -1,9 +1,10 @@
 import { FullQuestion } from "@/types/prismaHelperTypes";
+import { QuestionTypeUnion } from "@/types/utilTypes";
 import { Autocomplete, TextField } from "@mui/material";
 import { Question, SelectOption } from "@prisma/client";
 
 interface SelectOptionAutocompleteProps {
-  question: FullQuestion;
+  question: QuestionTypeUnion;
   options: SelectOption[];
   onChange: (options: SelectOption[]) => void;
 }

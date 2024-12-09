@@ -9,6 +9,7 @@ import {
   DataFieldAnswer,
   DataFieldType,
   Prisma,
+  Question,
   QuestionType,
 } from "@prisma/client";
 
@@ -58,7 +59,10 @@ export type FilterType =
   | "startsWith"
   | "endsWith"
   | "empty"
-  | "notEmpty";
+  | "notEmpty"
+  | SelectFilterType;
+
+export type SelectFilterType = "oneOf" | "allOf" | "noneOf" | "exactly";
 
 const NullFilters: IFilter[] = [
   { filter: "empty", name: "Hat keinen Wert", value: true },
@@ -91,15 +95,25 @@ export const NumberFilters: IFilter[] = [
   { filter: "equals", name: "Ist gleich" },
   { filter: "not", name: "Ist nicht gleich" },
 ];
-export const SelectFilters: IFilter[] = [
-  { filter: "in", name: "Enthält mindestens einen von" },
+export const SelectMultipleFilters: IFilter[] = [
+  { filter: "oneOf", name: "Enthält mindestens einen von" },
+  { filter: "allOf", name: "Enthält alle" },
+  { filter: "noneOf", name: "Enthält keinen von" },
+  { filter: "exactly", name: "Enthält genau" },
+];
+export const SelectSingleFilters: IFilter[] = [
+  { filter: "oneOf", name: "Enthält einen von" },
+  { filter: "noneOf", name: "Enthält keinen von" },
 ];
 export const ScaleFilters: IFilter[] = [
   { filter: "in", name: "Innerhalb des Intervalls" },
   { filter: "notIn", name: "Außerhalb des Intervalls" },
 ];
 
-export function getFiltersForDataFieldType(dataFieldType: DataFieldType) {
+export function getFiltersForDataFieldType(
+  dataFieldType: DataFieldType,
+  isMultiple?: boolean
+) {
   let filters = [];
 
   switch (dataFieldType) {
@@ -116,23 +130,28 @@ export function getFiltersForDataFieldType(dataFieldType: DataFieldType) {
       filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
-      filters = SelectFilters;
+      isMultiple
+        ? (filters = SelectMultipleFilters)
+        : (filters = SelectSingleFilters);
       break;
     case "Date":
       filters = [...NullFilters, ...DateFilters];
       break;
     case "Collection":
-      filters = SelectFilters;
+      filters = SelectMultipleFilters;
       break;
   }
 
   return filters;
 }
 
-export function getFiltersForQuestionType(questionType: QuestionType) {
+export function getFiltersForQuestionType(
+  question: Question,
+  isMultiple?: boolean
+) {
   let filters = [];
 
-  switch (questionType) {
+  switch (question.type) {
     case "Text":
       filters = [...NullFilters, ...TextFilters];
       break;
@@ -146,7 +165,9 @@ export function getFiltersForQuestionType(questionType: QuestionType) {
       filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
-      filters = SelectFilters;
+      isMultiple
+        ? (filters = SelectMultipleFilters)
+        : (filters = SelectSingleFilters);
       break;
     case "Date":
       filters = [...NullFilters, ...DateFilters];
@@ -155,7 +176,7 @@ export function getFiltersForQuestionType(questionType: QuestionType) {
       filters = ScaleFilters;
       break;
     case "Collection":
-      filters = SelectFilters;
+      filters = SelectMultipleFilters;
       break;
   }
 
@@ -163,7 +184,7 @@ export function getFiltersForQuestionType(questionType: QuestionType) {
 }
 
 export interface SelectFilterProps {
-  questionType: QuestionType;
+  question: Question;
   filter: IFilter;
   onChange: (filter: IFilter, value?: any) => void;
 }
@@ -225,18 +246,75 @@ export function getMasterDataWhereInput(
     };
 
   if (answerField === "answerSelect")
-    return {
-      answers: {
-        some: {
-          dataFieldId: filter.dataFieldId,
-          answerSelect: {
+    switch (filter.filter as SelectFilterType) {
+      case "oneOf":
+        return {
+          answers: {
             some: {
-              id: { [filter.filter]: filter.value.map((o) => o.id) },
+              dataFieldId: filter.dataFieldId,
+              answerSelect: {
+                some: {
+                  id: { in: filter.value.map((o) => o.id) },
+                },
+              },
             },
           },
-        },
-      },
-    };
+        };
+      case "allOf":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  dataFieldId: filter.dataFieldId,
+                  answerSelect: {
+                    some: { id: o.id },
+                  },
+                })),
+              ],
+            },
+          },
+        };
+      case "noneOf":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  dataFieldId: filter.dataFieldId,
+                  answerSelect: {
+                    none: { id: o.id },
+                  },
+                })),
+              ],
+            },
+          },
+        };
+
+      case "exactly":
+        return {
+          answers: {
+            some: {
+              AND: [
+                ...filter.value.map((o) => ({
+                  dataFieldId: filter.dataFieldId,
+                  answerSelect: {
+                    some: { id: o.id },
+                  },
+                })),
+                ...dataField.selectOptions
+                  .filter((o) => !filter.value.map((o) => o.id).includes(o.id))
+                  .map((o) => ({
+                    dataFieldId: filter.dataFieldId,
+                    answerSelect: {
+                      none: { id: o.id },
+                    },
+                  })),
+              ],
+            },
+          },
+        };
+    }
 
   if (answerField === "answerCollection")
     return {

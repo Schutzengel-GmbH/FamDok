@@ -6,7 +6,7 @@ import { DataFieldAnswerComponentProps } from "@/components/masterData/dataField
 import { CollectionData, FullCollection } from "@/types/prismaHelperTypes";
 import { AnswerTypeUnion, RecursivePartial } from "@/types/utilTypes";
 import { Box } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface DataFieldCollectionAnswerComponentProps {
   answer: RecursivePartial<AnswerTypeUnion>;

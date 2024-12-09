@@ -75,10 +75,9 @@ export default function ResponsesTabulator({
         ],
         masterData: {
           AND: [
-            ...filters.masterDataFilters.map((f) => {
-              console.log(getMasterDataWhereInput(f, survey.masterDataType));
-              return getMasterDataWhereInput(f, survey.masterDataType);
-            }),
+            ...filters.masterDataFilters.map((f) =>
+              getMasterDataWhereInput(f, survey.masterDataType)
+            ),
           ],
         },
         family: survey.hasFamily

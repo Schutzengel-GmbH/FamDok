@@ -46,7 +46,7 @@ export default function FilterComponent({
         onChange={(q) => onChange({ questionId: q.id })}
       />
       <SelectFilter
-        questionType={question?.type}
+        question={question}
         filter={filter}
         onChange={(f, v) =>
           onChange({
@@ -93,8 +93,8 @@ function SelectQuestion({ survey, question, onChange }: SelectQuestionProps) {
   );
 }
 
-function SelectFilter({ questionType, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForQuestionType(questionType);
+function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
+  const filters = getFiltersForQuestionType(question, question.selectMultiple);
 
   return (
     <FormControl sx={{ width: "25%" }}>

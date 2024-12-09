@@ -1,3 +1,4 @@
+import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import {
   FullDataField,
@@ -13,7 +14,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { DataField } from "@prisma/client";
+import { DataField, SelectOption } from "@prisma/client";
 
 interface MasterDataFilterComponentProps {
   survey: FullSurvey;
@@ -105,7 +106,10 @@ interface SelectFilterProps {
 }
 
 function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForDataFieldType(dataField?.type);
+  const filters = getFiltersForDataFieldType(
+    dataField?.type,
+    dataField.selectMultiple
+  );
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -173,7 +177,13 @@ function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
     case "Bool":
       return <></>;
     case "Select":
-      return <>SELECT NOT IMPLEMENTED</>;
+      return (
+        <SelectOptionAutocomplete
+          question={dataField}
+          options={filter.value}
+          onChange={(o) => onChange({ ...filter, value: o })}
+        />
+      );
     case "Collection":
       return <>COLLECTION NOT IMPLEMENTED</>;
 
