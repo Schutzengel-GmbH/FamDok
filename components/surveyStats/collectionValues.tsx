@@ -1,14 +1,6 @@
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
-import { CollectionData, FullQuestion } from "@/types/prismaHelperTypes";
-import { QuestionTypeUnion } from "@/types/utilTypes";
-import { useMasterData } from "@/utils/apiHooks";
-import { getCollectionDataField } from "@/utils/masterDataUtils";
-import {
-  Autocomplete,
-  AutocompleteRenderInputParams,
-  TextField,
-} from "@mui/material";
-import { DataField, Question, SelectOption } from "@prisma/client";
+import { TextField } from "@mui/material";
+import { DataField } from "@prisma/client";
 
 interface CollectionValuesProps {
   dataField: DataField;
