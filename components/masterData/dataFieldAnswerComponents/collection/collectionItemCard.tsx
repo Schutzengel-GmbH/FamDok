@@ -29,7 +29,7 @@ export default function CollectionDataItemCard({
       case "Int":
         return collectionData.value as number;
       case "Num":
-        return collectionData.value as number;
+        return (collectionData.value as number).toLocaleString();
       case "Date":
         return new Date(collectionData.value as string).toLocaleDateString();
       default:
@@ -42,7 +42,9 @@ export default function CollectionDataItemCard({
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        p: ".25rem",
+        alignItems: "center",
+        p: ".5rem",
+        pl: "1rem",
         maxWidth: "500px",
       }}
       elevation={3}
