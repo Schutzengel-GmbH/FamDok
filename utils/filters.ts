@@ -432,8 +432,6 @@ export function getWhereInput(
 ): Prisma.ResponseWhereInput {
   if (!filter?.questionId) return {};
 
-  if (filter.value === null || filter.value === undefined) return {};
-
   const question = survey?.questions?.find((q) => q.id === filter?.questionId);
 
   let answerField: string;
@@ -459,6 +457,9 @@ export function getWhereInput(
       break;
     case "Scale":
       answerField = "answerSelect";
+      break;
+    case "Collection":
+      answerField = "answerCollection";
       break;
   }
 
@@ -593,11 +594,13 @@ export function getWhereInput(
               answerCollection: {
                 [getCollectionDataField(question.collectionType)]: {
                   some: {
-                    value: { [filter.filter]: filter.value },
-                    mode:
-                      question.collectionType === "Text"
-                        ? "insensitive"
-                        : undefined,
+                    value: {
+                      [filter.filter]: filter.value,
+                      mode:
+                        question.collectionType === "Text"
+                          ? "insensitive"
+                          : undefined,
+                    },
                   },
                 },
               },

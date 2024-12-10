@@ -1,3 +1,4 @@
+import CollectionValues from "@/components/surveyStats/collectionValues";
 import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
@@ -178,7 +179,14 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
           onChange={(v) => onChange({ ...filter, value: v })}
         />
       );
-
+    case "Collection":
+      return (
+        <CollectionValues
+          dataField={question}
+          value={filter.value}
+          onChange={(o) => onChange({ ...filter, value: o })}
+        />
+      );
     default:
       return <></>;
   }

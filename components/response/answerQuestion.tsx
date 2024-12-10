@@ -60,7 +60,6 @@ export default function AnswerQuestion({
     setHasInputError(error !== undefined);
     onChange(_answer, error);
   }
-  console.log(answer);
 
   switch (question.type) {
     case QuestionType.Text:

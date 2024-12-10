@@ -60,6 +60,15 @@ export default function ResponsesTabulator({
       ...filters.filters.map((f) => getWhereInput(f, survey)),
       ...filters.generalFilters.map(getGeneralWhereInput),
     ],
+    masterData: survey.hasMasterData
+      ? {
+          AND: [
+            ...filters.masterDataFilters.map((f) =>
+              getMasterDataWhereInput(f, survey.masterDataType)
+            ),
+          ],
+        }
+      : undefined,
     family: survey.hasFamily
       ? getWhereInputFromFamilyFilters(filters.familyFilters)
       : undefined,
@@ -73,13 +82,15 @@ export default function ResponsesTabulator({
           ...filters.filters.map((f) => getWhereInput(f, survey)),
           ...filters.generalFilters.map(getGeneralWhereInput),
         ],
-        masterData: {
-          AND: [
-            ...filters.masterDataFilters.map((f) =>
-              getMasterDataWhereInput(f, survey.masterDataType)
-            ),
-          ],
-        },
+        masterData: survey.hasMasterData
+          ? {
+              AND: [
+                ...filters.masterDataFilters.map((f) =>
+                  getMasterDataWhereInput(f, survey.masterDataType)
+                ),
+              ],
+            }
+          : undefined,
         family: survey.hasFamily
           ? getWhereInputFromFamilyFilters(filters.familyFilters)
           : undefined,

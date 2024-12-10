@@ -1,10 +1,11 @@
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
 import FloatInput from "@/components/utilityComponents/floatInput";
+import { QuestionTypeUnion } from "@/types/utilTypes";
 import { TextField } from "@mui/material";
 import { DataField } from "@prisma/client";
 
 interface CollectionValuesProps {
-  dataField: DataField;
+  dataField: QuestionTypeUnion;
   value: Date | number | string;
   onChange: (values: Date | number | string) => void;
 }
