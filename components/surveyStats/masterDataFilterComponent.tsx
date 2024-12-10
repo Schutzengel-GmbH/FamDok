@@ -111,10 +111,7 @@ interface SelectFilterProps {
 }
 
 function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForDataFieldType(
-    dataField?.type,
-    dataField?.selectMultiple
-  );
+  const filters = getFiltersForDataFieldType(dataField);
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -130,7 +127,12 @@ function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
       >
         {filters.map((f) => (
           <MenuItem key={f.filter} value={f.filter}>
-            {f.name}
+            {dataField.type === "Collection"
+              ? f.filter === "collectionHasValue" ||
+                f.filter === "emptyOrNoCollection"
+                ? f.name
+                : `Ein Element der Sammlung ist ${f.name}`
+              : f.name}
           </MenuItem>
         ))}
       </Select>

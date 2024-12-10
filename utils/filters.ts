@@ -6,6 +6,7 @@ import {
 } from "@/types/prismaHelperTypes";
 import { getCollectionDataField } from "@/utils/masterDataUtils";
 import {
+  DataField,
   DataFieldAnswer,
   DataFieldType,
   Prisma,
@@ -123,19 +124,14 @@ export const ScaleFilters: IFilter[] = [
   { filter: "notIn", name: "Außerhalb des Intervalls" },
 ];
 export const CollectionFilters: IFilter[] = [
-  { filter: "collectionContains", name: "Sammlung enthält" },
-  { filter: "collectionDoesNotContain", name: "Sammlung enthält nicht" },
   { filter: "collectionHasValue", name: "Sammlung hat Wert(e)" },
   { filter: "emptyOrNoCollection", name: "Sammlung hat kein(e) Wert(e)" },
 ];
 
-export function getFiltersForDataFieldType(
-  dataFieldType: DataFieldType,
-  isMultiple?: boolean
-) {
+export function getFiltersForDataFieldType(dataField: DataField) {
   let filters = [];
 
-  switch (dataFieldType) {
+  switch (dataField.type) {
     case "Text":
       filters = [...NullFilters, ...TextFilters];
       break;
@@ -149,7 +145,7 @@ export function getFiltersForDataFieldType(
       filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
-      isMultiple
+      dataField.selectMultiple
         ? (filters = SelectMultipleFilters)
         : (filters = SelectSingleFilters);
       break;
@@ -157,17 +153,30 @@ export function getFiltersForDataFieldType(
       filters = [...NullFilters, ...DateFilters];
       break;
     case "Collection":
-      filters = CollectionFilters;
+      switch (dataField.collectionType) {
+        case "Text":
+          filters = [...CollectionFilters, ...TextFilters];
+          break;
+        case "Int":
+          filters = [...CollectionFilters, ...NumberFilters];
+          break;
+        case "Num":
+          filters = [...CollectionFilters, ...NumberFilters];
+          break;
+        case "Date":
+          filters = [...CollectionFilters, ...DateFilters];
+          break;
+        default:
+          filters = CollectionFilters;
+          break;
+      }
       break;
   }
 
   return filters;
 }
 
-export function getFiltersForQuestionType(
-  question: Question,
-  isMultiple?: boolean
-) {
+export function getFiltersForQuestionType(question: Question) {
   let filters = [];
 
   switch (question?.type) {
@@ -184,7 +193,7 @@ export function getFiltersForQuestionType(
       filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
-      isMultiple
+      question.selectMultiple
         ? (filters = SelectMultipleFilters)
         : (filters = SelectSingleFilters);
       break;
@@ -195,7 +204,23 @@ export function getFiltersForQuestionType(
       filters = ScaleFilters;
       break;
     case "Collection":
-      filters = [...NullFilters, ...CollectionFilters];
+      switch (question.collectionType) {
+        case "Text":
+          filters = [...CollectionFilters, ...TextFilters];
+          break;
+        case "Int":
+          filters = [...CollectionFilters, ...NumberFilters];
+          break;
+        case "Num":
+          filters = [...CollectionFilters, ...NumberFilters];
+          break;
+        case "Date":
+          filters = [...CollectionFilters, ...DateFilters];
+          break;
+        default:
+          filters = CollectionFilters;
+          break;
+      }
       break;
   }
 
@@ -365,27 +390,20 @@ export function getMasterDataWhereInput(
             },
           },
         };
-      case "collectionContains":
+      default:
         return {
           answers: {
             some: {
               dataFieldId: filter.dataFieldId,
               answerCollection: {
                 [getCollectionDataField(dataField.collectionType)]: {
-                  some: { value: filter.value },
-                },
-              },
-            },
-          },
-        };
-      case "collectionDoesNotContain":
-        return {
-          answers: {
-            none: {
-              dataFieldId: filter.dataFieldId,
-              answerCollection: {
-                [getCollectionDataField(dataField.collectionType)]: {
-                  some: { value: filter.value },
+                  some: {
+                    value: { [filter.filter]: filter.value },
+                    mode:
+                      dataField.collectionType === "Text"
+                        ? "insensitive"
+                        : undefined,
+                  },
                 },
               },
             },
@@ -567,27 +585,20 @@ export function getWhereInput(
             },
           },
         };
-      case "collectionContains":
+      default:
         return {
           answers: {
             some: {
               questionId: filter.questionId,
               answerCollection: {
                 [getCollectionDataField(question.collectionType)]: {
-                  some: { value: filter.value },
-                },
-              },
-            },
-          },
-        };
-      case "collectionDoesNotContain":
-        return {
-          answers: {
-            none: {
-              questionId: filter.questionId,
-              answerCollection: {
-                [getCollectionDataField(question.collectionType)]: {
-                  some: { value: filter.value },
+                  some: {
+                    value: { [filter.filter]: filter.value },
+                    mode:
+                      question.collectionType === "Text"
+                        ? "insensitive"
+                        : undefined,
+                  },
                 },
               },
             },
