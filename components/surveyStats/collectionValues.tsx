@@ -1,4 +1,5 @@
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
+import FloatInput from "@/components/utilityComponents/floatInput";
 import { TextField } from "@mui/material";
 import { DataField } from "@prisma/client";
 
@@ -26,12 +27,7 @@ export default function CollectionValues({
         />
       );
     case "Num":
-      return (
-        <TextField
-          value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
-        />
-      );
+      return <FloatInput value={value as number} onChange={onChange} />;
     case "Date":
       return (
         <DatePickerComponent
