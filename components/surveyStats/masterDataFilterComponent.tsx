@@ -127,12 +127,7 @@ function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
       >
         {filters.map((f) => (
           <MenuItem key={f.filter} value={f.filter}>
-            {dataField.type === "Collection"
-              ? f.filter === "collectionHasValue" ||
-                f.filter === "emptyOrNoCollection"
-                ? f.name
-                : `Ein Element der Sammlung ist ${f.name}`
-              : f.name}
+            {f.name}
           </MenuItem>
         ))}
       </Select>

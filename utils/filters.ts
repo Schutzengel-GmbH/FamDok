@@ -127,6 +127,28 @@ export const CollectionFilters: IFilter[] = [
   { filter: "collectionHasValue", name: "Sammlung hat Wert(e)" },
   { filter: "emptyOrNoCollection", name: "Sammlung hat kein(e) Wert(e)" },
 ];
+export const CollectionTextFilters: IFilter[] = [
+  { filter: "equals", name: "Ein Element ist gleich" },
+  { filter: "contains", name: "Ein Element enthält" },
+  { filter: "endsWith", name: "Ein Element endet auf" },
+  { filter: "startsWith", name: "Ein Element beginnt mit" },
+];
+export const CollectionNumberFilters: IFilter[] = [
+  { filter: "gt", name: "Ein Element ist größer als" },
+  { filter: "gte", name: "Ein Element ist größer oder gleich" },
+  { filter: "lt", name: "Ein Element ist kleiner als" },
+  { filter: "lte", name: "Ein Element ist kleiner oder gleich" },
+  { filter: "equals", name: "Ein Element ist gleich" },
+  { filter: "not", name: "Ein Element ist nicht gleich" },
+];
+export const CollectionDateFilters: IFilter[] = [
+  { filter: "gt", name: "Ein Element ist nach" },
+  { filter: "gte", name: "Ein Element ist nach oder am" },
+  { filter: "lt", name: "Ein Element ist vor" },
+  { filter: "lte", name: "Ein Element ist vor oder am" },
+  { filter: "equals", name: "Ein Element ist am" },
+  { filter: "not", name: "Ein Element ist nicht am" },
+];
 
 export function getFiltersForDataFieldType(dataField: DataField) {
   let filters = [];
@@ -155,16 +177,16 @@ export function getFiltersForDataFieldType(dataField: DataField) {
     case "Collection":
       switch (dataField.collectionType) {
         case "Text":
-          filters = [...CollectionFilters, ...TextFilters];
+          filters = [...CollectionFilters, ...CollectionTextFilters];
           break;
         case "Int":
-          filters = [...CollectionFilters, ...NumberFilters];
+          filters = [...CollectionFilters, ...CollectionNumberFilters];
           break;
         case "Num":
-          filters = [...CollectionFilters, ...NumberFilters];
+          filters = [...CollectionFilters, ...CollectionNumberFilters];
           break;
         case "Date":
-          filters = [...CollectionFilters, ...DateFilters];
+          filters = [...CollectionFilters, ...CollectionDateFilters];
           break;
         default:
           filters = CollectionFilters;
@@ -206,16 +228,16 @@ export function getFiltersForQuestionType(question: Question) {
     case "Collection":
       switch (question.collectionType) {
         case "Text":
-          filters = [...CollectionFilters, ...TextFilters];
+          filters = [...CollectionFilters, ...CollectionTextFilters];
           break;
         case "Int":
-          filters = [...CollectionFilters, ...NumberFilters];
+          filters = [...CollectionFilters, ...CollectionNumberFilters];
           break;
         case "Num":
-          filters = [...CollectionFilters, ...NumberFilters];
+          filters = [...CollectionFilters, ...CollectionNumberFilters];
           break;
         case "Date":
-          filters = [...CollectionFilters, ...DateFilters];
+          filters = [...CollectionFilters, ...CollectionDateFilters];
           break;
         default:
           filters = CollectionFilters;
