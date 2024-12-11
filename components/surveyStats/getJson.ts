@@ -1,6 +1,9 @@
 import {
   FullAnswer,
+  FullDataField,
+  FullDataFieldAnswer,
   FullFamily,
+  FullMasterData,
   FullQuestion,
   FullResponse,
   IAnswerSelectOtherValues,
@@ -12,7 +15,7 @@ import {
   getEducationString,
   getGenderString,
 } from "@/utils/utils";
-import { Answer, Question, SelectOption } from "@prisma/client";
+import { Answer, DataField, Question, SelectOption } from "@prisma/client";
 
 export function getFamiliesJson(families: FullFamily[]) {
   let humanReadable: object[] = [];
@@ -71,6 +74,57 @@ export function getFamiliesJson(families: FullFamily[]) {
   return JSON.stringify(humanReadable);
 }
 
+export function getDataFieldAnswer(
+  dataFieldAnswer: FullDataFieldAnswer,
+  dataField: FullDataField
+) {
+  switch (dataField.type) {
+    case "Text":
+      return dataFieldAnswer.answerText;
+    case "Bool":
+      return dataFieldAnswer.answerBool;
+    case "Int":
+      return dataFieldAnswer.answerInt;
+    case "Num":
+      return dataFieldAnswer.answerNum;
+    case "Select":
+      let ans = [];
+      for (let option of dataField.selectOptions) {
+        let op = dataFieldAnswer.answerSelect.find((o) => o.id === option.id);
+        if (option.isOpen) {
+          if (op)
+            ans.push(
+              (
+                dataFieldAnswer.selectOtherValues as IAnswerSelectOtherValues
+              )?.find((v) => v.selectOptionId === option.id).value
+            );
+        } else if (op) ans.push(op.value);
+      }
+      return ans;
+    case "Date":
+      return dataFieldAnswer.answerDate;
+    case "Collection":
+      switch (dataFieldAnswer.answerCollection.type) {
+        case "Text":
+          return dataFieldAnswer.answerCollection.collectionDataString.map(
+            (a) => a.value
+          );
+        case "Int":
+          return dataFieldAnswer.answerCollection.collectionDataInt.map(
+            (a) => a.value
+          );
+        case "Num":
+          return dataFieldAnswer.answerCollection.collectionDataFloat.map(
+            (a) => a.value
+          );
+        case "Date":
+          return dataFieldAnswer.answerCollection.collectionDataDate.map(
+            (a) => a.value
+          );
+      }
+  }
+}
+
 export function getFullResponseJson(data: FullResponse[]) {
   let humanReadableRes: object[] = [];
 
@@ -83,35 +137,35 @@ export function getFullResponseJson(data: FullResponse[]) {
       {}
     );
 
-    let kinder = response.family?.children?.reduce(
-      (prev, curr, i) => ({
-        ...prev,
-        [i + 1]: {
-          alter: getAge(curr.dateOfBirth),
-          geschlecht: getGenderString(curr.gender),
-          behinderung: getDisabilityString(curr.disability),
-          mehrling: getBoolString(curr.isMultiple),
-          fruehgeburt: getBoolString(curr.isPremature),
-          psych_diagnose: getBoolString(curr.psychDiagosis),
-        },
-      }),
-      {}
-    );
+    // let kinder = response.family?.children?.reduce(
+    //   (prev, curr, i) => ({
+    //     ...prev,
+    //     [i + 1]: {
+    //       alter: getAge(curr.dateOfBirth),
+    //       geschlecht: getGenderString(curr.gender),
+    //       behinderung: getDisabilityString(curr.disability),
+    //       mehrling: getBoolString(curr.isMultiple),
+    //       fruehgeburt: getBoolString(curr.isPremature),
+    //       psych_diagnose: getBoolString(curr.psychDiagosis),
+    //     },
+    //   }),
+    //   {}
+    // );
 
-    let bezugspersonen = response.family?.caregivers?.reduce(
-      (prev, curr, i) => ({
-        ...prev,
-        [i + 1]: {
-          alter: getAge(curr.dateOfBirth),
-          geschlecht: getGenderString(curr.gender),
-          behinderung: getDisabilityString(curr.disability),
-          migrationshintergrund: getBoolString(curr.migrationBackground),
-          bildungsabschluss: getEducationString(curr.education),
-          psych_diagnose: getBoolString(curr.psychDiagosis),
-        },
-      }),
-      {}
-    );
+    // let bezugspersonen = response.family?.caregivers?.reduce(
+    //   (prev, curr, i) => ({
+    //     ...prev,
+    //     [i + 1]: {
+    //       alter: getAge(curr.dateOfBirth),
+    //       geschlecht: getGenderString(curr.gender),
+    //       behinderung: getDisabilityString(curr.disability),
+    //       migrationshintergrund: getBoolString(curr.migrationBackground),
+    //       bildungsabschluss: getEducationString(curr.education),
+    //       psych_diagnose: getBoolString(curr.psychDiagosis),
+    //     },
+    //   }),
+    //   {}
+    // );
 
     obj["verantwortlich"] = {
       name: response.user?.name || "",
@@ -120,15 +174,31 @@ export function getFullResponseJson(data: FullResponse[]) {
         response.user?.subOrganizations?.map((s) => s.name) || [],
     };
 
-    obj["familie"] = response.family
-      ? {
-          ["familiennummer"]: response.family.number,
-          kinder,
-          bezugspersonen,
-          betreuungsbeginn: response.family.beginOfCare,
-          betreuungsende: response.family.endOfCare || "",
-        }
-      : undefined;
+    // obj["familie"] = response.family
+    //   ? {
+    //       ["familiennummer"]: response.family.number,
+    //       kinder,
+    //       bezugspersonen,
+    //       betreuungsbeginn: response.family.beginOfCare,
+    //       betreuungsende: response.family.endOfCare || "",
+    //     }
+    //   : undefined;
+
+    if (response.masterData) {
+      let masterDataObj = {};
+
+      masterDataObj[`${response.masterDataMasterDataTypeName}-nummer`] =
+        response.masterData.number;
+
+      for (let answer of response.masterData.answers) {
+        let dataField = response.masterData.masterDataType.dataFields.find(
+          (df) => df.id === answer.dataFieldId
+        );
+        masterDataObj[dataField.text] = getDataFieldAnswer(answer, dataField);
+      }
+
+      obj[response.masterData.masterDataTypeName] = masterDataObj;
+    }
 
     humanReadableRes.push(obj);
   }
@@ -137,7 +207,7 @@ export function getFullResponseJson(data: FullResponse[]) {
 }
 
 function getAnswer(
-  a: Answer & {
+  a: FullAnswer & {
     question: Question & { selectOptions: SelectOption[] };
     answerSelect: SelectOption[];
   }
@@ -173,6 +243,17 @@ function getAnswer(
           (o) => o.id === a.answerSelect[0]?.id
         ) + 1
       );
+    case "Collection":
+      switch (a.answerCollection.type) {
+        case "Text":
+          return a.answerCollection.collectionDataString.map((a) => a.value);
+        case "Int":
+          return a.answerCollection.collectionDataInt.map((a) => a.value);
+        case "Num":
+          return a.answerCollection.collectionDataFloat.map((a) => a.value);
+        case "Date":
+          return a.answerCollection.collectionDataDate.map((a) => a.value);
+      }
   }
 }
 
