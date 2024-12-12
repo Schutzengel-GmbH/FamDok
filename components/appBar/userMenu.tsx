@@ -13,6 +13,7 @@ import { Box } from "@mui/system";
 import { NextRouter } from "next/router";
 import { signOut } from "supertokens-auth-react/recipe/emailpassword";
 import { useUserData } from "@/utils/authUtils";
+import { APP_VER } from "@/config/const";
 
 type UserMenuComponentProps = {
   router: NextRouter;
@@ -64,7 +65,7 @@ export default function UserMenuComponent({
         <Divider />
         {process.env.NEXT_PUBLIC_VER && (
           <Typography sx={{ textAlign: "right", fontSize: "small" }}>
-            v{process.env.NEXT_PUBLIC_VER}
+            v{APP_VER}
           </Typography>
         )}
       </Box>
