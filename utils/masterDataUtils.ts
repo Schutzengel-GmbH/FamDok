@@ -24,6 +24,7 @@ import {
   MasterData,
   MasterDataType,
   Prisma,
+  User,
 } from "@prisma/client";
 
 export async function createMasterDataType(
@@ -169,6 +170,24 @@ export async function submitMasterDataAnswers(
     `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}/submitAnswers`,
     answerState
   ).catch((e) => {
+    throw new Error(e);
+  });
+
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
+  return res;
+}
+
+export async function updateMasterDataCreatedBy(
+  masterDataTypeId: string,
+  masterDataNumber: number,
+  user: User
+) {
+  const res = await apiPostJson<
+    IMasterDataByNumber,
+    Prisma.MasterDataUpdateInput
+  >(`/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}/`, {
+    createdBy: { connect: { id: user.id } },
+  }).catch((e) => {
     throw new Error(e);
   });
 
@@ -340,4 +359,3 @@ export function getCollectionString(collection: FullCollection) {
       return "-/-";
   }
 }
-

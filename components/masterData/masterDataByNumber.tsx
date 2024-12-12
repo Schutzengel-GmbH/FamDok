@@ -14,6 +14,7 @@ import {
 } from "@/utils/masterDataUtils";
 import { DeleteForever, FlashOnRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
+import { User } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -38,11 +39,10 @@ export default function MasterDataByNumber({
 
   const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
 
-  const handleDelete = () => {
-    const res = apiDelete<IMasterDataByNumber>(
+  const handleDelete = async () => {
+    const res = await apiDelete<IMasterDataByNumber>(
       `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}`
     );
-    console.log(res);
     setDeleteOpen(false);
     router.push("/masterData");
   };
@@ -120,7 +120,12 @@ export default function MasterDataByNumber({
           onChange={(a) => handleAnswerChanged(df, a)}
         />
       ))}
-      <CreatedByComponent canEdit={canEdit} masterData={masterData} />
+      <CreatedByComponent
+        masterData={masterData}
+        canEdit={canEdit}
+        user={masterData?.createdBy}
+        onChange={mutate}
+      />
       {canDelete && (
         <Button onClick={() => setDeleteOpen(true)} color="error">
           <DeleteForever /> Datensatz Löschen
@@ -138,4 +143,3 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
-

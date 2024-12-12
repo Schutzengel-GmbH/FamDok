@@ -63,11 +63,9 @@ export default function UserMenuComponent({
           <ListItemText>Abmelden</ListItemText>
         </MenuItem>
         <Divider />
-        {process.env.NEXT_PUBLIC_VER && (
-          <Typography sx={{ textAlign: "right", fontSize: "small" }}>
-            v{APP_VER}
-          </Typography>
-        )}
+        <Typography sx={{ textAlign: "right", fontSize: "small" }}>
+          v{APP_VER}
+        </Typography>
       </Box>
     </Menu>
   );
