@@ -52,13 +52,13 @@ export default async function masterDataType(
   );
 
   let session = req.session;
-  const user = await prisma.user
+  const reqUser = await prisma.user
     .findUnique({
       where: { authId: session.getUserId() },
     })
     .catch((err) => logger.error(err));
 
-  if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
+  if (!reqUser) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
   const { masterDataType: id } = req.query;
 
@@ -81,6 +81,15 @@ export default async function masterDataType(
     case "GET":
       return res.status(200).json({ masterDataType });
     case "POST":
+      if (
+        !hasOneOfRole(reqUser, [
+          Role.ADMIN,
+          Role.CONTROLLER,
+          Role.ORGCONTROLLER,
+        ])
+      )
+        return res.status(403).json({ error: "FORBIDDEN" });
+
       const data = req.body as IMasterDataTypeByIdBody;
 
       const currentSelectOptions =
@@ -147,7 +156,7 @@ export default async function masterDataType(
 
       if (
         !hasOneOfRole(
-          user,
+          reqUser,
           [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
           update.organizationId
         )
@@ -156,6 +165,15 @@ export default async function masterDataType(
 
       return res.status(200).json({ update });
     case "DELETE":
+      if (
+        !hasOneOfRole(reqUser, [
+          Role.ADMIN,
+          Role.CONTROLLER,
+          Role.ORGCONTROLLER,
+        ])
+      )
+        return res.status(403).json({ error: "FORBIDDEN" });
+
       const mdtToDelete = await prisma.masterDataType
         .findUnique({ where: { id: id as string } })
         .catch((e) => logger.error(e));
@@ -165,7 +183,7 @@ export default async function masterDataType(
 
       if (
         !hasOneOfRole(
-          user,
+          reqUser,
           [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
           mdtToDelete.organizationId
         )

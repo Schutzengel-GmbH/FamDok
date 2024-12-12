@@ -9,6 +9,7 @@ interface CollectionDataItemCardProps {
   collectionId: string;
   collectionType: CollectionType;
   collectionData: RecursivePartial<CollectionData>;
+  canEdit: boolean;
   onChange: (data: RecursivePartial<CollectionData>) => void;
   onDelete: () => void;
 }
@@ -16,6 +17,7 @@ interface CollectionDataItemCardProps {
 export default function CollectionDataItemCard({
   collectionData,
   collectionType,
+  canEdit,
   onChange,
   onDelete,
 }: CollectionDataItemCardProps) {
@@ -45,14 +47,17 @@ export default function CollectionDataItemCard({
         alignItems: "center",
         p: ".5rem",
         pl: "1rem",
+        pr: "1rem",
         maxWidth: "500px",
       }}
       elevation={3}
     >
       <Typography>{displayValue()}</Typography>
-      <Button onClick={onDelete}>
-        <Delete /> Löschen
-      </Button>
+      {canEdit && (
+        <Button onClick={onDelete}>
+          <Delete /> Löschen
+        </Button>
+      )}
     </Paper>
   );
 }

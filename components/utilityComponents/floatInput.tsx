@@ -3,11 +3,16 @@ import { FormControl, TextField } from "@mui/material";
 import { useState, ChangeEvent, useEffect } from "react";
 
 interface FloatInputProps {
+  disabled?: boolean;
   value?: number;
   onChange: (value: number) => void;
 }
 
-export default function FloatInput({ value, onChange }: FloatInputProps) {
+export default function FloatInput({
+  disabled,
+  value,
+  onChange,
+}: FloatInputProps) {
   const [valueString, setValueString] = useState<string>(
     value?.toString() || ""
   );
@@ -38,6 +43,7 @@ export default function FloatInput({ value, onChange }: FloatInputProps) {
   return (
     <FormControl>
       <TextField
+        disabled={disabled}
         value={valueString.replace(".", ",")}
         onChange={handleChange}
         inputProps={{ inputMode: "decimal" }}

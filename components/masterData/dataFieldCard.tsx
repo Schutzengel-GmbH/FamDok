@@ -10,12 +10,14 @@ import { Alert, Box, Paper, Typography } from "@mui/material";
 
 interface DataFieldCardProps {
   dataField: FullDataField;
+  canEdit: boolean;
   answer: Partial<FullDataFieldAnswer>;
   onChange: (answer: Partial<FullDataFieldAnswer>) => void;
 }
 
 export default function DataFieldCard({
   dataField,
+  canEdit,
   answer,
   onChange,
 }: DataFieldCardProps) {
@@ -24,6 +26,7 @@ export default function DataFieldCard({
       case "Text":
         return (
           <TextDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -33,6 +36,7 @@ export default function DataFieldCard({
       case "Bool":
         return (
           <BoolDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -42,6 +46,7 @@ export default function DataFieldCard({
       case "Int":
         return (
           <IntDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -51,6 +56,7 @@ export default function DataFieldCard({
       case "Num":
         return (
           <NumDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -60,6 +66,7 @@ export default function DataFieldCard({
       case "Select":
         return (
           <SelectDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -69,6 +76,7 @@ export default function DataFieldCard({
       case "Date":
         return (
           <DateDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
@@ -78,6 +86,7 @@ export default function DataFieldCard({
       case "Collection":
         return (
           <CollectionDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore

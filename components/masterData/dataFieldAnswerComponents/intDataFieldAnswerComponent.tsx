@@ -7,6 +7,7 @@ import { useState, ChangeEvent, useEffect } from "react";
 export default function IntDataFieldAnswerComponent({
   answer,
   dataField,
+  canEdit,
   onChange,
 }: DataFieldAnswerComponentProps) {
   const [valueString, setValueString] = useState(
@@ -42,6 +43,7 @@ export default function IntDataFieldAnswerComponent({
   return (
     <FormControl>
       <TextField
+        disabled={!canEdit}
         value={valueString}
         onChange={handleChange}
         error={error !== ""}
@@ -51,3 +53,4 @@ export default function IntDataFieldAnswerComponent({
     </FormControl>
   );
 }
+

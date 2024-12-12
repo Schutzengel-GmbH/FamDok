@@ -56,7 +56,13 @@ export default async function comingFromOptions(
   switch (req.method) {
     case "GET":
       const masterData = await prisma.masterData.findMany({
-        where: { masterDataTypeId: masterDataType.id },
+        where: {
+          masterDataTypeId: masterDataType.id,
+          createdBy:
+            reqUser.role === "USER"
+              ? { organizationId: reqUser.organizationId }
+              : undefined,
+        },
         include: {
           masterDataType: {
             include: {

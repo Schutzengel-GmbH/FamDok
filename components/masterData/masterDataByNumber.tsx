@@ -1,5 +1,7 @@
+import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
+import UserSelectId from "@/components/surveyStats/userSelectId";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
@@ -85,6 +87,10 @@ export default function MasterDataByNumber({
     } catch (e) {}
   };
 
+  const canEdit = !(
+    user?.role === "USER" && masterData?.createdBy.id !== user.id
+  );
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
       <Typography variant="h4">
@@ -107,12 +113,14 @@ export default function MasterDataByNumber({
       </Box>
       {masterData?.masterDataType.dataFields.map((df) => (
         <DataFieldCard
+          canEdit={canEdit}
           key={df.id}
           dataField={df}
           answer={masterDataAnswersState?.find((a) => a.dataFieldId === df.id)}
           onChange={(a) => handleAnswerChanged(df, a)}
         />
       ))}
+      <CreatedByComponent canEdit={canEdit} masterData={masterData} />
       {canDelete && (
         <Button onClick={() => setDeleteOpen(true)} color="error">
           <DeleteForever /> Datensatz Löschen
@@ -130,3 +138,4 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
+

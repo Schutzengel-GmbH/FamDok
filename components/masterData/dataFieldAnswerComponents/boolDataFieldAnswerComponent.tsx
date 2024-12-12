@@ -9,6 +9,7 @@ import {
 export default function BoolDataFieldAnswerComponent({
   answer,
   dataField,
+  canEdit,
   onChange,
 }: DataFieldAnswerComponentProps) {
   function handleChange(e: any) {
@@ -20,7 +21,7 @@ export default function BoolDataFieldAnswerComponent({
   }
 
   return (
-    <FormControl>
+    <FormControl disabled={!canEdit}>
       <RadioGroup onClick={handleChange}>
         <FormControlLabel
           key={0}
@@ -38,3 +39,4 @@ export default function BoolDataFieldAnswerComponent({
     </FormControl>
   );
 }
+
