@@ -96,7 +96,7 @@ export default function MasterDataTypesComponent() {
             {selectedMdt &&
               selectedMdt.dataFields.map((df) => (
                 <>
-                  <Typography>
+                  <Typography key={df.id}>
                     {df.text} {"("}
                     {getDataFieldTypeName(df.type)}
                     {")"}

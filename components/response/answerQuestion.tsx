@@ -138,6 +138,7 @@ export default function AnswerQuestion({
           answer={answer}
           //@ts-ignore
           onChange={handleChange}
+          canEdit={true}
         />
       );
       break;

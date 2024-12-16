@@ -1,6 +1,7 @@
 import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
 import useToast from "@/components/notifications/notificationContext";
+import { InputErrors } from "@/components/response/answerQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
@@ -35,6 +36,7 @@ export default function MasterDataByNumber({
     Partial<FullDataFieldAnswer>[]
   >(masterData?.answers || []);
   const [currentUser, setCurrentUser] = useState<User>(masterData?.createdBy);
+  const [inputErrors, setInputErrors] = useState<InputErrors[]>([]);
   const { addToast } = useToast();
 
   const { user } = useUserData();
@@ -138,6 +140,7 @@ export default function MasterDataByNumber({
           unsavedChanges={unsavedChanges}
           onSave={saveChanges}
           onCancel={() => router.push("/masterData")}
+          errors={inputErrors.length > 0}
         />
       </Box>
       {masterData?.masterDataType.dataFields.map((df) => (
@@ -146,7 +149,9 @@ export default function MasterDataByNumber({
           key={df.id}
           dataField={df}
           answer={masterDataAnswersState?.find((a) => a.dataFieldId === df.id)}
-          onChange={(a) => handleAnswerChanged(df, a)}
+          onChange={(a) => {
+            handleAnswerChanged(df, a);
+          }}
         />
       ))}
       <CreatedByComponent

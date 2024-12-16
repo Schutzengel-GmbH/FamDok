@@ -1,4 +1,5 @@
 import { useUsers } from "@/utils/apiHooks";
+import { useUserData } from "@/utils/authUtils";
 import { Cancel, Save } from "@mui/icons-material";
 import {
   Box,
@@ -28,6 +29,8 @@ export default function CreatedByComponent({
   onSave,
 }: CreatedByComponentProps) {
   const { users } = useUsers();
+  const { user: activeUser } = useUserData();
+  const canEditUser = canEdit && activeUser?.role !== "USER";
 
   return (
     <Paper
@@ -49,8 +52,8 @@ export default function CreatedByComponent({
         }}
       >
         <Box>
-          {!canEdit && <Typography>{user?.name || user?.email}</Typography>}
-          {canEdit && (
+          {!canEditUser && <Typography>{user?.name || user?.email}</Typography>}
+          {canEditUser && (
             <Select
               value={user?.id || ""}
               onChange={(e) =>
@@ -67,13 +70,15 @@ export default function CreatedByComponent({
             </Select>
           )}
         </Box>
-        <Box>
-          <Button disabled={!userChanged} onClick={onSave}>
-            <Save />
-            Save
-          </Button>
-        </Box>
-        {userChanged && (
+        {canEditUser && (
+          <Box>
+            <Button disabled={!userChanged} onClick={onSave}>
+              <Save />
+              Save
+            </Button>
+          </Box>
+        )}
+        {canEditUser && userChanged && (
           <Button onClick={onCancel}>
             <Cancel />
             Zurücksetzen

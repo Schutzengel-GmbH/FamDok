@@ -21,6 +21,10 @@ export default function DataFieldCard({
   answer,
   onChange,
 }: DataFieldCardProps) {
+  const handleChange = (a: Partial<FullDataFieldAnswer>) => {
+    onChange(a);
+  };
+
   const getAnswerComponent = () => {
     switch (dataField.type) {
       case "Text":
@@ -30,7 +34,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Bool":
@@ -40,7 +44,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Int":
@@ -50,7 +54,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Num":
@@ -60,7 +64,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Select":
@@ -70,7 +74,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Date":
@@ -80,7 +84,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Collection":
@@ -90,7 +94,7 @@ export default function DataFieldCard({
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       default:
