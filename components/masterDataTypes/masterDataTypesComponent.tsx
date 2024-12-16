@@ -130,7 +130,7 @@ export default function MasterDataTypesComponent() {
 
       <ConfirmDialog
         title={`Stammdatenart ${selectedMdt?.name} löschen?`}
-        body={`Soll die Stammdatenart ${selectedMdt?.name} endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden, alle Datensätze gehen verloren`}
+        body={`Soll die Stammdatenart ${selectedMdt?.name} endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden. \n\nDurch das Löschen der Stammdatenart werden außerdem alle Umfragen, die diese Stammdatenart referenzieren und alle dazu abgegebenen Antworten gelöscht!`}
         open={deleteDialogOpen}
         onConfirm={onDelete}
         onCancel={() => setDeleteDialogOpen(false)}

@@ -83,7 +83,7 @@ export default function NewMasterdataTypeDialog({
               setMasterDataType({ ...masterDataType, name: e.target.value })
             }
           />
-          <FormControlLabel
+          {/* <FormControlLabel
             label="Nur für eine Organisation"
             control={
               <Checkbox
@@ -96,7 +96,7 @@ export default function NewMasterdataTypeDialog({
                 }
               />
             }
-          />
+          /> */}
           {masterDataType.isLimitedToOrg && (
             <OrgSelect
               dontShowNoOrg
