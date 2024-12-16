@@ -1,7 +1,7 @@
 import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
+import useToast from "@/components/notifications/notificationContext";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
-import UserSelectId from "@/components/surveyStats/userSelectId";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
@@ -10,9 +10,9 @@ import { useUserData } from "@/utils/authUtils";
 import { apiDelete } from "@/utils/fetchApiUtils";
 import {
   submitMasterDataAnswers,
-  updateMasterData,
+  updateMasterDataCreatedBy,
 } from "@/utils/masterDataUtils";
-import { DeleteForever, FlashOnRounded } from "@mui/icons-material";
+import { DeleteForever } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { User } from "@prisma/client";
 import { useRouter } from "next/router";
@@ -34,6 +34,8 @@ export default function MasterDataByNumber({
   const [masterDataAnswersState, setMasterDataAnswersState] = useState<
     Partial<FullDataFieldAnswer>[]
   >(masterData?.answers || []);
+  const [currentUser, setCurrentUser] = useState<User>(masterData?.createdBy);
+  const { addToast } = useToast();
 
   const { user } = useUserData();
 
@@ -49,6 +51,7 @@ export default function MasterDataByNumber({
 
   useEffect(() => {
     setMasterDataAnswersState(masterData?.answers || []);
+    setCurrentUser(masterData?.createdBy);
   }, [masterData]);
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
@@ -73,6 +76,32 @@ export default function MasterDataByNumber({
   };
 
   const router = useRouter();
+
+  const handleSaveUser = async () => {
+    try {
+      const res = await updateMasterDataCreatedBy(
+        masterData.masterDataTypeId,
+        masterData.number,
+        currentUser
+      );
+      if (res.error)
+        addToast({
+          message: `Fehler beim Speichern eines Users: ${res.error}`,
+          severity: "error",
+        });
+      else
+        addToast({
+          message: "Verantwortlicher User geändert",
+          severity: "success",
+        });
+    } catch (error) {
+      addToast({
+        message: `Fehler beim Speichern eines Users: ${error}`,
+        severity: "error",
+      });
+    }
+    mutate();
+  };
 
   const saveChanges = async () => {
     try {
@@ -121,10 +150,12 @@ export default function MasterDataByNumber({
         />
       ))}
       <CreatedByComponent
-        masterData={masterData}
         canEdit={canEdit}
-        user={masterData?.createdBy}
-        onChange={mutate}
+        user={currentUser}
+        userChanged={currentUser?.id !== masterData?.createdBy.id}
+        onChange={setCurrentUser}
+        onSave={handleSaveUser}
+        onCancel={() => setCurrentUser(masterData?.createdBy)}
       />
       {canDelete && (
         <Button onClick={() => setDeleteOpen(true)} color="error">
@@ -143,3 +174,4 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
+

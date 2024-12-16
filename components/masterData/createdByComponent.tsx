@@ -1,66 +1,33 @@
-import SelectUser from "@/components/masterData/selectUser";
-import useToast from "@/components/notifications/notificationContext";
-import { updateMasterDataCreatedBy } from "@/utils/masterDataUtils";
+import { useUsers } from "@/utils/apiHooks";
 import { Cancel, Save } from "@mui/icons-material";
-import { Box, Button, Paper, Typography } from "@mui/material";
-import { MasterData, User } from "@prisma/client";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  MenuItem,
+  Paper,
+  Select,
+  Typography,
+} from "@mui/material";
+import { User } from "@prisma/client";
 
 interface CreatedByComponentProps {
-  masterData: MasterData;
   user: User;
   canEdit: boolean;
-  onChange: () => void;
+  userChanged: boolean;
+  onChange: (user: User) => void;
+  onSave: () => void;
+  onCancel: () => void;
 }
 
 export default function CreatedByComponent({
-  masterData,
   canEdit,
   user,
+  userChanged,
   onChange,
+  onCancel,
+  onSave,
 }: CreatedByComponentProps) {
-  const [currentUser, setCurrentUser] = useState<User>(user);
-  const userChanged = currentUser?.id !== user?.id;
-  const { addToast } = useToast();
-
-  useEffect(() => {
-    setCurrentUser(user);
-  }, [user]);
-
-  const handleChange = (user: User) => {
-    setCurrentUser(user);
-  };
-
-  const handleSave = async () => {
-    try {
-      const res = await updateMasterDataCreatedBy(
-        masterData.masterDataTypeId,
-        masterData.number,
-        currentUser
-      );
-      if (res.error)
-        addToast({
-          message: `Fehler beim Speichern eines Users: ${res.error}`,
-          severity: "error",
-        });
-      else
-        addToast({
-          message: "Verantwortlicher User geändert",
-          severity: "success",
-        });
-    } catch (error) {
-      addToast({
-        message: `Fehler beim Speichern eines Users: ${error}`,
-        severity: "error",
-      });
-    }
-    onChange();
-  };
-
-  const handleCancel = () => {
-    setCurrentUser(user);
-    onChange();
-  };
+  const { users } = useUsers();
 
   return (
     <Paper
@@ -83,16 +50,31 @@ export default function CreatedByComponent({
       >
         <Box>
           {!canEdit && <Typography>{user?.name || user?.email}</Typography>}
-          {canEdit && <SelectUser user={currentUser} onChange={handleChange} />}
+          {canEdit && (
+            <Select
+              value={user?.id || ""}
+              onChange={(e) =>
+                onChange(
+                  users?.find((u) => u.id === (e.target.value as string))
+                )
+              }
+            >
+              {users?.map((u) => (
+                <MenuItem key={u.id} value={u.id}>
+                  {u.name || u.email}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
         </Box>
         <Box>
-          <Button disabled={!userChanged} onClick={handleSave}>
+          <Button disabled={!userChanged} onClick={onSave}>
             <Save />
             Save
           </Button>
         </Box>
         {userChanged && (
-          <Button onClick={handleCancel}>
+          <Button onClick={onCancel}>
             <Cancel />
             Zurücksetzen
           </Button>
@@ -101,3 +83,4 @@ export default function CreatedByComponent({
     </Paper>
   );
 }
+
