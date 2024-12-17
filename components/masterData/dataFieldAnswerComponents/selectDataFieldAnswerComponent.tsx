@@ -19,6 +19,7 @@ import { useState } from "react";
 export default function SelectDataFieldAnswerComponent({
   answer,
   dataField,
+  canEdit,
   onChange,
 }: DataFieldAnswerComponentProps) {
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
@@ -85,6 +86,7 @@ export default function SelectDataFieldAnswerComponent({
       {dataField.selectOptions.map((o) => (
         <ListItem key={o.id}>
           <Checkbox
+            disabled={!canEdit}
             checked={optionChecked(o)}
             onChange={(e) => handleChangeMultiple(e.target.checked, o)}
           />
@@ -95,7 +97,7 @@ export default function SelectDataFieldAnswerComponent({
                 ""
               }
               onChange={(e) => handleOtherValueChange(o, e.target.value)}
-              disabled={!optionChecked(o)}
+              disabled={!optionChecked(o) || !canEdit}
             />
           ) : (
             <>{o.value}</>
@@ -114,6 +116,7 @@ export default function SelectDataFieldAnswerComponent({
             control={
               <Radio
                 checked={optionChecked(o)}
+                disabled={!canEdit}
                 onClick={() => {
                   onChange({
                     ...answer,
@@ -131,7 +134,7 @@ export default function SelectDataFieldAnswerComponent({
                       ?.value || ""
                   }
                   onChange={(e) => handleOtherValueChange(o, e.target.value)}
-                  disabled={!optionChecked(o)}
+                  disabled={!optionChecked(o) || !canEdit}
                 />
               ) : (
                 o.value

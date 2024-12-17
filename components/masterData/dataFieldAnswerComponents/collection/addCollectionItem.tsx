@@ -1,5 +1,6 @@
 import NumDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/numDataFieldAnswerComponent";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
+import FloatInput from "@/components/utilityComponents/floatInput";
 import { CollectionData } from "@/types/prismaHelperTypes";
 import { Add } from "@mui/icons-material";
 import { Button, Paper, TextField } from "@mui/material";
@@ -54,12 +55,12 @@ export default function AddCollectionDataItem({
         />
       )}
       {collectionType === "Num" && (
-        <TextField
+        <FloatInput
           value={(collectionData.value as number) || undefined}
-          onChange={(e) =>
+          onChange={(value) =>
             setCollectionData({
               ...collectionData,
-              value: parseFloat(e.target.value),
+              value,
             })
           }
         />

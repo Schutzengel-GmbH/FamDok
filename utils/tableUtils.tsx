@@ -11,6 +11,7 @@ import {
   IAnswerSelectOtherValue,
 } from "@/types/prismaHelperTypes";
 import { IFamilyFilter } from "@/utils/filters";
+import { getCollectionDataField } from "@/utils/masterDataUtils";
 import {
   getAnswerString,
   getEducationString,
@@ -18,6 +19,7 @@ import {
 } from "@/utils/utils";
 import {
   Answer,
+  CollectionType,
   Organization,
   Prisma,
   Question,
@@ -141,7 +143,9 @@ export function responsesToAllAnswersTable(
               answer.answerSelect[0]?.value ?? undefined;
             break;
           case QuestionType.Collection:
-            data[answer.question.id] = answer.answerCollection;
+            data[answer.question.id] = answer.answerCollection[
+              getCollectionDataField(answer.answerCollection.type)
+            ].map((c) => c.value);
             break;
         }
       }
@@ -198,10 +202,14 @@ export function getMasterDataData(
         }, {});
         break;
       case "Date":
-        data[answer.dataFieldId] = answer.answerDate;
+        data[answer.dataFieldId] = answer.answerDate
+          ? new Date(answer.answerDate)
+          : undefined;
         break;
       case "Collection":
-        data[answer.dataFieldId] = answer.answerCollection;
+        data[answer.dataFieldId] = answer.answerCollection[
+          getCollectionDataField(answer.answerCollection.type)
+        ].map((c) => c.value);
         break;
     }
   }
@@ -331,45 +339,21 @@ const dateFormatter: Tabulator.Formatter = (
 
 const collectionFormatter: Tabulator.Formatter = (
   cell: Tabulator.CellComponent,
-  formatterParams,
+  formatterParams: { collectionType: CollectionType },
   onRender
 ) => {
-  const collection = cell.getValue() as FullCollection;
-  if (!collection) return;
-  switch (collection.type) {
-    case "Text":
-      return collection.collectionDataString.reduce(
-        (prev, collItem) =>
-          prev
-            ? prev + ", " + collItem.value.toString()
-            : collItem.value.toString(),
-        ""
-      );
-    case "Int":
-      return collection.collectionDataInt.reduce(
-        (prev, collItem) =>
-          prev
-            ? prev + ", " + collItem.value.toString()
-            : collItem.value.toString(),
-        ""
-      );
-    case "Num":
-      return collection.collectionDataFloat.reduce(
-        (prev, collItem) =>
-          prev
-            ? prev + ", " + collItem.value.toString()
-            : collItem.value.toString(),
-        ""
-      );
-    case "Date":
-      return collection.collectionDataDate.reduce(
-        (prev, collItem) =>
-          prev
-            ? prev + ", " + new Date(collItem?.value).toLocaleDateString()
-            : new Date(collItem?.value).toLocaleDateString(),
-        ""
-      );
-  }
+  const collection = cell.getValue() as Date[] | string[] | number[];
+  if (!collection || collection.length < 1) return "";
+  return collection.reduce<string>((prev, value) => {
+    if (formatterParams.collectionType === "Date")
+      return prev
+        ? prev + "; " + new Date(value).toLocaleDateString()
+        : new Date(value).toLocaleDateString();
+    else
+      return prev
+        ? prev + "; " + value.toLocaleString()
+        : value.toLocaleString();
+  }, "");
 };
 
 const dateSorter = (a: Date, b: Date) => {
@@ -673,6 +657,7 @@ export function masterDataColumnDefinitions(
                   title: dataField.text,
                   field: dataField.id,
                   formatter: collectionFormatter,
+                  formatterParams: { collectionType: dataField.collectionType },
                 };
               default:
                 return { title: "--FEHLER--" };
@@ -754,6 +739,7 @@ export function allAnswersColumnDefinition(
           title: question.questionText,
           field: question.id,
           formatter: collectionFormatter,
+          formatterParams: { collectionType: question.collectionType },
         };
       }
     }

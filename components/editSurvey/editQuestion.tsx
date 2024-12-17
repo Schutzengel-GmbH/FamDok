@@ -44,32 +44,32 @@ export interface EditQuestionDialogProps {
 
 interface QuestionState {
   id?: string;
-  questionTitle?: string | null;
+  questionTitle?: string | undefined;
   questionText: string;
   type: QuestionType;
   required?: boolean;
-  questionDescription?: string | null;
+  questionDescription?: string | undefined;
   selectOptions?: {
     id?: string;
     value: string;
     isOpen?: boolean;
     info?: string;
   }[];
-  selectMultiple?: boolean | null;
-  intRange?: boolean | null;
-  intRangeHigh?: number | null;
-  intRangeLow?: number | null;
-  numRange?: boolean | null;
-  numRangeHigh?: number | null;
-  numRangeLow?: number | null;
-  defaultAnswerText?: string | null;
-  defaultAnswerInt?: number | null;
-  defaultAnswerNum?: number | null;
-  defaultAnswerDate?: Date | null;
-  defaultAnswerBool?: boolean | null;
-  numberInSurvey?: number | null;
-  autocomplete?: boolean | null;
-  collectionType?: CollectionType | null;
+  selectMultiple?: boolean | undefined;
+  intRange?: boolean | undefined;
+  intRangeHigh?: number | undefined;
+  intRangeLow?: number | undefined;
+  numRange?: boolean | undefined;
+  numRangeHigh?: number | undefined;
+  numRangeLow?: number | undefined;
+  defaultAnswerText?: string | undefined;
+  defaultAnswerInt?: number | undefined;
+  defaultAnswerNum?: number | undefined;
+  defaultAnswerDate?: Date | undefined;
+  defaultAnswerBool?: boolean | undefined;
+  numberInSurvey?: number | undefined;
+  autocomplete?: boolean | undefined;
+  collectionType?: CollectionType | undefined;
 }
 
 const initialQuestionState: QuestionState = {
@@ -78,22 +78,22 @@ const initialQuestionState: QuestionState = {
   type: QuestionType.Text,
   required: false,
   questionDescription: "",
-  selectOptions: null,
-  selectMultiple: null,
-  intRange: null,
-  intRangeHigh: null,
-  intRangeLow: null,
-  numRange: null,
-  numRangeHigh: null,
-  numRangeLow: null,
-  defaultAnswerText: null,
-  defaultAnswerInt: null,
-  defaultAnswerNum: null,
-  defaultAnswerDate: null,
-  defaultAnswerBool: null,
-  numberInSurvey: null,
-  autocomplete: null,
-  collectionType: null,
+  selectOptions: undefined,
+  selectMultiple: undefined,
+  intRange: undefined,
+  intRangeHigh: undefined,
+  intRangeLow: undefined,
+  numRange: undefined,
+  numRangeHigh: undefined,
+  numRangeLow: undefined,
+  defaultAnswerText: undefined,
+  defaultAnswerInt: undefined,
+  defaultAnswerNum: undefined,
+  defaultAnswerDate: undefined,
+  defaultAnswerBool: undefined,
+  numberInSurvey: undefined,
+  autocomplete: undefined,
+  collectionType: undefined,
 };
 
 export default function EditQuestionDialog({

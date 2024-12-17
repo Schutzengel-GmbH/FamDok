@@ -7,6 +7,7 @@ import { prisma } from "@/db/prisma";
 import { MasterData, Prisma, Role } from "@prisma/client";
 import { ApiError } from "@/utils/utils";
 import { FullMasterData } from "@/types/prismaHelperTypes";
+import { hasOneOfRole } from "@/utils/authUtils";
 
 export interface IMasterDataByNumber {
   updateRes?: MasterData;
@@ -93,7 +94,11 @@ export default async function masterDataType(
 
   if (!masterData) return res.status(404).json({ error: "NOT_FOUND" });
 
-  let canEdit = true;
+  let canEdit = hasOneOfRole(user, [
+    Role.ADMIN,
+    Role.CONTROLLER,
+    Role.ORGCONTROLLER,
+  ]);
 
   if (user.role === Role.USER)
     if (masterData.userId !== user.id) canEdit = false;
@@ -108,6 +113,11 @@ export default async function masterDataType(
 
   switch (req.method) {
     case "GET":
+      if (
+        user.role === "USER" &&
+        masterData.createdBy.organizationId !== user.organizationId
+      )
+        return res.status(403).json({ error: "FORBIDDEN" });
       return res.status(200).json({ masterData });
     case "POST":
       if (!canEdit) return res.status(403).json({ error: "FORBIDDEN" });

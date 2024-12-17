@@ -6,82 +6,99 @@ import NumDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswer
 import SelectDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/selectDataFieldAnswerComponent";
 import TextDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import { dataFieldAnswerHasNoValues } from "@/utils/utils";
 import { Alert, Box, Paper, Typography } from "@mui/material";
 
 interface DataFieldCardProps {
   dataField: FullDataField;
+  canEdit: boolean;
   answer: Partial<FullDataFieldAnswer>;
   onChange: (answer: Partial<FullDataFieldAnswer>) => void;
 }
 
 export default function DataFieldCard({
   dataField,
+  canEdit,
   answer,
   onChange,
 }: DataFieldCardProps) {
+  const handleChange = (a: Partial<FullDataFieldAnswer>) => {
+    onChange(a);
+  };
+
+  const requiredButNoAnswer =
+    dataField.required && dataFieldAnswerHasNoValues(answer);
+
   const getAnswerComponent = () => {
     switch (dataField.type) {
       case "Text":
         return (
           <TextDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Bool":
         return (
           <BoolDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Int":
         return (
           <IntDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Num":
         return (
           <NumDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Select":
         return (
           <SelectDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Date":
         return (
           <DateDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       case "Collection":
         return (
           <CollectionDataFieldAnswerComponent
+            canEdit={canEdit}
             dataField={dataField}
             answer={answer}
             //@ts-ignore
-            onChange={(a) => onChange(a)}
+            onChange={handleChange}
           />
         );
       default:
@@ -99,12 +116,16 @@ export default function DataFieldCard({
         gap: ".5rem",
         alignItems: "baseline",
         p: ".5rem",
+        border: requiredButNoAnswer ? "2px solid red" : "none",
       }}
     >
       <Typography variant="h6">{dataField.text}:</Typography>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         {getAnswerComponent()}
       </Box>
+      {requiredButNoAnswer && (
+        <Typography color={"error"}>*Diese Frage ist nicht optional</Typography>
+      )}
     </Paper>
   );
 }

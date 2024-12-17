@@ -1,12 +1,15 @@
 import CollectionValues from "@/components/surveyStats/collectionValues";
-import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
-import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import {
-  IFilter,
-  SelectFilterProps,
-  getFiltersForQuestionType,
+  FullDataField,
+  FullMasterDataType,
+  FullSurvey,
+} from "@/types/prismaHelperTypes";
+import {
+  getFiltersForDataFieldType,
+  IMasterDataFilter,
+  NO_VALUE_FILTERS,
 } from "@/utils/filters";
 import {
   Box,
@@ -16,21 +19,22 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { Question } from "@prisma/client";
+import { DataField, SelectOption } from "@prisma/client";
 
-interface FilterComponentProps {
+interface MasterDataFilterComponentProps {
   survey: FullSurvey;
-  filter: IFilter;
-  onChange: (filter: IFilter) => void;
+  masterDataFilter: IMasterDataFilter;
+  onChange: (masterDataFilter: IMasterDataFilter) => void;
 }
 
-export default function FilterComponent({
+export default function MasterDataFilterComponent({
   survey,
-  filter,
+  masterDataFilter,
   onChange,
-}: FilterComponentProps) {
-  const question = survey?.questions.find((q) => q.id === filter?.questionId);
+}: MasterDataFilterComponentProps) {
+  const dataField = survey?.masterDataType.dataFields.find(
+    (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId
+  );
 
   return (
     <Box
@@ -41,52 +45,58 @@ export default function FilterComponent({
         width: "100%",
       }}
     >
-      <SelectQuestion
-        survey={survey}
-        question={question}
-        onChange={(q) => onChange({ questionId: q.id })}
+      <SelectDataField
+        masterDataType={survey.masterDataType}
+        dataField={dataField}
+        onChange={(dataField) => onChange({ dataFieldId: dataField.id })}
       />
       <SelectFilter
-        question={question}
-        filter={filter}
-        onChange={(f, v) =>
+        dataField={dataField}
+        filter={masterDataFilter}
+        onChange={(f) =>
           onChange({
-            ...filter,
+            ...masterDataFilter,
             filter: f.filter,
-            value: v ? v : filter.value,
+            value: f.value ?? masterDataFilter.value,
           })
         }
       />
       <ValueInput
-        question={question}
-        filter={filter}
-        onChange={(f) => onChange({ ...filter, value: f.value })}
+        dataField={dataField}
+        filter={masterDataFilter}
+        onChange={(f) => onChange({ ...masterDataFilter, value: f.value })}
       />
     </Box>
   );
 }
 
-interface SelectQuestionProps {
-  survey: FullSurvey;
-  question: Question;
-  onChange: (question: Question) => void;
+interface SelectDataFieldProps {
+  masterDataType: FullMasterDataType;
+  dataField: DataField;
+  onChange: (dataField: DataField) => void;
 }
 
-function SelectQuestion({ survey, question, onChange }: SelectQuestionProps) {
+function SelectDataField({
+  masterDataType,
+  dataField,
+  onChange,
+}: SelectDataFieldProps) {
   return (
     <FormControl sx={{ width: "25%" }}>
-      <InputLabel id="questionLabel">Frage</InputLabel>
+      <InputLabel id="questionLabel">Datenfeld</InputLabel>
       <Select
         labelId="questionLabel"
-        label={"Frage"}
-        value={question?.id || ""}
+        label={"Datenfeld"}
+        value={dataField?.id || ""}
         onChange={(e) =>
-          onChange(survey.questions.find((q) => q.id === e.target.value))
+          onChange(
+            masterDataType.dataFields.find((q) => q.id === e.target.value)
+          )
         }
       >
-        {survey?.questions.map((q) => (
-          <MenuItem key={q.id} value={q.id}>
-            {q.questionText}
+        {masterDataType.dataFields.map((df) => (
+          <MenuItem key={df.id} value={df.id}>
+            {df.text}
           </MenuItem>
         ))}
       </Select>
@@ -94,8 +104,14 @@ function SelectQuestion({ survey, question, onChange }: SelectQuestionProps) {
   );
 }
 
-function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForQuestionType(question);
+interface SelectFilterProps {
+  dataField: DataField;
+  filter: IMasterDataFilter;
+  onChange: (filter: IMasterDataFilter) => void;
+}
+
+function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
+  const filters = getFiltersForDataFieldType(dataField);
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -106,8 +122,7 @@ function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
         value={filter?.filter || ""}
         onChange={(e) => {
           let filterToUse = filters.find((f) => f.filter === e.target.value);
-          if (filterToUse.value === undefined) onChange(filterToUse);
-          else onChange(filterToUse, filterToUse.value);
+          onChange(filterToUse);
         }}
       >
         {filters.map((f) => (
@@ -121,15 +136,15 @@ function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
 }
 
 interface ValueInputProps {
-  question: FullQuestion;
-  filter: IFilter;
-  onChange: (filter: IFilter) => void;
+  dataField: FullDataField;
+  filter: IMasterDataFilter;
+  onChange: (filter: IMasterDataFilter) => void;
 }
 
-function ValueInput({ question, filter, onChange }: ValueInputProps) {
-  if (filter?.filter === "empty" || filter?.filter === "notEmpty") return <></>;
+function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
+  if (NO_VALUE_FILTERS.includes(filter?.filter)) return <></>;
 
-  switch (question?.type) {
+  switch (dataField?.type) {
     case "Text":
       return (
         <TextField
@@ -166,27 +181,20 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
     case "Select":
       return (
         <SelectOptionAutocomplete
-          question={question}
+          question={dataField}
           options={filter.value}
           onChange={(o) => onChange({ ...filter, value: o })}
-        />
-      );
-    case "Scale":
-      return (
-        <ScaleSelect
-          question={question}
-          value={filter.value}
-          onChange={(v) => onChange({ ...filter, value: v })}
         />
       );
     case "Collection":
       return (
         <CollectionValues
-          dataField={question}
+          dataField={dataField}
           value={filter.value}
           onChange={(o) => onChange({ ...filter, value: o })}
         />
       );
+
     default:
       return <></>;
   }

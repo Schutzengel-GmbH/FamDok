@@ -85,7 +85,7 @@ model Survey {
   responses        Response[]
   hasFamily        Boolean         @default(false)
   hasMasterData    Boolean         @default(false)
-  masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id])
+  masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
   masterDataTypeId String?
 }
 

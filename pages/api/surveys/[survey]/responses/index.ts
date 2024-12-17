@@ -9,6 +9,7 @@ import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
 import { FullResponse } from "@/types/prismaHelperTypes";
+import { error } from "console";
 
 supertokens.init(backendConfig());
 
@@ -95,6 +96,8 @@ export default async function responses(
   const extraWhereInput = whereInput ? JSON.parse(whereInput as string) : {};
   where = { ...extraWhereInput, ...where };
 
+  console.log(JSON.stringify(where, null, 2));
+
   switch (req.method) {
     case "GET":
       const responses = await prisma.response
@@ -155,7 +158,9 @@ export default async function responses(
             caregiver: true,
           },
         })
-        .catch((err) => logger.error(err));
+        .catch((err) => {
+          logger.error(err), console.log(err);
+        });
 
       if (!responses)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });

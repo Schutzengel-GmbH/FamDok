@@ -6,19 +6,21 @@ import { DataFieldAnswerComponentProps } from "@/components/masterData/dataField
 import { CollectionData, FullCollection } from "@/types/prismaHelperTypes";
 import { AnswerTypeUnion, RecursivePartial } from "@/types/utilTypes";
 import { Box } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface DataFieldCollectionAnswerComponentProps {
   answer: RecursivePartial<AnswerTypeUnion>;
+  canEdit: boolean;
   dataField: FullDataField;
   onChange: (answer: RecursivePartial<FullDataFieldAnswer>) => void;
 }
 
 export default function DataFieldCollectionAnswerComponentProps({
   answer,
+  canEdit,
   dataField,
   onChange,
-}: DataFieldAnswerComponentProps) {
+}: DataFieldCollectionAnswerComponentProps) {
   const collectionDataFieldName = ():
     | "collectionDataString"
     | "collectionDataInt"
@@ -75,14 +77,18 @@ export default function DataFieldCollectionAnswerComponentProps({
             collectionData={v}
             onChange={handleCollectionItemChanged}
             onDelete={() => handleDelete(i)}
+            canEdit={canEdit}
+            key={i}
           />
         )
       )}
-      <AddCollectionDataItem
-        collectionId={answer?.answerCollection.id}
-        collectionType={dataField.collectionType}
-        onChange={handleCollectionItemAdded}
-      />
+      {canEdit && (
+        <AddCollectionDataItem
+          collectionId={answer?.answerCollection.id}
+          collectionType={dataField.collectionType}
+          onChange={handleCollectionItemAdded}
+        />
+      )}
     </Box>
   );
 }

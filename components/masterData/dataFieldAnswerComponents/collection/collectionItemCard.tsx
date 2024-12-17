@@ -9,6 +9,7 @@ interface CollectionDataItemCardProps {
   collectionId: string;
   collectionType: CollectionType;
   collectionData: RecursivePartial<CollectionData>;
+  canEdit: boolean;
   onChange: (data: RecursivePartial<CollectionData>) => void;
   onDelete: () => void;
 }
@@ -16,12 +17,10 @@ interface CollectionDataItemCardProps {
 export default function CollectionDataItemCard({
   collectionData,
   collectionType,
+  canEdit,
   onChange,
   onDelete,
 }: CollectionDataItemCardProps) {
-  const [currCollectionData, setCurrCollectionData] =
-    useState<RecursivePartial<CollectionData>>(collectionData);
-
   const displayValue = () => {
     switch (collectionType) {
       case "Text":
@@ -29,7 +28,7 @@ export default function CollectionDataItemCard({
       case "Int":
         return collectionData.value as number;
       case "Num":
-        return collectionData.value as number;
+        return (collectionData.value as number).toLocaleString();
       case "Date":
         return new Date(collectionData.value as string).toLocaleDateString();
       default:
@@ -42,15 +41,20 @@ export default function CollectionDataItemCard({
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        p: ".25rem",
+        alignItems: "center",
+        p: ".5rem",
+        pl: "1rem",
+        pr: "1rem",
         maxWidth: "500px",
       }}
       elevation={3}
     >
       <Typography>{displayValue()}</Typography>
-      <Button onClick={onDelete}>
-        <Delete /> Löschen
-      </Button>
+      {canEdit && (
+        <Button onClick={onDelete}>
+          <Delete /> Löschen
+        </Button>
+      )}
     </Paper>
   );
 }

@@ -81,7 +81,9 @@ export default function MasterDataTypesComponent() {
             value={selectedMdt ? selectedMdt.name : ""}
           >
             {masterDataTypes?.map((mdt) => (
-              <MenuItem value={mdt.name}>{mdt.name}</MenuItem>
+              <MenuItem key={mdt.id} value={mdt.name}>
+                {mdt.name}
+              </MenuItem>
             ))}
           </Select>
           <Button onClick={handleAdd}>
@@ -95,7 +97,7 @@ export default function MasterDataTypesComponent() {
             <Typography variant="h5">Datenfelder (Datentyp):</Typography>
             {selectedMdt &&
               selectedMdt.dataFields.map((df) => (
-                <>
+                <Box key={df.id}>
                   <Typography>
                     {df.text} {"("}
                     {getDataFieldTypeName(df.type)}
@@ -103,7 +105,7 @@ export default function MasterDataTypesComponent() {
                     {df.required ? ", Pflichtangabe" : ""}
                     {df.description ? `, Beschreibung: ${df.description}` : ""}
                   </Typography>
-                </>
+                </Box>
               ))}
           </Box>
         )}
@@ -130,7 +132,7 @@ export default function MasterDataTypesComponent() {
 
       <ConfirmDialog
         title={`Stammdatenart ${selectedMdt?.name} löschen?`}
-        body={`Soll die Stammdatenart ${selectedMdt?.name} endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden, alle Datensätze gehen verloren`}
+        body={`Soll die Stammdatenart ${selectedMdt?.name} endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden. \n\nDurch das Löschen der Stammdatenart werden außerdem alle Umfragen, die diese Stammdatenart referenzieren und alle dazu abgegebenen Antworten gelöscht!`}
         open={deleteDialogOpen}
         onConfirm={onDelete}
         onCancel={() => setDeleteDialogOpen(false)}

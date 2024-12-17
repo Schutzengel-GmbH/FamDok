@@ -16,6 +16,7 @@ import {
 } from "@/types/prismaHelperTypes";
 import { apiDelete, apiPostJson, FetchError } from "@/utils/fetchApiUtils";
 import {
+  Collection,
   CollectionType,
   DataField,
   DataFieldAnswer,
@@ -23,6 +24,7 @@ import {
   MasterData,
   MasterDataType,
   Prisma,
+  User,
 } from "@prisma/client";
 
 export async function createMasterDataType(
@@ -175,6 +177,24 @@ export async function submitMasterDataAnswers(
   return res;
 }
 
+export async function updateMasterDataCreatedBy(
+  masterDataTypeId: string,
+  masterDataNumber: number,
+  user: User
+) {
+  const res = await apiPostJson<
+    IMasterDataByNumber,
+    Prisma.MasterDataUpdateInput
+  >(`/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}/`, {
+    createdBy: { connect: { id: user.id } },
+  }).catch((e) => {
+    throw new Error(e);
+  });
+
+  if (res instanceof FetchError || res.error) throw new Error(res.error);
+  return res;
+}
+
 export async function deleteMasterData(
   masterDataType: MasterDataType,
   masterData: MasterData
@@ -241,6 +261,21 @@ export function getCollectionTypeName(type: CollectionType): string {
       return "Datum";
     default:
       return type as string;
+  }
+}
+
+export function getCollectionDataField(
+  type: CollectionType
+): keyof Omit<FullCollection, "id" | "createdAt" | "type" | "updatedAt"> {
+  switch (type) {
+    case "Text":
+      return "collectionDataString";
+    case "Int":
+      return "collectionDataInt";
+    case "Num":
+      return "collectionDataFloat";
+    case "Date":
+      return "collectionDataDate";
   }
 }
 
@@ -324,4 +359,3 @@ export function getCollectionString(collection: FullCollection) {
       return "-/-";
   }
 }
-

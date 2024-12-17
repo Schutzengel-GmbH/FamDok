@@ -4,12 +4,14 @@ import { DatePicker } from "@mui/x-date-pickers";
 
 export default function DateDataFieldAnswerComponent({
   answer,
+  canEdit,
   dataField,
   onChange,
 }: DataFieldAnswerComponentProps) {
   return (
     <FormControl sx={{ marginTop: "1rem" }}>
       <DatePicker
+        disabled={canEdit}
         onChange={(date) => {
           if (date)
             onChange({

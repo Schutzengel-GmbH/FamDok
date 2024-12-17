@@ -1,4 +1,8 @@
+import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
+import RequiredError from "@/components/masterData/requiredError";
+import useToast from "@/components/notifications/notificationContext";
+import { InputErrors } from "@/components/response/answerQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
@@ -8,10 +12,12 @@ import { useUserData } from "@/utils/authUtils";
 import { apiDelete } from "@/utils/fetchApiUtils";
 import {
   submitMasterDataAnswers,
-  updateMasterData,
+  updateMasterDataCreatedBy,
 } from "@/utils/masterDataUtils";
-import { DeleteForever, FlashOnRounded } from "@mui/icons-material";
+import { dataFieldAnswerHasNoValues } from "@/utils/utils";
+import { DeleteForever } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
+import { User } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -31,22 +37,46 @@ export default function MasterDataByNumber({
   const [masterDataAnswersState, setMasterDataAnswersState] = useState<
     Partial<FullDataFieldAnswer>[]
   >(masterData?.answers || []);
+  const [currentUser, setCurrentUser] = useState<User>(masterData?.createdBy);
+  const [requiredFieldState, setRequiredFieldState] = useState<
+    { dataFieldId: string; dataFieldText: string }[]
+  >([]);
+
+  useEffect(() => {
+    const requiredFields = masterData?.masterDataType.dataFields.filter(
+      (df) => df.required
+    );
+
+    setRequiredFieldState(
+      requiredFields
+        ?.filter(
+          (df) =>
+            df.required &&
+            dataFieldAnswerHasNoValues(
+              masterDataAnswersState.find((a) => a.dataFieldId === df.id)
+            )
+        )
+        .map((f) => ({ dataFieldId: f.id, dataFieldText: f.text })) || []
+    );
+  }, [masterDataAnswersState]);
+
+  const { addToast } = useToast();
 
   const { user } = useUserData();
 
   const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
 
-  const handleDelete = () => {
-    const res = apiDelete<IMasterDataByNumber>(
+  const handleDelete = async () => {
+    const res = await apiDelete<IMasterDataByNumber>(
       `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}`
     );
-    console.log(res);
     setDeleteOpen(false);
     router.push("/masterData");
   };
 
   useEffect(() => {
     setMasterDataAnswersState(masterData?.answers || []);
+    setCurrentUser(masterData?.createdBy);
   }, [masterData]);
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
@@ -72,6 +102,32 @@ export default function MasterDataByNumber({
 
   const router = useRouter();
 
+  const handleSaveUser = async () => {
+    try {
+      const res = await updateMasterDataCreatedBy(
+        masterData.masterDataTypeId,
+        masterData.number,
+        currentUser
+      );
+      if (res.error)
+        addToast({
+          message: `Fehler beim Speichern eines Users: ${res.error}`,
+          severity: "error",
+        });
+      else
+        addToast({
+          message: "Verantwortlicher User geändert",
+          severity: "success",
+        });
+    } catch (error) {
+      addToast({
+        message: `Fehler beim Speichern eines Users: ${error}`,
+        severity: "error",
+      });
+    }
+    mutate();
+  };
+
   const saveChanges = async () => {
     try {
       const res = await submitMasterDataAnswers(
@@ -84,6 +140,10 @@ export default function MasterDataByNumber({
       mutate();
     } catch (e) {}
   };
+
+  const canEdit = !(
+    user?.role === "USER" && masterData?.createdBy.id !== user.id
+  );
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
@@ -103,16 +163,31 @@ export default function MasterDataByNumber({
           unsavedChanges={unsavedChanges}
           onSave={saveChanges}
           onCancel={() => router.push("/masterData")}
+          errors={requiredFieldState?.length > 0}
         />
       </Box>
+      {requiredFieldState?.length > 0 && (
+        <RequiredError requiredFieldState={requiredFieldState} />
+      )}
       {masterData?.masterDataType.dataFields.map((df) => (
         <DataFieldCard
+          canEdit={canEdit}
           key={df.id}
           dataField={df}
           answer={masterDataAnswersState?.find((a) => a.dataFieldId === df.id)}
-          onChange={(a) => handleAnswerChanged(df, a)}
+          onChange={(a) => {
+            handleAnswerChanged(df, a);
+          }}
         />
       ))}
+      <CreatedByComponent
+        canEdit={canEdit}
+        user={currentUser}
+        userChanged={currentUser?.id !== masterData?.createdBy.id}
+        onChange={setCurrentUser}
+        onSave={handleSaveUser}
+        onCancel={() => setCurrentUser(masterData?.createdBy)}
+      />
       {canDelete && (
         <Button onClick={() => setDeleteOpen(true)} color="error">
           <DeleteForever /> Datensatz Löschen

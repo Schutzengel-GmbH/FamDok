@@ -60,7 +60,6 @@ export default function AnswerQuestion({
     setHasInputError(error !== undefined);
     onChange(_answer, error);
   }
-  console.log(answer);
 
   switch (question.type) {
     case QuestionType.Text:
@@ -139,6 +138,7 @@ export default function AnswerQuestion({
           answer={answer}
           //@ts-ignore
           onChange={handleChange}
+          canEdit={true}
         />
       );
       break;
