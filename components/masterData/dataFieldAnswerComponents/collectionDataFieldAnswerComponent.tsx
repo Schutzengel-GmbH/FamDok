@@ -78,6 +78,7 @@ export default function DataFieldCollectionAnswerComponentProps({
             onChange={handleCollectionItemChanged}
             onDelete={() => handleDelete(i)}
             canEdit={canEdit}
+            key={i}
           />
         )
       )}

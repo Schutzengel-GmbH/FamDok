@@ -81,7 +81,9 @@ export default function MasterDataTypesComponent() {
             value={selectedMdt ? selectedMdt.name : ""}
           >
             {masterDataTypes?.map((mdt) => (
-              <MenuItem value={mdt.name}>{mdt.name}</MenuItem>
+              <MenuItem key={mdt.id} value={mdt.name}>
+                {mdt.name}
+              </MenuItem>
             ))}
           </Select>
           <Button onClick={handleAdd}>
@@ -95,15 +97,15 @@ export default function MasterDataTypesComponent() {
             <Typography variant="h5">Datenfelder (Datentyp):</Typography>
             {selectedMdt &&
               selectedMdt.dataFields.map((df) => (
-                <>
-                  <Typography key={df.id}>
+                <Box key={df.id}>
+                  <Typography>
                     {df.text} {"("}
                     {getDataFieldTypeName(df.type)}
                     {")"}
                     {df.required ? ", Pflichtangabe" : ""}
                     {df.description ? `, Beschreibung: ${df.description}` : ""}
                   </Typography>
-                </>
+                </Box>
               ))}
           </Box>
         )}

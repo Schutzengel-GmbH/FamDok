@@ -75,7 +75,7 @@ export default function EditMasterDataType({
       </Typography>
       <List>
         {masterDataType.dataFields.map((df) => (
-          <DataFieldListItem dataField={df} onChange={onChange} />
+          <DataFieldListItem dataField={df} onChange={onChange} key={df.id} />
         ))}
         <ListItemButton onClick={handleAdd}>
           <Add /> Datenfeld hinzufügen
@@ -104,3 +104,4 @@ export default function EditMasterDataType({
     </Box>
   );
 }
+

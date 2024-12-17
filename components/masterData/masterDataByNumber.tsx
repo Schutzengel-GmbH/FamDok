@@ -1,5 +1,6 @@
 import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
+import RequiredError from "@/components/masterData/requiredError";
 import useToast from "@/components/notifications/notificationContext";
 import { InputErrors } from "@/components/response/answerQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
@@ -13,6 +14,7 @@ import {
   submitMasterDataAnswers,
   updateMasterDataCreatedBy,
 } from "@/utils/masterDataUtils";
+import { dataFieldAnswerHasNoValues } from "@/utils/utils";
 import { DeleteForever } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { User } from "@prisma/client";
@@ -36,7 +38,28 @@ export default function MasterDataByNumber({
     Partial<FullDataFieldAnswer>[]
   >(masterData?.answers || []);
   const [currentUser, setCurrentUser] = useState<User>(masterData?.createdBy);
-  const [inputErrors, setInputErrors] = useState<InputErrors[]>([]);
+  const [requiredFieldState, setRequiredFieldState] = useState<
+    { dataFieldId: string; dataFieldText: string }[]
+  >([]);
+
+  useEffect(() => {
+    const requiredFields = masterData?.masterDataType.dataFields.filter(
+      (df) => df.required
+    );
+
+    setRequiredFieldState(
+      requiredFields
+        ?.filter(
+          (df) =>
+            df.required &&
+            dataFieldAnswerHasNoValues(
+              masterDataAnswersState.find((a) => a.dataFieldId === df.id)
+            )
+        )
+        .map((f) => ({ dataFieldId: f.id, dataFieldText: f.text })) || []
+    );
+  }, [masterDataAnswersState]);
+
   const { addToast } = useToast();
 
   const { user } = useUserData();
@@ -140,9 +163,12 @@ export default function MasterDataByNumber({
           unsavedChanges={unsavedChanges}
           onSave={saveChanges}
           onCancel={() => router.push("/masterData")}
-          errors={inputErrors.length > 0}
+          errors={requiredFieldState?.length > 0}
         />
       </Box>
+      {requiredFieldState?.length > 0 && (
+        <RequiredError requiredFieldState={requiredFieldState} />
+      )}
       {masterData?.masterDataType.dataFields.map((df) => (
         <DataFieldCard
           canEdit={canEdit}
@@ -179,4 +205,3 @@ export default function MasterDataByNumber({
     </Box>
   );
 }
-

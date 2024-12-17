@@ -21,9 +21,6 @@ export default function CollectionDataItemCard({
   onChange,
   onDelete,
 }: CollectionDataItemCardProps) {
-  const [currCollectionData, setCurrCollectionData] =
-    useState<RecursivePartial<CollectionData>>(collectionData);
-
   const displayValue = () => {
     switch (collectionType) {
       case "Text":

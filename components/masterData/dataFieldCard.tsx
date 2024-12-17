@@ -6,6 +6,7 @@ import NumDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswer
 import SelectDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/selectDataFieldAnswerComponent";
 import TextDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
+import { dataFieldAnswerHasNoValues } from "@/utils/utils";
 import { Alert, Box, Paper, Typography } from "@mui/material";
 
 interface DataFieldCardProps {
@@ -24,6 +25,9 @@ export default function DataFieldCard({
   const handleChange = (a: Partial<FullDataFieldAnswer>) => {
     onChange(a);
   };
+
+  const requiredButNoAnswer =
+    dataField.required && dataFieldAnswerHasNoValues(answer);
 
   const getAnswerComponent = () => {
     switch (dataField.type) {
@@ -112,12 +116,16 @@ export default function DataFieldCard({
         gap: ".5rem",
         alignItems: "baseline",
         p: ".5rem",
+        border: requiredButNoAnswer ? "2px solid red" : "none",
       }}
     >
       <Typography variant="h6">{dataField.text}:</Typography>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         {getAnswerComponent()}
       </Box>
+      {requiredButNoAnswer && (
+        <Typography color={"error"}>*Diese Frage ist nicht optional</Typography>
+      )}
     </Paper>
   );
 }

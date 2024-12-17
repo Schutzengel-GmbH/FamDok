@@ -207,15 +207,7 @@ export function dataFieldAnswerHasNoValues(
     answerText,
     answerCollection,
   } = answer;
-  console.log({
-    answerSelect,
-    answerBool,
-    answerDate,
-    answerInt,
-    answerNum,
-    answerText,
-    answerCollection,
-  });
+
   return (
     !(answerBool === true || answerBool === false) &&
     !answerDate &&
