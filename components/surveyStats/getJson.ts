@@ -17,6 +17,31 @@ import {
 } from "@/utils/utils";
 import { Answer, DataField, Question, SelectOption } from "@prisma/client";
 
+export function getMasterDataJson(masterData: FullMasterData[]) {
+  let humanReadable: object[] = [];
+
+  for (let m of masterData) {
+    let obj: any = {};
+    obj.nummer = m.number;
+    for (let dataField of m.masterDataType.dataFields) {
+      obj[dataField.text] = getDataFieldAnswer(
+        m.answers.find((a) => a.dataFieldId === dataField.id),
+        dataField
+      );
+    }
+
+    obj.verantwortlich = {
+      name: m.createdBy.name,
+      email: m.createdBy.email,
+      organisation: m.createdBy.organization.name,
+    };
+
+    humanReadable.push(obj);
+  }
+
+  return JSON.stringify(humanReadable);
+}
+
 export function getFamiliesJson(families: FullFamily[]) {
   let humanReadable: object[] = [];
 
@@ -80,46 +105,54 @@ export function getDataFieldAnswer(
 ) {
   switch (dataField.type) {
     case "Text":
-      return dataFieldAnswer.answerText;
+      return dataFieldAnswer?.answerText || null;
     case "Bool":
-      return dataFieldAnswer.answerBool;
+      return dataFieldAnswer?.answerBool || null;
     case "Int":
-      return dataFieldAnswer.answerInt;
+      return dataFieldAnswer?.answerInt || null;
     case "Num":
-      return dataFieldAnswer.answerNum;
+      return dataFieldAnswer?.answerNum || null;
     case "Select":
       let ans = [];
       for (let option of dataField.selectOptions) {
-        let op = dataFieldAnswer.answerSelect.find((o) => o.id === option.id);
+        let op = dataFieldAnswer?.answerSelect.find((o) => o.id === option.id);
         if (option.isOpen) {
           if (op)
             ans.push(
               (
-                dataFieldAnswer.selectOtherValues as IAnswerSelectOtherValues
+                dataFieldAnswer?.selectOtherValues as IAnswerSelectOtherValues
               )?.find((v) => v.selectOptionId === option.id).value
             );
         } else if (op) ans.push(op.value);
       }
-      return ans;
+      return ans.length > 0 ? ans : null;
     case "Date":
-      return dataFieldAnswer.answerDate;
+      return dataFieldAnswer?.answerDate || null;
     case "Collection":
-      switch (dataFieldAnswer.answerCollection.type) {
+      switch (dataFieldAnswer?.answerCollection.type) {
         case "Text":
-          return dataFieldAnswer.answerCollection.collectionDataString.map(
-            (a) => a.value
+          return (
+            dataFieldAnswer?.answerCollection.collectionDataString.map(
+              (a) => a.value
+            ) || null
           );
         case "Int":
-          return dataFieldAnswer.answerCollection.collectionDataInt.map(
-            (a) => a.value
+          return (
+            dataFieldAnswer?.answerCollection.collectionDataInt.map(
+              (a) => a.value
+            ) || null
           );
         case "Num":
-          return dataFieldAnswer.answerCollection.collectionDataFloat.map(
-            (a) => a.value
+          return (
+            dataFieldAnswer?.answerCollection.collectionDataFloat.map(
+              (a) => a.value
+            ) || null
           );
         case "Date":
-          return dataFieldAnswer.answerCollection.collectionDataDate.map(
-            (a) => a.value
+          return (
+            dataFieldAnswer?.answerCollection.collectionDataDate.map(
+              (a) => a.value
+            ) || null
           );
       }
   }

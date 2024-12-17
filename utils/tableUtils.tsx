@@ -4,6 +4,7 @@ import {
   FullCollection,
   FullFamily,
   FullMasterData,
+  FullMasterDataType,
   FullQuestion,
   FullResponse,
   FullSurvey,
@@ -589,6 +590,74 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
       sorter: dateSorter,
       headerSortTristate: true,
     },
+  ];
+}
+
+export function masterDataColumnDefinitionsNoSurvey(
+  masterDataType: FullMasterDataType
+): ColumnDefinition[] {
+  return [
+    { title: "Nummer", field: "number" },
+    ...masterDataType.dataFields.map((dataField): ColumnDefinition => {
+      switch (dataField.type) {
+        case "Text":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            headerSortTristate: true,
+          };
+        case "Bool":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            formatter: "tickCross",
+            formatterParams: { allowEmpty: true },
+            headerSortTristate: true,
+          };
+        case "Int":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            headerSortTristate: true,
+          };
+        case "Num":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            headerSortTristate: true,
+          };
+        case "Select":
+          return {
+            title: dataField.text,
+            columns: dataField.selectOptions.map<ColumnDefinition>(
+              (selectOption) => ({
+                title: selectOption.value,
+                field: `${dataField.id}.${selectOption.id}`,
+                formatter: selectOption.isOpen ? "textarea" : "tickCross",
+                formatterParams: { allowEmpty: true },
+                headerSortTristate: true,
+              })
+            ),
+          };
+        case "Date":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            formatter: dateFormatter,
+            sorter: dateSorter,
+            headerSortTristate: true,
+          };
+        case "Collection":
+          return {
+            title: dataField.text,
+            field: dataField.id,
+            formatter: collectionFormatter,
+            formatterParams: { collectionType: dataField.collectionType },
+          };
+        default:
+          return { title: "--FEHLER--" };
+      }
+    }),
   ];
 }
 

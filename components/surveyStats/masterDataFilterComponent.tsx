@@ -22,17 +22,17 @@ import {
 import { DataField, SelectOption } from "@prisma/client";
 
 interface MasterDataFilterComponentProps {
-  survey: FullSurvey;
+  masterDataType: FullMasterDataType;
   masterDataFilter: IMasterDataFilter;
   onChange: (masterDataFilter: IMasterDataFilter) => void;
 }
 
 export default function MasterDataFilterComponent({
-  survey,
+  masterDataType,
   masterDataFilter,
   onChange,
 }: MasterDataFilterComponentProps) {
-  const dataField = survey?.masterDataType.dataFields.find(
+  const dataField = masterDataType?.dataFields.find(
     (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId
   );
 
@@ -46,7 +46,7 @@ export default function MasterDataFilterComponent({
       }}
     >
       <SelectDataField
-        masterDataType={survey.masterDataType}
+        masterDataType={masterDataType}
         dataField={dataField}
         onChange={(dataField) => onChange({ dataFieldId: dataField.id })}
       />

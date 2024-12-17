@@ -1,5 +1,6 @@
 import DashboardDownloadButtons from "@/components/dashboards/dashboardDownloadButtons";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
+import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
 import {
@@ -8,6 +9,7 @@ import {
   IGeneralFilter,
   getWhereInput,
   getGeneralWhereInput,
+  IMasterDataFilter,
 } from "@/utils/filters";
 import {
   answersPerOrgDashboardData,
@@ -52,6 +54,7 @@ export default function Dashboard({ survey }: DashboardProps) {
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
     generalFilters?: IGeneralFilter[];
+    masterDataFilters?: IMasterDataFilter[];
   }>({
     filters: [],
     familyFilters: [],
@@ -62,6 +65,7 @@ export default function Dashboard({ survey }: DashboardProps) {
         value: startOfMonth(new Date()),
       },
     ],
+    masterDataFilters: [],
   });
   const router = useRouter();
   const [where, setWhere] = useState<Prisma.ResponseWhereInput>({
@@ -148,6 +152,7 @@ export default function Dashboard({ survey }: DashboardProps) {
           filters={filters.filters}
           familyFilters={filters.familyFilters}
           generalFilters={filters.generalFilters}
+          masterDataFilters={filters.masterDataFilters}
           survey={survey}
           onChange={setFilters}
           onApply={applyFilters}

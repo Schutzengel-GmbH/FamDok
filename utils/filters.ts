@@ -153,7 +153,7 @@ export const CollectionDateFilters: IFilter[] = [
 export function getFiltersForDataFieldType(dataField: DataField) {
   let filters = [];
 
-  switch (dataField.type) {
+  switch (dataField?.type) {
     case "Text":
       filters = [...NullFilters, ...TextFilters];
       break;
@@ -259,6 +259,8 @@ export function getMasterDataWhereInput(
   filter: IMasterDataFilter,
   masterDataType: FullMasterDataType
 ): Prisma.MasterDataWhereInput {
+  if (!filter?.dataFieldId) return {};
+
   const dataField = masterDataType.dataFields.find(
     (f) => f.id === filter.dataFieldId
   );
@@ -322,7 +324,7 @@ export function getMasterDataWhereInput(
               dataFieldId: filter.dataFieldId,
               answerSelect: {
                 some: {
-                  id: { in: filter.value.map((o) => o.id) },
+                  id: { in: filter?.value?.map((o) => o.id) || [] },
                 },
               },
             },
@@ -333,12 +335,12 @@ export function getMasterDataWhereInput(
           answers: {
             some: {
               AND: [
-                ...filter.value.map((o) => ({
+                ...(filter?.value?.map((o) => ({
                   dataFieldId: filter.dataFieldId,
                   answerSelect: {
                     some: { id: o.id },
                   },
-                })),
+                })) || []),
               ],
             },
           },
@@ -348,12 +350,12 @@ export function getMasterDataWhereInput(
           answers: {
             some: {
               AND: [
-                ...filter.value.map((o) => ({
+                ...(filter?.value?.map((o) => ({
                   dataFieldId: filter.dataFieldId,
                   answerSelect: {
                     none: { id: o.id },
                   },
-                })),
+                })) || []),
               ],
             },
           },

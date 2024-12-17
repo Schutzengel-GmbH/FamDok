@@ -38,7 +38,8 @@ export default async function comingFromOptions(
 
   if (!reqUser) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
-  const { masterDataType: masterDataTypeId } = req.query;
+  const { masterDataType: masterDataTypeId, whereInput } = req.query;
+
   const masterDataType = await prisma.masterDataType
     .findUnique({ where: { id: masterDataTypeId as string } })
     .catch((e) => logger.error(e));
@@ -55,14 +56,18 @@ export default async function comingFromOptions(
 
   switch (req.method) {
     case "GET":
+      let where: Prisma.MasterDataWhereInput = whereInput
+        ? JSON.parse(whereInput as string)
+        : {};
+
+      where.masterDataTypeId = masterDataType.id;
+      where.createdBy =
+        reqUser.role === "USER" || reqUser.role === "ORGCONTROLLER"
+          ? { organizationId: reqUser.organizationId }
+          : undefined;
+
       const masterData = await prisma.masterData.findMany({
-        where: {
-          masterDataTypeId: masterDataType.id,
-          createdBy:
-            reqUser.role === "USER"
-              ? { organizationId: reqUser.organizationId }
-              : undefined,
-        },
+        where,
         include: {
           masterDataType: {
             include: {

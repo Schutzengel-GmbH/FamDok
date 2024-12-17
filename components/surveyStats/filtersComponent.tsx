@@ -224,7 +224,7 @@ export default function FiltersComponent({
             }}
           >
             <MasterDataFilterComponent
-              survey={survey}
+              masterDataType={survey.masterDataType}
               masterDataFilter={f}
               onChange={(masterDataFilter) =>
                 updateMasterDataFilter(masterDataFilter, i)
