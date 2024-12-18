@@ -1,5 +1,5 @@
 import SearchTextField from "@/components/utilityComponents/searchTextField";
-import { Add } from "@mui/icons-material";
+import { Add, DeleteForever, QueryStats } from "@mui/icons-material";
 import { useMasterData, useMasterDataTypes } from "@/utils/apiHooks";
 import { useUserData } from "@/utils/authUtils";
 import {
@@ -20,17 +20,17 @@ export default function MasterDataComponent() {
   const [filter, setFilter] = useState<string>("");
   const router = useRouter();
   const { user } = useUserData();
-  const { masterDataTypes, mutate: mutateMdt } = useMasterDataTypes();
+  const { masterDataTypes } = useMasterDataTypes();
   const [selectedMdt, setSelectedMdt] =
     useState<(typeof masterDataTypes)[number]>();
-  const { masterData, mutate } = useMasterData(selectedMdt?.id);
+  const { masterData } = useMasterData(selectedMdt?.id);
   const [displayedMasterData, setDisplayedMasterData] =
     useState<FullMasterData[]>(masterData);
 
   useEffect(() => {
     if (filter) {
       setDisplayedMasterData(
-        masterData?.filter((md) => md.number === parseInt(filter))
+        masterData?.filter((md) => md.number === parseInt(filter)),
       );
     } else {
       setDisplayedMasterData(masterData);
@@ -39,7 +39,7 @@ export default function MasterDataComponent() {
 
   useEffect(
     () => setSelectedMdt(masterDataTypes ? masterDataTypes[0] : undefined),
-    [masterDataTypes]
+    [masterDataTypes],
   );
 
   const handleMdtChange = (e: SelectChangeEvent) => {
@@ -62,19 +62,39 @@ export default function MasterDataComponent() {
     }
   };
 
+  const navigateStats = () => {
+    if (user.role === "USER")
+      router.push(`/masterDataStats/${selectedMdt.id}/my`);
+    router.push(`/masterDataStats/${selectedMdt.id}/`);
+  };
+
   return (
     <>
-      <Select
-        sx={{ mb: "2rem" }}
-        onChange={handleMdtChange}
-        value={selectedMdt ? selectedMdt.name : ""}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
       >
-        {masterDataTypes?.map((mdt) => (
-          <MenuItem key={mdt.id} value={mdt.name}>
-            {mdt.name}
-          </MenuItem>
-        ))}
-      </Select>
+        <Select
+          sx={{ mb: "2rem" }}
+          onChange={handleMdtChange}
+          value={selectedMdt ? selectedMdt.name : ""}
+        >
+          {masterDataTypes?.map((mdt) => (
+            <MenuItem key={mdt.id} value={mdt.name}>
+              {mdt.name}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button onClick={navigateStats}>
+          <QueryStats />{" "}
+          {user?.role === "USER" ? "Meine Familien" : "Statistik"}
+        </Button>
+      </Box>
+
       <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
         <Box sx={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
           <SearchTextField

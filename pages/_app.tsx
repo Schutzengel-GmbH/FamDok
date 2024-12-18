@@ -86,15 +86,15 @@ function MyApp({ Component, pageProps }): JSX.Element {
                   ? "dark"
                   : "light"
                 : mode === Theme.Light
-                ? "light"
-                : "dark",
+                  ? "light"
+                  : "dark",
           },
         },
         deDE,
         pickersDeDE,
-        coreDeDE
+        coreDeDE,
       ),
-    [systemPrefersDark, mode]
+    [systemPrefersDark, mode],
   );
 
   return (

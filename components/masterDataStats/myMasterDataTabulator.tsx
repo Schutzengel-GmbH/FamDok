@@ -1,13 +1,5 @@
-import FamiliesStatsDownloadButtons from "@/components/familiesStats/familiesStatsDownloadButtons";
-import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponent";
 import ErrorPage from "@/components/utilityComponents/error";
-import {
-  FilterAlt,
-  FileDownload,
-  Add,
-  Delete,
-  ExpandMore,
-} from "@mui/icons-material";
+import { FilterAlt, Add, Delete, ExpandMore } from "@mui/icons-material";
 import { FullMasterDataType } from "@/types/prismaHelperTypes";
 import { useMasterData } from "@/utils/apiHooks";
 import { getMasterDataWhereInput, IMasterDataFilter } from "@/utils/filters";
@@ -28,24 +20,28 @@ import { useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import MasterDataFilterComponent from "@/components/surveyStats/masterDataFilterComponent";
 import MasterDataStatsDownloadButtons from "@/components/masterDataStats/masterDataStatsDownloadButtons";
+import { useUserData } from "@/utils/authUtils";
 import { useRouter } from "next/router";
 
 interface MasterDataTabulatorProps {
   masterDataType: FullMasterDataType;
 }
 
-export default function MasterDataTabulator({
+export default function MyMasterDataTabulator({
   masterDataType,
 }: MasterDataTabulatorProps) {
   const [filters, setFilters] = useState<IMasterDataFilter[]>([]);
   const [where, setWhere] = useState({
     AND: [...filters?.map((f) => getMasterDataWhereInput(f, masterDataType))],
   });
+
   const router = useRouter();
-  const { masterData, isLoading, error } = useMasterData(
-    masterDataType.id,
-    where,
-  );
+
+  const { user } = useUserData();
+
+  const { masterData, isLoading, error } = useMasterData(masterDataType.id, {
+    AND: [...where.AND, { createdBy: { id: user.id } }],
+  });
   const tableRef = useRef(null);
   const data = useMemo(() => masterData?.map(getMasterDataData), [masterData]);
   const columns = useMemo(
@@ -70,6 +66,11 @@ export default function MasterDataTabulator({
     });
   };
 
+  const rowClick = (_: any, row: any) => {
+    const number: number = row.getData().number;
+    router.push(`/masterData/${masterDataType.id}/${number}`);
+  };
+
   if (isLoading) return <CircularProgress />;
   if (error || !masterData) return <ErrorPage message={error} />;
 
@@ -77,11 +78,6 @@ export default function MasterDataTabulator({
     pagination: true,
     paginationSize: 12,
     paginationSizeSelector: true,
-  };
-
-  const rowClick = (_: any, row: any) => {
-    const number: number = row.getData().number;
-    router.push(`/masterData/${masterDataType.id}/${number}`);
   };
 
   return (
@@ -146,7 +142,7 @@ export default function MasterDataTabulator({
         style={{}}
         layout="fitData"
         options={{ ...globalOptions, ...options }}
-        events={{ rowClick }}
+        events={{ rowClick: rowClick }}
       />
     </Box>
   );
