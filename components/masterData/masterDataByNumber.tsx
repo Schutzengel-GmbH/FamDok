@@ -2,7 +2,6 @@ import CreatedByComponent from "@/components/masterData/createdByComponent";
 import DataFieldCard from "@/components/masterData/dataFieldCard";
 import RequiredError from "@/components/masterData/requiredError";
 import useToast from "@/components/notifications/notificationContext";
-import { InputErrors } from "@/components/response/answerQuestion";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import ConfirmDialog from "@/components/utilityComponents/confirmDialog";
 import { IMasterDataByNumber } from "@/pages/api/masterDataType/[masterDataType]/[masterData]/[number]";
@@ -64,7 +63,7 @@ export default function MasterDataByNumber({
 
   const { user } = useUserData();
 
-  const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
+//  const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
 
   const handleDelete = async () => {
     const res = await apiDelete<IMasterDataByNumber>(
@@ -188,7 +187,7 @@ export default function MasterDataByNumber({
         onSave={handleSaveUser}
         onCancel={() => setCurrentUser(masterData?.createdBy)}
       />
-      {canDelete && (
+      {canEdit && (
         <Button onClick={() => setDeleteOpen(true)} color="error">
           <DeleteForever /> Datensatz Löschen
         </Button>

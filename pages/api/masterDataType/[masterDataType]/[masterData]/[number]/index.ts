@@ -101,7 +101,7 @@ export default async function masterDataType(
   ]);
 
   if (user.role === Role.USER)
-    if (masterData.userId !== user.id) canEdit = false;
+    if (masterData.userId === user.id) canEdit = true;
 
   if (user.role === Role.ORGCONTROLLER)
     if (
@@ -140,4 +140,3 @@ export default async function masterDataType(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
