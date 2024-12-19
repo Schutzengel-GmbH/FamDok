@@ -96,6 +96,7 @@ export default function DataFieldCard({
           <CollectionDataFieldAnswerComponent
             canEdit={canEdit}
             dataField={dataField}
+            //@ts-ignore
             answer={answer}
             //@ts-ignore
             onChange={handleChange}
@@ -129,4 +130,3 @@ export default function DataFieldCard({
     </Paper>
   );
 }
-

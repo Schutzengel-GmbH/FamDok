@@ -25,7 +25,7 @@ export interface ISubmitAnswer {
 
 export default async function survey(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/surveys/${req.query.survey}/responses/${req.query.response}/submitAnswers`,
@@ -43,7 +43,7 @@ export default async function survey(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const { survey: surveyId, response: responseId } = req.query;
@@ -161,9 +161,10 @@ export default async function survey(
           collectionDataField()
         ].filter(
           (d) =>
+            //@ts-ignore
             answer.answerCollection[collectionDataField()].find(
-              (v) => v.id === d.id
-            ) === undefined
+              (v) => v.id === d.id,
+            ) === undefined,
         );
 
         //@ts-ignore it's fine...
@@ -174,6 +175,7 @@ export default async function survey(
         const collectionDataToUpdate = [];
         const collectionDataToAdd = answer.answerCollection[
           collectionDataField()
+          //@ts-ignore
         ].filter((d) => d.id === undefined);
 
         //@ts-ignore it's fine...
@@ -243,4 +245,3 @@ export default async function survey(
     return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
   else return res.status(200).json({});
 }
-

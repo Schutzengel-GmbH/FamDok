@@ -347,6 +347,7 @@ const collectionFormatter: Tabulator.Formatter = (
 ) => {
   const collection = cell.getValue() as Date[] | string[] | number[];
   if (!collection || collection.length < 1) return "";
+  //@ts-ignore
   return collection.reduce<string>((prev, value) => {
     if (formatterParams.collectionType === "Date")
       return prev

@@ -29,7 +29,7 @@ export interface IMoveQuestionInput {
 
 export default async function moveQuestion(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/surveys/${req.query.survey}/moveQuestion`,
@@ -47,7 +47,7 @@ export default async function moveQuestion(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const { survey: surveyId } = req.query;
@@ -69,7 +69,10 @@ export default async function moveQuestion(
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         },
         masterDataType: {
-          include: { dataFields: { include: { selectOptions: true } } },
+          include: {
+            dataFields: { include: { selectOptions: true } },
+            organization: true,
+          },
         },
       },
     });
@@ -140,4 +143,3 @@ export default async function moveQuestion(
     res.status(200).json({ update, update2 });
   }
 }
-
