@@ -2,16 +2,11 @@ import { FullUser } from "@/types/prismaHelperTypes";
 import { useUsers } from "@/utils/apiHooks";
 import {
   Autocomplete,
-  AutocompleteRenderInputParams,
-  Chip,
   CircularProgress,
   SxProps,
   TextField,
-  useAutocomplete,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { User } from "@prisma/client";
-import { ReactNode, useMemo, useState } from "react";
 
 type UsersElementProps = {
   users: FullUser[];
@@ -36,7 +31,9 @@ export default function UsersElement({
     <Box sx={sx}>
       <Autocomplete
         multiple
-        renderInput={(params) => <TextField {...params} label="Fachkräfte" />}
+        renderInput={(params) => (
+          <TextField {...params} label="Zugeordnete Fachkräfte" />
+        )}
         options={availableUsers || []}
         getOptionLabel={(u) => u.name || u.email}
         onChange={(e, selectedUsers) => onChange(selectedUsers)}
@@ -46,3 +43,4 @@ export default function UsersElement({
     </Box>
   );
 }
+

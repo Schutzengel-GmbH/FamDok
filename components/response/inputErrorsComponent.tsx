@@ -5,13 +5,15 @@ import { Question, Survey } from "@prisma/client";
 type InputErrorsComponentProps = {
   survey: Survey & { questions: Question[] };
   errors: { questionId: string; error: InputErrors }[];
+  noRequiredMasterData?: boolean;
 };
 
 export default function InputErrorsComponent({
   survey,
   errors,
+  noRequiredMasterData,
 }: InputErrorsComponentProps) {
-  if (errors.length < 1) return <></>;
+  if (errors.length < 1 && !noRequiredMasterData) return <></>;
 
   return (
     <Paper sx={{ p: ".5rem", gap: ".5rem" }} elevation={3}>
@@ -23,6 +25,11 @@ export default function InputErrorsComponent({
           )}
         </Alert>
       ))}
+      {noRequiredMasterData === true && (
+        <Alert severity="error">
+          Die Angabe eines Stammdatensatzes ist erforderlich.
+        </Alert>
+      )}
     </Paper>
   );
 }
@@ -39,6 +46,10 @@ function getInputErrorMessage(question: Question, error: InputErrors) {
       return `Die Frage ${
         question.questionTitle || question.questionText
       } ist nicht optional.`;
+    case InputErrors.NUM_OUT_OF_BOUNDS:
+      return `Die Antwort zur Frage ${
+        question.questionTitle || question.questionText
+      } ist zu groß oder zu klein für 32bit-signed-Integer.`;
     default:
       return `Bei der Frage ${
         question.questionTitle || question.questionText
@@ -70,4 +81,3 @@ function getOutOfRangeMessage(question: Question) {
       question.questionTitle || question.questionText
     } liegt ein unbekannter Fehler vor. Bitte eine ganze Zahl im zulässigen Bereich angeben.`;
 }
-

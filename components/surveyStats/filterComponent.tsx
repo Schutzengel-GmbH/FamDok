@@ -1,3 +1,4 @@
+import CollectionValues from "@/components/surveyStats/collectionValues";
 import ScaleSelect from "@/components/surveyStats/scaleSelectComponent";
 import SelectOptionAutocomplete from "@/components/surveyStats/selectOptionAutocomplete";
 import DatePickerComponent from "@/components/utilityComponents/datePickerComponent";
@@ -46,7 +47,7 @@ export default function FilterComponent({
         onChange={(q) => onChange({ questionId: q.id })}
       />
       <SelectFilter
-        questionType={question?.type}
+        question={question}
         filter={filter}
         onChange={(f, v) =>
           onChange({
@@ -93,8 +94,8 @@ function SelectQuestion({ survey, question, onChange }: SelectQuestionProps) {
   );
 }
 
-function SelectFilter({ questionType, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForQuestionType(questionType);
+function SelectFilter({ question, filter, onChange }: SelectFilterProps) {
+  const filters = getFiltersForQuestionType(question);
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -178,7 +179,14 @@ function ValueInput({ question, filter, onChange }: ValueInputProps) {
           onChange={(v) => onChange({ ...filter, value: v })}
         />
       );
-
+    case "Collection":
+      return (
+        <CollectionValues
+          dataField={question}
+          value={filter.value}
+          onChange={(o) => onChange({ ...filter, value: o })}
+        />
+      );
     default:
       return <></>;
   }

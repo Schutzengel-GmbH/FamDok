@@ -1,37 +1,31 @@
 import { FormControl, TextField } from "@mui/material";
 import { useState, ChangeEvent } from "react";
 import { AnswerComponentProps, InputErrors } from "../answerQuestion";
-import { isFloat, isInt } from "@/utils/utils";
+import { isFloat } from "@/utils/utils";
 
 export default function AnswerNumComponent({
   question,
   answer,
   onChange,
 }: AnswerComponentProps) {
-  const [valueString, setValueString] = useState<string | undefined>(
+  const [value, setValue] = useState<string>(
     answer
       ? answer.answerNum?.toString()
-      : question.defaultAnswerNum?.toString() || undefined
+      : question.defaultAnswerNum?.toString() || ""
   );
   const [error, setError] = useState<string>("");
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const _valueString = e.currentTarget.value;
-    setValueString(_valueString);
+    setValue(_valueString);
 
-    if (!_valueString) {
-      setError("");
-      onChange({ ...answer, answerNum: undefined });
-      return;
-    }
+    const _value = parseFloat(_valueString);
 
-    if (!isFloat(_valueString)) {
+    if (_valueString && !isFloat(_valueString)) {
       setError("Bitte eine Zahl eingeben.");
       onChange(answer, InputErrors.NAN);
       return;
     }
-
-    const _value = parseFloat(_valueString.replace(",", "."));
 
     setError("");
     onChange({ ...answer, answerNum: _value });
@@ -40,11 +34,13 @@ export default function AnswerNumComponent({
   return (
     <FormControl>
       <TextField
-        value={valueString?.replace(".", ",") || ""}
+        value={value}
         onChange={handleChange}
+        inputProps={{ inputMode: "decimal" }}
         error={error !== ""}
         helperText={error}
       />
     </FormControl>
   );
 }
+

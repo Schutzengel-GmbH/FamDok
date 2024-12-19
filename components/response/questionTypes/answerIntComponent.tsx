@@ -2,8 +2,7 @@ import { FormControl, TextField } from "@mui/material";
 import { AnswerComponentProps, InputErrors } from "../answerQuestion";
 import { ChangeEvent, useState } from "react";
 import { isInt } from "@/utils/utils";
-import { Answer, Question } from "@prisma/client";
-import { PartialAnswer } from "@/types/prismaHelperTypes";
+import { Question } from "@prisma/client";
 
 export default function AnswerIntComponent({
   question,
@@ -21,21 +20,18 @@ export default function AnswerIntComponent({
     const _valueString = e.currentTarget.value;
     setValueString(_valueString);
 
-    if (!_valueString) {
-      setError("");
-      onChange({ ...answer, answerInt: undefined });
-      return;
-    }
-
-    if (!isInt(_valueString)) {
+    if (_valueString && !isInt(_valueString)) {
       setError("Bitte eine ganze Zahl eingeben.");
       onChange(answer, InputErrors.NAN);
       return;
     }
 
-    if (Number(_valueString) > 2147483647 || Number(_valueString) < -2147483647) {
+    if (
+      Number(_valueString) > 2147483647 ||
+      Number(_valueString) < -2147483647
+    ) {
       setError("Zahl ist zu groß oder zu klein für 32bit-signed-Integer");
-      onChange(answer, InputErrors.NUM_OUT_OF_BOUNDS)
+      onChange(answer, InputErrors.NUM_OUT_OF_BOUNDS);
       return;
     }
 
@@ -57,18 +53,16 @@ export default function AnswerIntComponent({
       <TextField
         value={valueString}
         onChange={handleChange}
-        inputMode="numeric"
         error={error !== ""}
         helperText={error}
-        InputProps={
+        inputProps={
           question.intRange
             ? {
-              inputProps: {
+                inputMode: "numeric",
                 min: question.intRangeLow,
                 max: question.intRangeHigh,
-              },
-            }
-            : {}
+              }
+            : { inputMode: "numeric" }
         }
       />
     </FormControl>

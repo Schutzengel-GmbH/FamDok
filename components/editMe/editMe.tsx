@@ -14,7 +14,8 @@ import { useEffect, useState, useContext } from "react";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { IUserMe } from "@/pages/api/user/me";
 import useToast from "@/components/notifications/notificationContext";
-import { ColorModeContext, ColorMode } from "@/pages/_app";
+import { ColorModeContext } from "@/pages/_app";
+import { Theme } from "@prisma/client";
 
 export default function EditMe() {
   const { user, isLoading, error, mutate } = useUserData();
@@ -62,7 +63,7 @@ export default function EditMe() {
   const { setColorMode, mode } = useContext(ColorModeContext);
 
   function handleChangeTheme(e: SelectChangeEvent<typeof mode>) {
-    setColorMode(e.target.value as ColorMode);
+    setColorMode(e.target.value as Theme);
   }
 
   return (
@@ -85,9 +86,9 @@ export default function EditMe() {
       >
         <Typography>Farbschema: </Typography>
         <Select value={mode} onChange={handleChangeTheme}>
-          <MenuItem value={"system"}>System</MenuItem>
-          <MenuItem value={"light"}>Hell</MenuItem>
-          <MenuItem value={"dark"}>Dunkel</MenuItem>
+          <MenuItem value={Theme.System}>System</MenuItem>
+          <MenuItem value={Theme.Light}>Hell</MenuItem>
+          <MenuItem value={Theme.Dark}>Dunkel</MenuItem>
         </Select>
       </Box>
 
@@ -99,3 +100,4 @@ export default function EditMe() {
     </Box>
   );
 }
+

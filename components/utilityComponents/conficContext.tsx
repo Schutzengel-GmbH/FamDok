@@ -35,4 +35,3 @@ export function ConfigProvider({ children }) {
 }
 
 export const useConfig = () => useContext(ConfigContext);
-

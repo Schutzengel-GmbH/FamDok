@@ -1,13 +1,6 @@
-import {
-  Caregiver,
-  Child,
-  Disability,
-  Education,
-  Gender,
-} from "@prisma/client";
+import { Caregiver, Child } from "@prisma/client";
 import {
   Alert,
-  Button,
   FormControlLabel,
   Paper,
   Radio,
@@ -16,11 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
-import FindFamilyDialog from "@/components/family/findFamilyDialog";
 import { getAge } from "@/utils/utils";
 import { FullFamily } from "@/types/prismaHelperTypes";
-import FamilyDialog from "@/components/family/familyDialog";
-import { GetResult } from "@prisma/client/runtime";
 import { useFamily } from "@/utils/apiHooks";
 
 export type ResponseRelation = {
@@ -128,3 +118,4 @@ export default function ResponseRelationComponent({
     </>
   );
 }
+

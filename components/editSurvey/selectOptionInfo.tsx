@@ -9,11 +9,11 @@ import {
 import { useState } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 
-export type SelectOptionInfoProps = {
+export type InfoItemProps = {
   info: string;
 };
 
-export default function SelectOptionInfo({ info }: SelectOptionInfoProps) {
+export default function InfoItem({ info }: InfoItemProps) {
   const [open, setOpen] = useState(false);
 
   return (

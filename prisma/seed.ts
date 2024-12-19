@@ -155,6 +155,7 @@ async function main() {
   for (let i = 0; i < 500; i++) {
     answers.push({
       survey: { connect: { id: survey.id } },
+      user: { connect: { id: randomUser().id } },
       family: {
         connect: {
           id: createdFamilies[randomInt(0, createdFamilies.length - 1)].id,
@@ -200,4 +201,3 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
-

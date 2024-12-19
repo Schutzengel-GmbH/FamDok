@@ -1,16 +1,22 @@
 import FamilyFilterComponent from "@/components/surveyStats/familyFilterComponent";
 import FilterComponent from "@/components/surveyStats/filterComponent";
 import GeneralFilterComponent from "@/components/surveyStats/generalFilterComponent";
+import MasterDataFilterComponent from "@/components/surveyStats/masterDataFilterComponent";
 import { FullSurvey } from "@/types/prismaHelperTypes";
-import { IFilter, IFamilyFilter, IGeneralFilter } from "@/utils/filters";
+import {
+  IFilter,
+  IFamilyFilter,
+  IGeneralFilter,
+  IMasterDataFilter,
+} from "@/utils/filters";
 import { Add, Delete } from "@mui/icons-material";
 import { Box, Button, IconButton } from "@mui/material";
-import { useState } from "react";
 
 interface FiltersComponentProps {
   filters: IFilter[];
   familyFilters: IFamilyFilter[];
   generalFilters: IGeneralFilter[];
+  masterDataFilters: IMasterDataFilter[];
   survey: FullSurvey;
   onChange: ({
     filters,
@@ -20,6 +26,7 @@ interface FiltersComponentProps {
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
     generalFilters?: IGeneralFilter[];
+    masterDataFilters?: IMasterDataFilter[];
   }) => void;
   onApply?: () => void;
 }
@@ -28,6 +35,7 @@ export default function FiltersComponent({
   filters,
   familyFilters,
   generalFilters,
+  masterDataFilters,
   survey,
   onApply,
   onChange,
@@ -37,6 +45,7 @@ export default function FiltersComponent({
       filters: [...filters, undefined],
       familyFilters,
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -45,6 +54,7 @@ export default function FiltersComponent({
       filters: filters.map((f, i) => (i === index ? updatedFilter : f)),
       familyFilters,
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -53,6 +63,7 @@ export default function FiltersComponent({
       filters: filters.filter((_, i) => i !== index),
       familyFilters,
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -61,6 +72,7 @@ export default function FiltersComponent({
       filters,
       familyFilters: [...familyFilters, undefined],
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -71,6 +83,7 @@ export default function FiltersComponent({
         i === index ? updatedFilter : f
       ),
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -79,6 +92,7 @@ export default function FiltersComponent({
       familyFilters: familyFilters.filter((_, i) => i !== index),
       filters,
       generalFilters,
+      masterDataFilters,
     });
   }
 
@@ -87,6 +101,7 @@ export default function FiltersComponent({
       filters,
       familyFilters,
       generalFilters: [...generalFilters, undefined],
+      masterDataFilters,
     });
   }
 
@@ -97,6 +112,7 @@ export default function FiltersComponent({
       generalFilters: generalFilters.map((f, i) =>
         i === index ? updatedFilter : f
       ),
+      masterDataFilters,
     });
   }
 
@@ -105,6 +121,39 @@ export default function FiltersComponent({
       familyFilters,
       filters,
       generalFilters: generalFilters.filter((_, i) => i !== index),
+      masterDataFilters,
+    });
+  }
+
+  function addMasterDataFilter() {
+    onChange({
+      familyFilters,
+      filters,
+      generalFilters,
+      masterDataFilters: [...masterDataFilters, undefined],
+    });
+  }
+
+  function updateMasterDataFilter(
+    updatedFilter: IMasterDataFilter,
+    index: number
+  ) {
+    onChange({
+      filters,
+      familyFilters,
+      generalFilters,
+      masterDataFilters: masterDataFilters.map((f, i) =>
+        i === index ? updatedFilter : f
+      ),
+    });
+  }
+
+  function deleteMasterDataFilter(index: number) {
+    onChange({
+      familyFilters,
+      filters,
+      generalFilters,
+      masterDataFilters: masterDataFilters.filter((_, i) => i !== index),
     });
   }
 
@@ -124,6 +173,12 @@ export default function FiltersComponent({
         {survey.hasFamily && (
           <Button onClick={addFamilyFilter}>
             <Add /> Familien-Filter
+          </Button>
+        )}
+
+        {survey.hasMasterData && (
+          <Button onClick={addMasterDataFilter}>
+            <Add /> {`${survey.masterDataType.name}-Filter`}
           </Button>
         )}
 
@@ -155,6 +210,30 @@ export default function FiltersComponent({
               onChange={(filter) => updateGeneralFilter(filter, i)}
             />
             <IconButton color="primary" onClick={() => deleteGeneralFilter(i)}>
+              <Delete />
+            </IconButton>
+          </Box>
+        ))}
+        {masterDataFilters.map((f, i) => (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+            }}
+          >
+            <MasterDataFilterComponent
+              masterDataType={survey.masterDataType}
+              masterDataFilter={f}
+              onChange={(masterDataFilter) =>
+                updateMasterDataFilter(masterDataFilter, i)
+              }
+            />
+            <IconButton
+              color="primary"
+              onClick={() => deleteMasterDataFilter(i)}
+            >
               <Delete />
             </IconButton>
           </Box>

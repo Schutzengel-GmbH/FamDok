@@ -15,8 +15,9 @@ export default function AnswerDateComponent({
         }}
         value={
           answer?.answerDate
-            ? new Date(answer.answerDate)
-            : question.defaultAnswerDate ?? undefined
+            ? //@ts-ignore
+              new Date(answer.answerDate)
+            : (question.defaultAnswerDate ?? undefined)
         }
       />
     </FormControl>

@@ -70,6 +70,9 @@ export default async function survey(
         questions: {
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         },
+        masterDataType: {
+          include: { dataFields: { include: { selectOptions: true } } },
+        },
       },
     });
   } catch (err) {

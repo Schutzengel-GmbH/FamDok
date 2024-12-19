@@ -3,10 +3,12 @@ import { FullSurvey } from "@/types/prismaHelperTypes";
 import { useMyResponses, useResponses } from "@/utils/apiHooks";
 import {
   getGeneralWhereInput,
+  getMasterDataWhereInput,
   getWhereInput,
   IFamilyFilter,
   IFilter,
   IGeneralFilter,
+  IMasterDataFilter,
 } from "@/utils/filters";
 import {
   allAnswersColumnDefinition,
@@ -14,14 +16,15 @@ import {
   familyColumnsDefinition,
   getWhereInputFromFamilyFilters,
   globalOptions,
+  masterDataColumnDefinitions,
   responsesToAllAnswersTable,
 } from "@/utils/tableUtils";
 import { FilterAlt } from "@mui/icons-material";
 import { Accordion, AccordionSummary, CircularProgress } from "@mui/material";
 import { Box } from "@mui/system";
 import { Prisma } from "@prisma/client";
-import { startOfMonth, startOfYear } from "date-fns";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startOfMonth } from "date-fns";
+import { useMemo, useRef, useState } from "react";
 import { ReactTabulator } from "react-tabulator";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DownloadButtons from "@/components/utilityComponents/tabulatorDownloadButtons";
@@ -38,6 +41,7 @@ export default function ResponsesTabulator({
     filters: IFilter[];
     familyFilters?: IFamilyFilter[];
     generalFilters?: IGeneralFilter[];
+    masterDataFilters?: IMasterDataFilter[];
   }>({
     filters: [],
     familyFilters: [],
@@ -48,6 +52,7 @@ export default function ResponsesTabulator({
         value: startOfMonth(new Date()),
       },
     ],
+    masterDataFilters: [],
   });
   const router = useRouter();
   const [whereInput, setWhereInput] = useState<Prisma.ResponseWhereInput>({
@@ -55,22 +60,19 @@ export default function ResponsesTabulator({
       ...filters.filters.map((f) => getWhereInput(f, survey)),
       ...filters.generalFilters.map(getGeneralWhereInput),
     ],
+    masterData: survey.hasMasterData
+      ? {
+          AND: [
+            ...filters.masterDataFilters.map((f) =>
+              getMasterDataWhereInput(f, survey.masterDataType)
+            ),
+          ],
+        }
+      : undefined,
     family: survey.hasFamily
       ? getWhereInputFromFamilyFilters(filters.familyFilters)
       : undefined,
   });
-
-  // useEffect(() => {
-  //   setWhereInput({
-  //     AND: [
-  //       ...filters.filters.map((f) => getWhereInput(f, survey)),
-  //       ...filters.generalFilters.map(getGeneralWhereInput),
-  //     ],
-  //     family: survey.hasFamily
-  //       ? getWhereInputFromFamilyFilters(filters.familyFilters)
-  //       : undefined,
-  //   });
-  // }, [filters]);
 
   function applyFilters() {
     if (!hasFilters) setWhereInput({});
@@ -80,6 +82,15 @@ export default function ResponsesTabulator({
           ...filters.filters.map((f) => getWhereInput(f, survey)),
           ...filters.generalFilters.map(getGeneralWhereInput),
         ],
+        masterData: survey.hasMasterData
+          ? {
+              AND: [
+                ...filters.masterDataFilters.map((f) =>
+                  getMasterDataWhereInput(f, survey.masterDataType)
+                ),
+              ],
+            }
+          : undefined,
         family: survey.hasFamily
           ? getWhereInputFromFamilyFilters(filters.familyFilters)
           : undefined,
@@ -103,6 +114,7 @@ export default function ResponsesTabulator({
       ...allAnswersColumnDefinition(survey),
       ...allResponsesColumnDefinition(),
       ...familyColumnsDefinition(survey),
+      ...masterDataColumnDefinitions(survey),
     ],
     [survey]
   );
@@ -115,7 +127,8 @@ export default function ResponsesTabulator({
   const hasFilters =
     filters.familyFilters?.length > 0 ||
     filters.filters?.length > 0 ||
-    filters.generalFilters?.length > 0;
+    filters.generalFilters?.length > 0 ||
+    filters.masterDataFilters?.length > 0;
 
   function editClick(row) {
     const surveyId = row.surveyId;
@@ -124,7 +137,11 @@ export default function ResponsesTabulator({
     router.push(`/surveys/${surveyId}/${responseId}`);
   }
 
-  const options = {};
+  const options = {
+    pagination: true,
+    paginationSize: 12,
+    paginationSizeSelector: true,
+  };
 
   return (
     <Box
@@ -144,7 +161,8 @@ export default function ResponsesTabulator({
             />{" "}
             {filters.familyFilters?.length ||
             filters.filters?.length ||
-            filters.generalFilters?.length
+            filters.generalFilters?.length ||
+            filters.masterDataFilters?.length
               ? "Filter bearbeiten"
               : "Filter hinzufügen"}
           </AccordionSummary>
@@ -155,6 +173,7 @@ export default function ResponsesTabulator({
               filters={filters.filters}
               familyFilters={filters.familyFilters}
               generalFilters={filters.generalFilters}
+              masterDataFilters={filters.masterDataFilters}
               onChange={setFilters}
               onApply={applyFilters}
             />
@@ -166,9 +185,7 @@ export default function ResponsesTabulator({
           survey={survey}
         />
       </Box>
-
       {isLoading && <CircularProgress />}
-
       <ReactTabulator
         onRef={(ref) => (tableRef.current = ref.current)}
         columns={columns}

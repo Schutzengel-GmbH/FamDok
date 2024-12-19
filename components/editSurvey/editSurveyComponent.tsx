@@ -8,7 +8,9 @@ import {
   IMoveQuestion,
   IMoveQuestionInput,
 } from "@/pages/api/surveys/[survey]/moveQuestion";
+import masterDataTypes from "@/pages/masterDataTypes";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
+import { useMasterDataTypes } from "@/utils/apiHooks";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
 import { Add, Edit } from "@mui/icons-material";
 import {
@@ -21,10 +23,14 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Typography,
 } from "@mui/material";
+import { MasterDataType, Prisma } from "@prisma/client";
 import { compareAsc } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type EditSurveyComponentProps = {
   survey: FullSurvey;
@@ -41,6 +47,9 @@ export default function EditSurveyComponent({
   const [name, setName] = useState<string>(survey.name);
   const [description, setDescription] = useState<string>(survey.description);
   const [hasFamily, setHasFamily] = useState<boolean>(survey.hasFamily);
+  const [hasMasterData, setHasMasterData] = useState<boolean>(
+    survey.hasMasterData
+  );
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
@@ -52,12 +61,32 @@ export default function EditSurveyComponent({
     setAddOpen(true);
   }
 
+  const { masterDataTypes } = useMasterDataTypes();
+
+  const [selectedMdt, setSelectedMdt] =
+    useState<(typeof masterDataTypes)[number]>();
+
+  useEffect(
+    () =>
+      setSelectedMdt(
+        masterDataTypes?.find((mdt) => mdt.id === survey?.masterDataType?.id)
+      ),
+    [masterDataTypes]
+  );
+
   async function handleSaveChanges() {
-    const res = await apiPostJson<ISurvey>(`/api/surveys/${survey.id}`, {
-      name,
-      description,
-      hasFamily,
-    });
+    const res = await apiPostJson<ISurvey, Prisma.SurveyUpdateInput>(
+      `/api/surveys/${survey.id}`,
+      {
+        name,
+        description,
+        hasFamily,
+        hasMasterData,
+        masterDataType: selectedMdt
+          ? { connect: { id: selectedMdt.id } }
+          : undefined,
+      }
+    );
     if (res instanceof FetchError)
       addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
@@ -77,6 +106,13 @@ export default function EditSurveyComponent({
     }
     onChange();
   }
+
+  const handleMdtChange = (e: SelectChangeEvent) => {
+    setSelectedMdt(masterDataTypes.find((mdt) => mdt.name === e.target.value));
+    setUnsavedChanges(true);
+  };
+
+  const errors = hasMasterData && !selectedMdt;
 
   async function moveUp(question: FullQuestion) {
     const res = await apiPostJson<IMoveQuestion>(
@@ -122,6 +158,7 @@ export default function EditSurveyComponent({
     setName(survey.name);
     setDescription(survey.description);
     setHasFamily(survey.hasFamily);
+    setHasMasterData(survey.hasMasterData);
     setUnsavedChanges(false);
   }
 
@@ -131,6 +168,7 @@ export default function EditSurveyComponent({
         unsavedChanges={unsavedChanges}
         onSave={handleSaveChanges}
         onCancel={handleCancelChanges}
+        errors={errors}
       />
       {error && (
         <Alert severity="error">
@@ -150,19 +188,33 @@ export default function EditSurveyComponent({
           <Edit />
         </IconButton>
       </Typography>
-      <FormControlLabel
-        label="Hat Stammdaten"
-        control={
-          <Checkbox
-            checked={hasFamily}
-            onChange={(e) => {
-              setHasFamily(e.target.checked);
-              setUnsavedChanges(survey.hasFamily !== e.target.checked);
-            }}
-          />
-        }
-      />
-
+      <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
+        <FormControlLabel
+          label="Hat Stammdaten"
+          control={
+            <Checkbox
+              checked={hasMasterData}
+              onChange={(e) => {
+                setHasMasterData(e.target.checked);
+                setUnsavedChanges(survey.hasMasterData !== e.target.checked);
+              }}
+            />
+          }
+        />
+        {hasMasterData && (
+          <Select
+            sx={{ mb: "2rem" }}
+            onChange={handleMdtChange}
+            value={selectedMdt ? selectedMdt.name : ""}
+          >
+            {masterDataTypes?.map((mdt) => (
+              <MenuItem key={mdt.id} value={mdt.name}>
+                {mdt.name}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
+      </Box>
       <List sx={{ width: "100%" }}>
         {survey.questions &&
           survey.questions
@@ -223,3 +275,4 @@ export default function EditSurveyComponent({
     </Box>
   );
 }
+

@@ -9,6 +9,7 @@ import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
 import { FullResponse } from "@/types/prismaHelperTypes";
+import { error } from "console";
 
 supertokens.init(backendConfig());
 
@@ -95,6 +96,8 @@ export default async function responses(
   const extraWhereInput = whereInput ? JSON.parse(whereInput as string) : {};
   where = { ...extraWhereInput, ...where };
 
+  console.log(JSON.stringify(where, null, 2));
+
   switch (req.method) {
     case "GET":
       const responses = await prisma.response
@@ -104,6 +107,14 @@ export default async function responses(
             answers: {
               include: {
                 answerSelect: true,
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
                 question: {
                   include: {
                     defaultAnswerSelectOptions: true,
@@ -113,6 +124,26 @@ export default async function responses(
               },
             },
             user: { include: { organization: true, subOrganizations: true } },
+            masterData: {
+              include: {
+                answers: {
+                  include: {
+                    answerCollection: {
+                      include: {
+                        collectionDataDate: true,
+                        collectionDataFloat: true,
+                        collectionDataInt: true,
+                        collectionDataString: true,
+                      },
+                    },
+                    answerSelect: true,
+                  },
+                },
+                masterDataType: {
+                  include: { dataFields: { include: { selectOptions: true } } },
+                },
+              },
+            },
             family: {
               include: {
                 caregivers: true,
@@ -127,7 +158,9 @@ export default async function responses(
             caregiver: true,
           },
         })
-        .catch((err) => logger.error(err));
+        .catch((err) => {
+          logger.error(err), console.log(err);
+        });
 
       if (!responses)
         return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
@@ -150,15 +183,46 @@ export default async function responses(
               : undefined,
             survey: { connect: { id: survey.id } },
             user: { connect: { id: user.id } },
+            masterData: req.body.masterData
+              ? { connect: { number: req.body.masterData.number } }
+              : undefined,
           },
           include: {
             answers: {
               include: {
                 answerSelect: true,
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
                 question: { include: { selectOptions: true } },
               },
             },
             user: { include: { organization: true, subOrganizations: true } },
+            masterData: {
+              include: {
+                answers: {
+                  include: {
+                    answerCollection: {
+                      include: {
+                        collectionDataDate: true,
+                        collectionDataFloat: true,
+                        collectionDataInt: true,
+                        collectionDataString: true,
+                      },
+                    },
+                    answerSelect: true,
+                  },
+                },
+                masterDataType: {
+                  include: { dataFields: { include: { selectOptions: true } } },
+                },
+              },
+            },
             family: {
               include: {
                 caregivers: true,

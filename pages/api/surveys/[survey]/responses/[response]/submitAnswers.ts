@@ -1,7 +1,7 @@
 import supertokens from "supertokens-node";
 import { backendConfig } from "@/config/backendConfig";
 import { prisma } from "@/db/prisma";
-import { Prisma, Role } from "@prisma/client";
+import { CollectionType, Prisma, Role } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { superTokensNextWrapper } from "supertokens-node/nextjs";
@@ -9,6 +9,7 @@ import { verifySession } from "supertokens-node/recipe/session/framework/express
 import { Response } from "express";
 import { PartialAnswer } from "@/types/prismaHelperTypes";
 import { logger as _logger } from "@/config/logger";
+import { tr } from "date-fns/locale";
 
 supertokens.init(backendConfig());
 
@@ -24,7 +25,7 @@ export interface ISubmitAnswer {
 
 export default async function survey(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/surveys/${req.query.survey}/responses/${req.query.response}/submitAnswers`,
@@ -42,7 +43,7 @@ export default async function survey(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const { survey: surveyId, response: responseId } = req.query;
@@ -87,7 +88,22 @@ export default async function survey(
   try {
     response = await prisma.response.findUniqueOrThrow({
       where: { id: responseId as string },
-      include: { answers: { include: { answerSelect: true } } },
+      include: {
+        answers: {
+          include: {
+            question: true,
+            answerSelect: true,
+            answerCollection: {
+              include: {
+                collectionDataDate: true,
+                collectionDataFloat: true,
+                collectionDataInt: true,
+                collectionDataString: true,
+              },
+            },
+          },
+        },
+      },
     });
   } catch (err) {
     if (
@@ -113,6 +129,7 @@ export default async function survey(
         where: { id: answer.id },
         data: {
           answerBool: answer.answerBool,
+          //@ts-ignore
           answerDate: answer.answerDate,
           answerInt: answer.answerInt,
           answerNum: answer.answerNum,
@@ -123,10 +140,54 @@ export default async function survey(
           answerText: answer.answerText,
         },
       });
+
+      if (answer.answerCollection) {
+        const currentAnswer = response.answers?.find((a) => a.id === answer.id);
+
+        const collectionDataField = () => {
+          switch (currentAnswer.question.collectionType) {
+            case "Text":
+              return "collectionDataString";
+            case "Int":
+              return "collectionDataInt";
+            case "Num":
+              return "collectionDataFloat";
+            case "Date":
+              return "collectionDataDate";
+          }
+        };
+
+        const collectionDataToDelete = currentAnswer?.answerCollection[
+          collectionDataField()
+        ].filter(
+          (d) =>
+            //@ts-ignore
+            answer.answerCollection[collectionDataField()].find(
+              (v) => v.id === d.id,
+            ) === undefined,
+        );
+
+        //@ts-ignore it's fine...
+        const del = await prisma[collectionDataField()].deleteMany({
+          where: { id: { in: collectionDataToDelete.map((v) => v.id) } },
+        });
+
+        const collectionDataToUpdate = [];
+        const collectionDataToAdd = answer.answerCollection[
+          collectionDataField()
+          //@ts-ignore
+        ].filter((d) => d.id === undefined);
+
+        //@ts-ignore it's fine...
+        const add = await prisma[collectionDataField()].createMany({
+          data: collectionDataToAdd,
+        });
+      }
     } else {
       result = await prisma.answer.create({
         data: {
           answerBool: answer.answerBool,
+          //@ts-ignore
           answerDate: answer.answerDate,
           answerInt: answer.answerInt,
           answerNum: answer.answerNum,
@@ -137,6 +198,44 @@ export default async function survey(
           answerText: answer.answerText,
           question: { connect: { id: answer.questionId } },
           response: { connect: { id: response.id } },
+          //@ts-ignore
+          answerCollection: answer.answerCollection
+            ? {
+                create: {
+                  type: answer.answerCollection.type,
+                  collectionDataDate: answer.answerCollection.collectionDataDate
+                    ? {
+                        createMany: {
+                          data: answer.answerCollection.collectionDataDate,
+                        },
+                      }
+                    : undefined,
+                  collectionDataFloat: answer.answerCollection
+                    .collectionDataFloat
+                    ? {
+                        createMany: {
+                          data: answer.answerCollection.collectionDataFloat,
+                        },
+                      }
+                    : undefined,
+                  collectionDataInt: answer.answerCollection.collectionDataInt
+                    ? {
+                        createMany: {
+                          data: answer.answerCollection.collectionDataInt,
+                        },
+                      }
+                    : undefined,
+                  collectionDataString: answer.answerCollection
+                    .collectionDataString
+                    ? {
+                        createMany: {
+                          data: answer.answerCollection.collectionDataString,
+                        },
+                      }
+                    : undefined,
+                },
+              }
+            : undefined,
         },
       });
     }

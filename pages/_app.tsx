@@ -25,15 +25,18 @@ import "@/utils/tabulator.css";
 import CookieBanner from "@/components/utilityComponents/cookieBanner";
 import "@/public/fontawesome/css/fontawesome.css";
 import "@/public/fontawesome/css/solid.css";
+import { useUserData } from "@/utils/authUtils";
+import { Theme } from "@prisma/client";
+import { apiPostJson } from "@/utils/fetchApiUtils";
+import { IUserMe } from "@/pages/api/user/me";
 
 if (typeof window !== "undefined") {
   SuperTokensReact.init(SuperTokensConfig.frontendConfig());
 }
 
-export type ColorMode = "light" | "dark" | "system";
 export const ColorModeContext = React.createContext({
-  setColorMode: (mode: ColorMode) => {},
-  mode: "system" as ColorMode,
+  setColorMode: (mode: Theme) => {},
+  mode: "System" as Theme,
 });
 
 function MyApp({ Component, pageProps }): JSX.Element {
@@ -56,18 +59,21 @@ function MyApp({ Component, pageProps }): JSX.Element {
 
   const systemPrefersDark = useMediaQuery("(prefers-color-scheme: dark)");
 
-  const [mode, setMode] = React.useState<ColorMode>();
+  const [mode, setMode] = React.useState<Theme>();
 
-  const setColorMode = (mode: ColorMode) => {
-    setMode(mode);
-    localStorage.setItem("colorMode", mode);
+  const setColorMode = async (theme: Theme) => {
+    const res = await apiPostJson<IUserMe, { theme: Theme }>("/api/user/me", {
+      theme,
+    });
+    setMode(theme);
   };
 
+  const { user } = useUserData();
+
   useEffect(() => {
-    let savedMode = localStorage.getItem("colorMode");
-    if (!savedMode) setMode("system");
-    else if (savedMode !== mode) setMode(savedMode as ColorMode);
-  }, [mode]);
+    if (!user) setMode(Theme.System);
+    else setMode(user.theme);
+  }, [user]);
 
   const theme = React.useMemo(
     () =>
@@ -75,14 +81,20 @@ function MyApp({ Component, pageProps }): JSX.Element {
         {
           palette: {
             mode:
-              mode === "system" ? (systemPrefersDark ? "dark" : "light") : mode,
+              mode === Theme.System
+                ? systemPrefersDark
+                  ? "dark"
+                  : "light"
+                : mode === Theme.Light
+                  ? "light"
+                  : "dark",
           },
         },
         deDE,
         pickersDeDE,
-        coreDeDE
+        coreDeDE,
       ),
-    [systemPrefersDark, mode]
+    [systemPrefersDark, mode],
   );
 
   return (

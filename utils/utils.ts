@@ -1,8 +1,12 @@
 import {
   FullAnswer,
+  FullCollection,
+  FullDataFieldAnswer,
   FullFamily,
   PartialAnswer,
 } from "@/types/prismaHelperTypes";
+import { RecursivePartial } from "@/types/utilTypes";
+import { getCollectionDataField } from "@/utils/masterDataUtils";
 import {
   Caregiver,
   Child,
@@ -31,6 +35,8 @@ export function getQuestionTypeString(type: QuestionType) {
       return "Frage nach Datum";
     case QuestionType.Scale:
       return "Skala";
+    case QuestionType.Collection:
+      return "Sammlung";
     default:
       return type;
   }
@@ -187,7 +193,11 @@ export function isFloat(value: string) {
   return Number(value) == parseFloat(value);
 }
 
-export function answerHasNoValues(answer: PartialAnswer) {
+export function dataFieldAnswerHasNoValues(
+  answer: RecursivePartial<FullDataFieldAnswer>
+) {
+  if (!answer) return true;
+
   const {
     answerSelect,
     answerBool,
@@ -195,6 +205,31 @@ export function answerHasNoValues(answer: PartialAnswer) {
     answerInt,
     answerNum,
     answerText,
+    answerCollection,
+  } = answer;
+
+  return (
+    !(answerBool === true || answerBool === false) &&
+    !answerDate &&
+    ((!answerInt && answerInt !== 0) || isNaN(answerInt)) &&
+    ((!answerNum && answerNum !== 0) || isNaN(answerNum)) &&
+    !answerText &&
+    (!answerSelect || answerSelect.length < 1) &&
+    collectionHasNoAnswers(answerCollection)
+  );
+}
+
+export function answerHasNoValues(answer: PartialAnswer) {
+  if (!answer) return true;
+
+  const {
+    answerSelect,
+    answerBool,
+    answerDate,
+    answerInt,
+    answerNum,
+    answerText,
+    answerCollection,
   } = answer;
 
   return (
@@ -206,7 +241,19 @@ export function answerHasNoValues(answer: PartialAnswer) {
     answerNum !== 0 &&
     !answerText &&
     answerSelect &&
-    answerSelect.length < 1
+    answerSelect.length < 1 &&
+    collectionHasNoAnswers(answerCollection)
+  );
+}
+
+export function collectionHasNoAnswers(
+  answerCollection: RecursivePartial<FullCollection>
+) {
+  if (!answerCollection) return true;
+  const collectionDataField = getCollectionDataField(answerCollection.type);
+  return (
+    !answerCollection[collectionDataField] ||
+    answerCollection[collectionDataField].length < 1
   );
 }
 
@@ -342,3 +389,9 @@ export function getAnswerString(answer: FullAnswer): string | undefined {
       return undefined;
   }
 }
+
+export type ApiError =
+  | "INTERNAL_SERVER_ERROR"
+  | "NOT_FOUND"
+  | "METHOD_NOT_ALLOWED"
+  | "FORBIDDEN";

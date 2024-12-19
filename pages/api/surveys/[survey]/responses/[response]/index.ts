@@ -78,6 +78,14 @@ export default async function response(
         answers: {
           include: {
             answerSelect: true,
+            answerCollection: {
+              include: {
+                collectionDataDate: true,
+                collectionDataFloat: true,
+                collectionDataInt: true,
+                collectionDataString: true,
+              },
+            },
             question: {
               include: {
                 defaultAnswerSelectOptions: true,
@@ -87,6 +95,26 @@ export default async function response(
           },
         },
         user: { include: { organization: true, subOrganizations: true } },
+        masterData: {
+          include: {
+            answers: {
+              include: {
+                answerCollection: {
+                  include: {
+                    collectionDataDate: true,
+                    collectionDataFloat: true,
+                    collectionDataInt: true,
+                    collectionDataString: true,
+                  },
+                },
+                answerSelect: true,
+              },
+            },
+            masterDataType: {
+              include: { dataFields: { include: { selectOptions: true } } },
+            },
+          },
+        },
         family: {
           include: {
             caregivers: true,
@@ -143,6 +171,9 @@ export default async function response(
               ? { connect: { id: req.body.child.id } }
               : { disconnect: true },
             answers: req.body.answers,
+            masterData: req.body.masterData
+              ? { connect: { number: req.body.masterData.number } }
+              : undefined,
           },
           where: { id: responseId as string },
         })

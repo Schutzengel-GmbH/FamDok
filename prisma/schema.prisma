@@ -33,6 +33,14 @@ model User {
   Survey           Survey[]
   Family           Family[]
   subOrganizations SubOrganization[]
+  MasterData       MasterData[]
+  theme            Theme             @default(System)
+}
+
+enum Theme {
+  System
+  Dark
+  Light
 }
 
 model SubOrganization {
@@ -53,6 +61,7 @@ model Organization {
   User            User[]
   Survey          Survey[]
   SubOrganization SubOrganization[]
+  MasterDataType  MasterDataType[]
 }
 
 enum Role {
@@ -63,30 +72,33 @@ enum Role {
 }
 
 model Survey {
-  id             String        @id @default(cuid())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  createdBy      User?         @relation(fields: [creatorId], references: [id])
-  creatorId      String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId String?
-  name           String?
-  description    String?
-  questions      Question[]
-  responses      Response[]
-  hasFamily      Boolean       @default(false)
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  createdBy        User?           @relation(fields: [creatorId], references: [id])
+  creatorId        String?
+  organization     Organization?   @relation(fields: [organizationId], references: [id])
+  organizationId   String?
+  name             String?
+  description      String?
+  questions        Question[]
+  responses        Response[]
+  hasFamily        Boolean         @default(false)
+  hasMasterData    Boolean         @default(false)
+  masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
+  masterDataTypeId String?
 }
 
 model Question {
-  id                         String         @id @default(cuid())
-  createdAt                  DateTime       @default(now())
-  updatedAt                  DateTime       @updatedAt
+  id                         String          @id @default(cuid())
+  createdAt                  DateTime        @default(now())
+  updatedAt                  DateTime        @updatedAt
   type                       QuestionType
   required                   Boolean?
   questionTitle              String?
   questionText               String
   questionDescription        String?
-  selectOptions              SelectOption[] @relation(name: "SelectOptionAnswer")
+  selectOptions              SelectOption[]  @relation(name: "SelectOptionAnswer")
   selectMultiple             Boolean?
   intRange                   Boolean?
   intRangeLow                Int?
@@ -94,16 +106,19 @@ model Question {
   numRange                   Boolean?
   numRangeLow                Float?
   numRangeHigh               Float?
-  survey                     Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  survey                     Survey          @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   surveyId                   String
   answers                    Answer[]
-  defaultAnswerSelectOptions SelectOption[] @relation(name: "DefaultSelectOptionQuestion")
+  defaultAnswerSelectOptions SelectOption[]  @relation(name: "DefaultSelectOptionQuestion")
   defaultAnswerText          String?
   defaultAnswerBool          Boolean?
   defaultAnswerInt           Int?
   defaultAnswerNum           Float?
   defaultAnswerDate          DateTime?
   numberInSurvey             Int
+  collectionSize             Int?
+  collectionType             CollectionType?
+  autocomplete               Boolean         @default(false)
 }
 
 model SelectOption {
@@ -118,21 +133,25 @@ model SelectOption {
 }
 
 model Response {
-  id          String     @id @default(cuid())
-  name        String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  answers     Answer[]
-  surveyId    String
-  user        User?      @relation(fields: [userId], references: [id])
-  userId      String?
-  family      Family?    @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  familyId    String?
-  child       Child?     @relation(fields: [childId], references: [id], onDelete: Cascade)
-  childId     String?
-  caregiver   Caregiver? @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
-  caregiverId String?
+  id                           String      @id @default(cuid())
+  name                         String?
+  createdAt                    DateTime    @default(now())
+  updatedAt                    DateTime    @updatedAt
+  survey                       Survey      @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers                      Answer[]
+  surveyId                     String
+  user                         User?       @relation(fields: [userId], references: [id])
+  userId                       String?
+  family                       Family?     @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId                     String?
+  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number])
+  masterDataId                 String?
+  masterDataMasterDataTypeName String?
+  masterDataNumber             Int?
+  child                        Child?      @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId                      String?
+  caregiver                    Caregiver?  @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId                  String?
 }
 
 model Answer {
@@ -147,9 +166,12 @@ model Answer {
   answerSelect            SelectOption[]
   answerSelectOtherValues Json?
   answerDate              DateTime?
-  response                Response       @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  responseId              String
-  questionId              String
+  answerCollection        Collection?    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId            String?
+
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  responseId String
+  questionId String
 }
 
 model PossibleLocation {
@@ -181,6 +203,171 @@ model Family {
   comingFrom           ComingFromOption? @relation(fields: [comingFromOptionId], references: [id])
   comingFromOptionId   String?
   comingFromOtherValue String?
+}
+
+model MasterDataType {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dataFields DataField[]
+  masterData MasterData[]
+
+  name String @unique
+
+  isLimitedToOrg Boolean?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationId String?
+  Survey         Survey[]
+
+  @@unique([id, name])
+}
+
+model MasterData {
+  number    Int      @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy User @relation(fields: [userId], references: [id])
+
+  masterDataType     MasterDataType @relation(fields: [masterDataTypeId, masterDataTypeName], references: [id, name], onDelete: Cascade)
+  masterDataTypeId   String
+  masterDataTypeName String
+
+  answers   DataFieldAnswer[]
+  userId    String
+  responses Response[]
+
+  @@id(name: "id", fields: [masterDataTypeName, number])
+}
+
+model DataField {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  MasterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
+  masterDataTypeId String?
+
+  answers DataFieldAnswer[]
+
+  type              DataFieldType
+  collectionType    CollectionType?
+  collectionMaxSize Int?
+  selectMultiple    Boolean?
+  selectOptions     DataFieldSelectOption[]
+
+  required Boolean?
+
+  text        String
+  description String?
+}
+
+model DataFieldAnswer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  answerText        String?
+  answerBool        Boolean?
+  answerInt         Int?
+  answerNum         Float?
+  answerSelect      DataFieldSelectOption[]
+  selectOtherValues Json?
+  answerDate        DateTime?
+  answerCollection  Collection?             @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId      String?
+
+  masterData                   MasterData? @relation(fields: [masterDataMasterDataTypeName, masterDataNumber], references: [masterDataTypeName, number], onDelete: Cascade)
+  masterDataMasterDataTypeName String?
+  masterDataNumber             Int?
+
+  dataField   DataField @relation(fields: [dataFieldId], references: [id], onDelete: Cascade)
+  dataFieldId String
+}
+
+model DataFieldSelectOption {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isOpen Boolean @default(false)
+  value  String
+
+  dataFieldAnswer DataFieldAnswer[]
+  dataField       DataField[]
+}
+
+model Collection {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type CollectionType
+
+  collectionDataString CollectionDataString[]
+  collectionDataInt    CollectionDataInt[]
+  collectionDataFloat  CollectionDataFloat[]
+  collectionDataDate   CollectionDataDate[]
+  DataFieldAnswer      DataFieldAnswer[]
+  Answer               Answer[]
+}
+
+model CollectionDataString {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataInt {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        Int
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataFloat {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        Float
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+model CollectionDataDate {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  value        DateTime
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+}
+
+enum CollectionType {
+  Text
+  Int
+  Num
+  Date
+}
+
+enum DataFieldType {
+  Text
+  Bool
+  Int
+  Num
+  Select
+  Date
+  Collection
 }
 
 model ComingFromOption {
@@ -283,4 +470,5 @@ enum QuestionType {
   Select
   Date
   Scale
+  Collection
 }

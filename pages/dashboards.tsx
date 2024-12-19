@@ -16,6 +16,7 @@ function ProtectedPage() {
   if (error) return <Error statusCode={500} title="Internal Server Error" />;
   if (isLoading) return <CircularProgress />;
 
+  //@ts-ignore
   return <DashboardMainPage surveys={surveys} />;
 }
 
