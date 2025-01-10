@@ -69,22 +69,24 @@ export default function DataFieldCollectionAnswerComponentProps({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: ".25rem" }}>
-      {answer?.answerCollection[collectionDataFieldName()]?.map(
-        (v: RecursivePartial<CollectionData>, i: number) => (
-          <CollectionDataItemCard
-            collectionId={answer.answerCollection.id}
-            collectionType={dataField.collectionType}
-            collectionData={v}
-            onChange={handleCollectionItemChanged}
-            onDelete={() => handleDelete(i)}
-            canEdit={canEdit}
-            key={i}
-          />
-        )
-      )}
+      {answer?.answerCollection
+        ? answer?.answerCollection[collectionDataFieldName()]?.map(
+            (v: RecursivePartial<CollectionData>, i: number) => (
+              <CollectionDataItemCard
+                collectionId={answer.answerCollection.id}
+                collectionType={dataField.collectionType}
+                collectionData={v}
+                onChange={handleCollectionItemChanged}
+                onDelete={() => handleDelete(i)}
+                canEdit={canEdit}
+                key={i}
+              />
+            )
+          )
+        : undefined}
       {canEdit && (
         <AddCollectionDataItem
-          collectionId={answer?.answerCollection.id}
+          collectionId={answer?.answerCollection?.id}
           collectionType={dataField.collectionType}
           onChange={handleCollectionItemAdded}
         />
@@ -92,4 +94,3 @@ export default function DataFieldCollectionAnswerComponentProps({
     </Box>
   );
 }
-
