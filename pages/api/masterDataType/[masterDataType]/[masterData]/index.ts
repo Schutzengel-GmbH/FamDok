@@ -104,7 +104,7 @@ export default async function comingFromOptions(
 
       const createRes = await prisma.masterData
         .create({ data })
-        .catch(logger.error);
+        .catch((e) => logger.error(e));
       return res.status(200).json({ createRes });
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
