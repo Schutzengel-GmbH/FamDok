@@ -739,6 +739,32 @@ export function masterDataColumnDefinitions(
             }
           }
         ),
+        {
+          title: "Erstellt von",
+          columns: [
+            {
+              title: "Fachkraft",
+              field: "responseCreatedBy.name",
+              headerSortTristate: true,
+            },
+            {
+              title: "Organisation",
+              field: "responseCreatedBy.organization.name",
+              headerSortTristate: true,
+            },
+            {
+              title: "Unterorganisation",
+              field: "responseCreatedBy.subOrganizations",
+              formatter: (cell) => {
+                if (!cell?.getValue()) return "";
+                return (cell.getValue() as string[]).reduce(
+                  (acc, n) => (acc === "" ? n : acc + ", " + n),
+                  ""
+                );
+              },
+            },
+          ],
+        },
       ],
     },
   ];
