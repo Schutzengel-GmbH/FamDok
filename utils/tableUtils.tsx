@@ -87,7 +87,7 @@ type MasterDataTableData = {
 };
 
 export function responsesToAllAnswersTable(
-  responses: FullResponse[],
+  responses: FullResponse[]
 ): ResponseTableData[] {
   let result: ResponseTableData[] = [];
 
@@ -167,13 +167,13 @@ export function responsesToAllAnswersTable(
 }
 
 export function getMasterDataData(
-  masterData: FullMasterData,
+  masterData: FullMasterData
 ): MasterDataTableData {
   let data: MasterDataTableData = {};
   data["number"] = masterData.number;
   for (let answer of masterData.answers) {
     const dataField = masterData.masterDataType.dataFields.find(
-      (d) => d.id === answer.dataFieldId,
+      (d) => d.id === answer.dataFieldId
     );
     if (!dataField) break;
     switch (dataField.type) {
@@ -229,24 +229,24 @@ export function getFamilyData(family: FullFamily): FamilyTableData {
   data["childrenWithDisability"] = family.children?.reduce<boolean>(
     (b, ch) =>
       ch.disability === "Yes" || ch.disability === "Impending" ? (b = true) : b,
-    false,
+    false
   );
   data["careGiverWithDisability"] = family.caregivers?.reduce<boolean>(
     (b, c) =>
       c.disability === "Yes" || c.disability === "Impending" ? (b = true) : b,
-    false,
+    false
   );
   data["childWithPsychDiagnosis"] = family.children?.reduce<boolean>(
     (b, ch) => (ch.psychDiagosis === true ? (b = true) : b),
-    false,
+    false
   );
   data["caregiverWithPsychDiagnosis"] = family.caregivers?.reduce<boolean>(
     (b, c) => (c.psychDiagosis === true ? (b = true) : b),
-    false,
+    false
   );
   data["migrationBackground"] = family.caregivers?.reduce<boolean>(
     (b, c) => (c.migrationBackground === true ? (b = true) : b),
-    false,
+    false
   );
   data["highestEducation"] = family.caregivers?.reduce(
     (prev, c, i, caregivers) => {
@@ -255,7 +255,7 @@ export function getFamilyData(family: FullFamily): FamilyTableData {
         return getEducationString(c.education);
       else return prev;
     },
-    "",
+    ""
   );
   data["otherInstalledProfessionals"] = family.otherInstalledProfessionals;
   data["comingFrom"] = family.comingFrom?.value || undefined;
@@ -278,7 +278,7 @@ function underageCaregiverAtBegin(family: FullFamily): boolean {
     if (!caregiver.dateOfBirth) break;
     const ageAtStart = differenceInYears(
       new Date(family.beginOfCare),
-      new Date(caregiver.dateOfBirth),
+      new Date(caregiver.dateOfBirth)
     );
     if (ageAtStart < 18) return true;
   }
@@ -288,7 +288,7 @@ function underageCaregiverAtBegin(family: FullFamily): boolean {
 
 function stringMemberFormatter<T>(
   field: keyof T,
-  defaultValue?: string,
+  defaultValue?: string
 ): Tabulator.Formatter {
   return (cell) => {
     if (!cell?.getValue()) return defaultValue || "";
@@ -300,11 +300,11 @@ const userFormatter = stringMemberFormatter<User>("name", "Kein Name");
 
 const organizationFormatter = stringMemberFormatter<Organization>(
   "name",
-  "Keine Organisation",
+  "Keine Organisation"
 );
 const subOrganizationFormatter = stringMemberFormatter<SubOrganization>(
   "name",
-  "Keine Unterorganisation",
+  "Keine Unterorganisation"
 );
 const answerFormatter: Tabulator.Formatter = (cell) => {
   const answer = cell.getValue() as FullAnswer;
@@ -334,7 +334,7 @@ const answerFormatter: Tabulator.Formatter = (cell) => {
 const dateFormatter: Tabulator.Formatter = (
   cell: Tabulator.CellComponent,
   formatterParams,
-  onRender,
+  onRender
 ) => {
   const date = cell.getValue() as Date;
   return new Date(date).toLocaleDateString() ?? "";
@@ -343,7 +343,7 @@ const dateFormatter: Tabulator.Formatter = (
 const collectionFormatter: Tabulator.Formatter = (
   cell: Tabulator.CellComponent,
   formatterParams: { collectionType: CollectionType },
-  onRender,
+  onRender
 ) => {
   const collection = cell.getValue() as Date[] | string[] | number[];
   if (!collection || collection.length < 1) return "";
@@ -441,7 +441,7 @@ export function applyFamilyFilter(filter: IFamilyFilter, value: any): boolean {
 }
 
 export function familyColumnsDefinition(
-  survey?: FullSurvey,
+  survey?: FullSurvey
 ): ColumnDefinition[] {
   if (survey && !survey.hasFamily) return [];
   else
@@ -540,7 +540,7 @@ export function familyColumnsDefinition(
                   if (!cell?.getValue()) return "";
                   return (cell.getValue() as string[]).reduce(
                     (acc, n) => (acc === "" ? n : acc + ", " + n),
-                    "",
+                    ""
                   );
                 },
               },
@@ -580,7 +580,7 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
             if (!cell?.getValue()) return "";
             return (cell.getValue() as string[]).reduce(
               (acc, n) => (acc === "" ? n : acc + ", " + n),
-              "",
+              ""
             );
           },
         },
@@ -597,7 +597,7 @@ export function allResponsesColumnDefinition(): ColumnDefinition[] {
 }
 
 export function masterDataColumnDefinitionsNoSurvey(
-  masterDataType: FullMasterDataType,
+  masterDataType: FullMasterDataType
 ): ColumnDefinition[] {
   return [
     { title: "Nummer", field: "number" },
@@ -639,7 +639,7 @@ export function masterDataColumnDefinitionsNoSurvey(
                 formatter: selectOption.isOpen ? "textarea" : "tickCross",
                 formatterParams: { allowEmpty: true },
                 headerSortTristate: true,
-              }),
+              })
             ),
           };
         case "Date":
@@ -666,7 +666,7 @@ export function masterDataColumnDefinitionsNoSurvey(
 }
 
 export function masterDataColumnDefinitions(
-  survey: FullSurvey,
+  survey: FullSurvey
 ): ColumnDefinition[] {
   if (survey && !survey.hasMasterData) return [];
 
@@ -714,7 +714,7 @@ export function masterDataColumnDefinitions(
                       formatter: selectOption.isOpen ? "textarea" : "tickCross",
                       formatterParams: { allowEmpty: true },
                       headerSortTristate: true,
-                    }),
+                    })
                   ),
                 };
               case "Date":
@@ -735,15 +735,41 @@ export function masterDataColumnDefinitions(
               default:
                 return { title: "--FEHLER--" };
             }
-          },
+          }
         ),
+        {
+          title: "Erstellt von",
+          columns: [
+            {
+              title: "Fachkraft",
+              field: "responseCreatedBy.name",
+              headerSortTristate: true,
+            },
+            {
+              title: "Organisation",
+              field: "responseCreatedBy.organization.name",
+              headerSortTristate: true,
+            },
+            {
+              title: "Unterorganisation",
+              field: "responseCreatedBy.subOrganizations",
+              formatter: (cell) => {
+                if (!cell?.getValue()) return "";
+                return (cell.getValue() as string[]).reduce(
+                  (acc, n) => (acc === "" ? n : acc + ", " + n),
+                  ""
+                );
+              },
+            },
+          ],
+        },
       ],
     },
   ];
 }
 
 export function allAnswersColumnDefinition(
-  survey: FullSurvey,
+  survey: FullSurvey
 ): ColumnDefinition[] {
   return survey.questions.map<ColumnDefinition>((question) => {
     switch (question.type) {
@@ -803,7 +829,7 @@ export function allAnswersColumnDefinition(
               formatter: selectOption.isOpen ? "textarea" : "tickCross",
               formatterParams: { allowEmpty: true },
               headerSortTristate: true,
-            }),
+            })
           ),
         };
       }
@@ -819,7 +845,7 @@ export function allAnswersColumnDefinition(
   });
 }
 export function getWhereInputFromFamilyFilters(
-  familyFilters: IFamilyFilter[],
+  familyFilters: IFamilyFilter[]
 ): Prisma.FamilyWhereInput {
   let whereInputs: Prisma.FamilyWhereInput[] = [];
 
@@ -946,7 +972,7 @@ type DashboardPerUserData = {
 };
 
 export function answersPerUserDashboardData(
-  responses: FullResponse[],
+  responses: FullResponse[]
 ): DashboardPerUserData[] {
   let data: DashboardPerUserData[] = [];
 
@@ -979,7 +1005,7 @@ type DashboardPerOrgData = {
 };
 
 export function answersPerOrgDashboardData(
-  responses: FullResponse[],
+  responses: FullResponse[]
 ): DashboardPerOrgData[] {
   let data: DashboardPerOrgData[] = [{ organization: null, num: 0 }];
 
@@ -990,7 +1016,7 @@ export function answersPerOrgDashboardData(
       data[0].num++;
     } else {
       const i = data.findIndex(
-        (d) => d.organization?.id === response.user?.organizationId,
+        (d) => d.organization?.id === response.user?.organizationId
       );
       if (i >= 0) {
         data[i].num++;
@@ -1021,7 +1047,7 @@ type DashboardPerSubOrgData = {
 };
 
 export function answersPerSubOrgDashboardData(
-  responses: FullResponse[],
+  responses: FullResponse[]
 ): DashboardPerSubOrgData[] {
   let data: DashboardPerSubOrgData[] = [{ subOrganization: null, num: 0 }];
 
@@ -1036,8 +1062,8 @@ export function answersPerSubOrgDashboardData(
     } else {
       const i = data.findIndex((d) =>
         response.user?.subOrganizations?.find(
-          (s) => s.id === d.subOrganization?.id,
-        ),
+          (s) => s.id === d.subOrganization?.id
+        )
       );
       if (i >= 0) {
         data[i].num++;
@@ -1071,7 +1097,7 @@ type DashboardPerQuestionData = {
 
 export function answersPerQuestionDashboardData(
   responses: FullResponse[],
-  question: FullQuestion,
+  question: FullQuestion
 ): DashboardPerQuestionData[] {
   let data: DashboardPerQuestionData[] = [
     { answerString: "Keine Antwort", num: 0 },
@@ -1086,7 +1112,7 @@ export function answersPerQuestionDashboardData(
         if (answer.answerSelect)
           for (const selectOption of answer.answerSelect) {
             const i = data.findIndex(
-              (d) => d.answerString === selectOption.value,
+              (d) => d.answerString === selectOption.value
             );
             if (i >= 0) data[i].num++;
             else data.push({ answerString: selectOption.value, num: 1 });
@@ -1095,14 +1121,14 @@ export function answersPerQuestionDashboardData(
         if (answer.answerSelectOtherValues)
           for (const otherValue of answer.answerSelectOtherValues as IAnswerSelectOtherValue[]) {
             const i = data.findIndex(
-              (d) => d.answerString === otherValue.value,
+              (d) => d.answerString === otherValue.value
             );
             if (i >= 0) data[i].num++;
             else data.push({ answerString: otherValue.value, num: 1 });
           }
       } else {
         const i = data.findIndex(
-          (d) => d.answerString === getAnswerString(answer),
+          (d) => d.answerString === getAnswerString(answer)
         );
         if (i >= 0) data[i].num++;
         else data.push({ answerString: getAnswerString(answer), num: 1 });
