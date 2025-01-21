@@ -520,7 +520,7 @@ export function getWhereInput(
               questionId: filter.questionId,
               answerSelect: {
                 some: {
-                  id: { in: filter.value.map((o) => o.id) },
+                  id: { in: filter?.value?.map((o) => o.id) },
                 },
               },
             },
@@ -531,7 +531,7 @@ export function getWhereInput(
           answers: {
             some: {
               AND: [
-                ...filter.value.map((o) => ({
+                ...filter.value?.map((o) => ({
                   questionId: filter.questionId,
                   answerSelect: {
                     some: { id: o.id },
@@ -562,14 +562,14 @@ export function getWhereInput(
           answers: {
             some: {
               AND: [
-                ...filter.value.map((o) => ({
+                ...filter.value?.map((o) => ({
                   questionId: filter.questionId,
                   answerSelect: {
                     some: { id: o.id },
                   },
                 })),
                 ...question.selectOptions
-                  .filter((o) => !filter.value.map((o) => o.id).includes(o.id))
+                  .filter((o) => !filter.value?.map((o) => o.id).includes(o.id))
                   .map((o) => ({
                     questionId: filter.questionId,
                     answerSelect: {
