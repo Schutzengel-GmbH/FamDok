@@ -36,6 +36,9 @@ export default function MasterDataFilterComponent({
     (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId
   );
 
+  const isNumberFilter: boolean = masterDataFilter?.dataFieldId === "NUMBER";
+  console.log(isNumberFilter);
+
   return (
     <Box
       sx={{
@@ -46,11 +49,17 @@ export default function MasterDataFilterComponent({
       }}
     >
       <SelectDataField
+        isNumberFilter={isNumberFilter}
         masterDataType={masterDataType}
         dataField={dataField}
-        onChange={(dataField) => onChange({ dataFieldId: dataField.id })}
+        onChange={(dataField) =>
+          onChange({
+            dataFieldId: dataField === "NUMBER" ? "NUMBER" : dataField.id,
+          })
+        }
       />
       <SelectFilter
+        isNumberFilter={isNumberFilter}
         dataField={dataField}
         filter={masterDataFilter}
         onChange={(f) =>
@@ -62,6 +71,7 @@ export default function MasterDataFilterComponent({
         }
       />
       <ValueInput
+        isNumberFilter={isNumberFilter}
         dataField={dataField}
         filter={masterDataFilter}
         onChange={(f) => onChange({ ...masterDataFilter, value: f.value })}
@@ -71,12 +81,14 @@ export default function MasterDataFilterComponent({
 }
 
 interface SelectDataFieldProps {
+  isNumberFilter: boolean;
   masterDataType: FullMasterDataType;
   dataField: DataField;
-  onChange: (dataField: DataField) => void;
+  onChange: (dataField: DataField | "NUMBER") => void;
 }
 
 function SelectDataField({
+  isNumberFilter,
   masterDataType,
   dataField,
   onChange,
@@ -87,13 +99,18 @@ function SelectDataField({
       <Select
         labelId="questionLabel"
         label={"Datenfeld"}
-        value={dataField?.id || ""}
+        value={isNumberFilter ? "NUMBER" : dataField?.id || ""}
         onChange={(e) =>
-          onChange(
-            masterDataType.dataFields.find((q) => q.id === e.target.value)
-          )
+          e.target.value === "NUMBER"
+            ? onChange("NUMBER")
+            : onChange(
+                masterDataType.dataFields.find((q) => q.id === e.target.value)
+              )
         }
       >
+        <MenuItem key={"NUMBER"} value={"NUMBER"}>
+          Nummer (Stammdatenart {masterDataType.name})
+        </MenuItem>
         {masterDataType.dataFields.map((df) => (
           <MenuItem key={df.id} value={df.id}>
             {df.text}
@@ -105,13 +122,21 @@ function SelectDataField({
 }
 
 interface SelectFilterProps {
+  isNumberFilter: boolean;
   dataField: DataField;
   filter: IMasterDataFilter;
   onChange: (filter: IMasterDataFilter) => void;
 }
 
-function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
-  const filters = getFiltersForDataFieldType(dataField);
+function SelectFilter({
+  isNumberFilter,
+  dataField,
+  filter,
+  onChange,
+}: SelectFilterProps) {
+  const filters = isNumberFilter
+    ? getFiltersForDataFieldType({ type: "Int", omit: ["empty", "notEmpty"] })
+    : getFiltersForDataFieldType(dataField);
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -136,13 +161,32 @@ function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
 }
 
 interface ValueInputProps {
+  isNumberFilter: boolean;
   dataField: FullDataField;
   filter: IMasterDataFilter;
   onChange: (filter: IMasterDataFilter) => void;
 }
 
-function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
+function ValueInput({
+  isNumberFilter,
+  dataField,
+  filter,
+  onChange,
+}: ValueInputProps) {
   if (NO_VALUE_FILTERS.includes(filter?.filter)) return <></>;
+
+  if (isNumberFilter)
+    return (
+      <TextField
+        type="text"
+        value={filter.value || ""}
+        onChange={(e) => {
+          const number = Number(e.target.value);
+          if (Number.isNaN(number)) return;
+          onChange({ ...filter, value: number });
+        }}
+      />
+    );
 
   switch (dataField?.type) {
     case "Text":

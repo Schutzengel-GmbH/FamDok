@@ -44,13 +44,13 @@ export default function MasterDataTabulator({
   const router = useRouter();
   const { masterData, isLoading, error } = useMasterData(
     masterDataType.id,
-    where,
+    where
   );
   const tableRef = useRef(null);
   const data = useMemo(() => masterData?.map(getMasterDataData), [masterData]);
   const columns = useMemo(
     () => masterDataColumnDefinitionsNoSurvey(masterDataType),
-    [],
+    []
   );
 
   const hasFilters = filters?.length > 0;
