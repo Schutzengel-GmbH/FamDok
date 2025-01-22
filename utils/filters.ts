@@ -6,6 +6,7 @@ import {
 } from "@/types/prismaHelperTypes";
 import { getCollectionDataField } from "@/utils/masterDataUtils";
 import {
+  CollectionType,
   DataField,
   DataFieldAnswer,
   DataFieldType,
@@ -150,10 +151,18 @@ export const CollectionDateFilters: IFilter[] = [
   { filter: "not", name: "Ein Element ist nicht am" },
 ];
 
-export function getFiltersForDataFieldType(dataField: DataField) {
+export function getFiltersForDataFieldType(args: {
+  type: DataFieldType;
+  selectMultiple?: boolean;
+  collectionType?: CollectionType;
+  omit?: FilterType[];
+}) {
+  if (!args) return [];
+  const { type, selectMultiple, collectionType, omit } = args;
+
   let filters = [];
 
-  switch (dataField?.type) {
+  switch (type) {
     case "Text":
       filters = [...NullFilters, ...TextFilters];
       break;
@@ -167,7 +176,7 @@ export function getFiltersForDataFieldType(dataField: DataField) {
       filters = [...NullFilters, ...NumberFilters];
       break;
     case "Select":
-      dataField.selectMultiple
+      selectMultiple
         ? (filters = SelectMultipleFilters)
         : (filters = SelectSingleFilters);
       break;
@@ -175,7 +184,7 @@ export function getFiltersForDataFieldType(dataField: DataField) {
       filters = [...NullFilters, ...DateFilters];
       break;
     case "Collection":
-      switch (dataField.collectionType) {
+      switch (collectionType) {
         case "Text":
           filters = [...CollectionFilters, ...CollectionTextFilters];
           break;
@@ -194,6 +203,8 @@ export function getFiltersForDataFieldType(dataField: DataField) {
       }
       break;
   }
+
+  if (omit) return filters.filter((f) => !omit.includes(f.filter));
 
   return filters;
 }
@@ -260,6 +271,9 @@ export function getMasterDataWhereInput(
   masterDataType: FullMasterDataType
 ): Prisma.MasterDataWhereInput {
   if (!filter?.dataFieldId) return {};
+
+  if (filter.dataFieldId === "NUMBER")
+    return { number: { [filter.filter]: filter.value } };
 
   const dataField = masterDataType.dataFields.find(
     (f) => f.id === filter.dataFieldId
