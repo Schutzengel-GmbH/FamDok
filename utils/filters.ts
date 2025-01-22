@@ -544,14 +544,14 @@ export function getWhereInput(
         return {
           answers: {
             some: {
-              AND: [
-                ...filter.value?.map((o) => ({
-                  questionId: filter.questionId,
-                  answerSelect: {
-                    some: { id: o.id },
-                  },
-                })),
-              ],
+              AND: filter?.value
+                ? filter.value?.map((o) => ({
+                    questionId: filter.questionId,
+                    answerSelect: {
+                      some: { id: o.id },
+                    },
+                  }))
+                : [],
             },
           },
         };
@@ -559,14 +559,14 @@ export function getWhereInput(
         return {
           answers: {
             some: {
-              AND: [
-                ...filter.value.map((o) => ({
-                  questionId: filter.questionId,
-                  answerSelect: {
-                    none: { id: o.id },
-                  },
-                })),
-              ],
+              AND: filter?.value
+                ? filter.value.map((o) => ({
+                    questionId: filter.questionId,
+                    answerSelect: {
+                      none: { id: o.id },
+                    },
+                  }))
+                : [],
             },
           },
         };
@@ -576,12 +576,14 @@ export function getWhereInput(
           answers: {
             some: {
               AND: [
-                ...filter.value?.map((o) => ({
-                  questionId: filter.questionId,
-                  answerSelect: {
-                    some: { id: o.id },
-                  },
-                })),
+                ...(filter?.value
+                  ? filter.value?.map((o) => ({
+                      questionId: filter.questionId,
+                      answerSelect: {
+                        some: { id: o.id },
+                      },
+                    }))
+                  : []),
                 ...question.selectOptions
                   .filter((o) => !filter.value?.map((o) => o.id).includes(o.id))
                   .map((o) => ({
