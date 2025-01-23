@@ -174,14 +174,27 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
   };
 }>;
 
-export interface IDependencyTest {
-  questionId: string;
-  specificAnswer?: string | boolean | number | CollectionData | SelectOption[];
-  gt?: number | Date;
-  gte?: number | Date;
-  lt?: number | Date;
-  lte?: number | Date;
-  like?: string;
+declare global {
+  namespace PrismaJson {
+    type DependencyTest = {
+      questionId: string;
+      specificAnswer?:
+        | string
+        | boolean
+        | number
+        | CollectionData[]
+        | SelectOption[];
+      gt?: number | Date;
+      gte?: number | Date;
+      lt?: number | Date;
+      lte?: number | Date;
+      like?: string;
+      containsAll?: CollectionData[] | SelectOption[];
+      containsSome?: CollectionData[] | SelectOption[];
+      isEmpty?: boolean;
+      notEmpty?: boolean;
+    };
+  }
 }
 
 export type PartialAnswer = RecursivePartial<FullAnswer>;

@@ -5,6 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -121,6 +125,7 @@ model Question {
   autocomplete               Boolean         @default(false)
 
   isDependent    Boolean @default(false)
+  /// [DependencyTest]
   dependencyTest Json?
 }
 
