@@ -119,6 +119,9 @@ model Question {
   collectionSize             Int?
   collectionType             CollectionType?
   autocomplete               Boolean         @default(false)
+
+  isDependent    Boolean @default(false)
+  dependencyTest Json?
 }
 
 model SelectOption {

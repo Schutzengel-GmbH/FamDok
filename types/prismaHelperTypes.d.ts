@@ -174,6 +174,16 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
   };
 }>;
 
+export interface IDependencyTest {
+  questionId: string;
+  specificAnswer?: string | boolean | number | CollectionData | SelectOption[];
+  gt?: number | Date;
+  gte?: number | Date;
+  lt?: number | Date;
+  lte?: number | Date;
+  like?: string;
+}
+
 export type PartialAnswer = RecursivePartial<FullAnswer>;
 
 export type IAnswerSelectOtherValue = {
