@@ -1,4 +1,4 @@
-const APP_VER = "2.0.3";
+const APP_VER = "2.0.4";
 
 export { APP_VER };
 
