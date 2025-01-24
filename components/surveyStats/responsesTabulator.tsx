@@ -64,7 +64,7 @@ export default function ResponsesTabulator({
       ? {
           AND: [
             ...filters.masterDataFilters.map((f) =>
-              getMasterDataWhereInput(f, survey.masterDataType)
+              getMasterDataWhereInput(f, survey.masterDataType),
             ),
           ],
         }
@@ -86,7 +86,7 @@ export default function ResponsesTabulator({
           ? {
               AND: [
                 ...filters.masterDataFilters.map((f) =>
-                  getMasterDataWhereInput(f, survey.masterDataType)
+                  getMasterDataWhereInput(f, survey.masterDataType),
                 ),
               ],
             }
@@ -116,12 +116,12 @@ export default function ResponsesTabulator({
       ...familyColumnsDefinition(survey),
       ...masterDataColumnDefinitions(survey),
     ],
-    [survey]
+    [survey],
   );
 
   const data = useMemo(
     () => responsesToAllAnswersTable(responses),
-    [responses, survey, filters]
+    [responses, survey, filters],
   );
 
   const hasFilters =
