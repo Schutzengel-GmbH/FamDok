@@ -305,16 +305,16 @@ export function getAnswerString(
             ? prev +
               `, ${
                 val.isOpen
-                  ? (answer.selectOtherValues as IAnswerSelectOtherValues).find(
-                      (o) => o.selectOptionId === val.id
-                    ).value
+                  ? (
+                      answer.selectOtherValues as IAnswerSelectOtherValues
+                    )?.find((o) => o.selectOptionId === val.id)?.value
                   : val.value
               }`
             : `${
                 val.isOpen
-                  ? (answer.selectOtherValues as IAnswerSelectOtherValues).find(
-                      (o) => o.selectOptionId === val.id
-                    ).value
+                  ? (
+                      answer.selectOtherValues as IAnswerSelectOtherValues
+                    )?.find((o) => o.selectOptionId === val.id)?.value
                   : val.value
               }`,
         ""
@@ -359,3 +359,5 @@ export function getCollectionString(collection: FullCollection) {
       return "-/-";
   }
 }
+
+
