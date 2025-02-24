@@ -1,85 +1,30 @@
-import { SessionRequest } from "supertokens-node/framework/express";
-import { Request } from "express";
-import supertokens from "supertokens-node/lib/build/supertokens";
-import { superTokensNextWrapper } from "supertokens-node/nextjs";
-import { verifySession } from "supertokens-node/recipe/session/framework/express";
-import UserRoles from "supertokens-node/recipe/userroles";
-import { backendConfig } from "@/config/backendConfig";
-import { prisma } from "@/db/prisma";
-import { logger as _logger } from "@/config/logger";
-import { DataField, Education, MasterDataType, Prisma } from "@prisma/client";
-import {
-  FullDataField,
-  FullFamily,
-  FullMasterDataType,
-} from "@/types/prismaHelperTypes";
+import { FullDataField, FullFamily } from "@/types/prismaHelperTypes";
+import { isHigherEducation, getEducationString } from "@/utils/utils";
+import { Education, Prisma, PrismaClient } from "@prisma/client";
 import { differenceInYears } from "date-fns";
-import comingFromOptionCard from "@/components/adminDashboard/comingFromOptionCard";
-import { getEducationString, isHigherEducation } from "@/utils/utils";
 
-supertokens.init(backendConfig());
-
-export interface ICreateAdminUser {
-  error?: "INTERNAL_SERVER_ERROR";
-}
-
-export default async function createAdminUser(
-  req: SessionRequest & Request,
-  res: any
-) {
-  const logger = _logger.child({
-    endpoint: `/migrateFamilies`,
-    method: req.method,
-    query: req.query,
-    cookie: req.headers.cookie,
-    body: req.body,
-  });
-
-  await superTokensNextWrapper(
-    async (next) => {
-      await verifySession({
-        overrideGlobalClaimValidators: async function (globalClaimValidators) {
-          return [
-            ...globalClaimValidators,
-            UserRoles.UserRoleClaim.validators.includes("admin"),
-          ];
-        },
-      })(req, res, next);
-    },
-    req,
-    res
-  );
-
-  logger.info({ session: req.session }, "access to /api/user/createAdminUser");
-
+const prisma = new PrismaClient();
+async function main() {
   const previousMDT = await prisma.masterDataType.findFirst({
     where: { name: "Familie" },
   });
   if (previousMDT)
     await prisma.masterDataType.delete({ where: { name: "Familie" } });
 
-  const { useExistingComingFromOptions } = req.query;
-
-  const surveyIdsWithFamily = (
-    await prisma.survey.findMany({
-      where: { hasFamily: true },
-    })
-  ).map((f) => ({ id: f.id }));
-
   const comingFromOptionsFromDb = await prisma.comingFromOption.findMany();
 
-  const comingFromOptions =
-    useExistingComingFromOptions?.toLowerCase() === "true" ||
-    useExistingComingFromOptions === "1"
-      ? comingFromOptionsFromDb.map((o) => ({ value: o.value }))
-      : [
-          { value: "Andere Hebamme", isOpen: false },
-          { value: "Frauenhaus", isOpen: false },
-          { value: "Jugendamt", isOpen: false },
-          { value: "Klinik", isOpen: false },
-          { value: "Selbst", isOpen: false },
-          { value: "Anderes", isOpen: true },
-        ];
+  const useExistingComingFromOptions = comingFromOptionsFromDb.length > 0;
+
+  const comingFromOptions = useExistingComingFromOptions
+    ? comingFromOptionsFromDb.map((o) => ({ value: o.value }))
+    : [
+        { value: "Andere Hebamme", isOpen: false },
+        { value: "Frauenhaus", isOpen: false },
+        { value: "Jugendamt", isOpen: false },
+        { value: "Klinik", isOpen: false },
+        { value: "Selbst", isOpen: false },
+        { value: "Anderes", isOpen: true },
+      ];
 
   const dataFieldsInput: Prisma.DataFieldCreateInput[] = [
     {
@@ -180,29 +125,21 @@ export default async function createAdminUser(
       },
     },
   ];
+  await prisma.masterDataType.deleteMany({ where: { name: "Familie" } });
 
-  const familyMDT = await prisma.masterDataType.create({
+  const familyMasterDataType = await prisma.masterDataType.create({
     data: {
       name: "Familie",
-      Survey: { connect: surveyIdsWithFamily },
+      dataFields: { create: dataFieldsInput },
     },
   });
-
-  for (const data of dataFieldsInput) {
-    await prisma.masterDataType.update({
-      where: { id: familyMDT.id },
-      data: { dataFields: { create: data } },
-    });
-  }
 
   await prisma.survey.updateMany({
     where: { hasFamily: true },
-    data: {
-      hasFamily: false,
-      hasMasterData: true,
-      masterDataTypeId: familyMDT.id,
-    },
+    data: { hasMasterData: true, masterDataTypeId: familyMasterDataType.id },
   });
+
+  // Migrate the family data
 
   const families = await prisma.family.findMany({
     include: {
@@ -213,30 +150,61 @@ export default async function createAdminUser(
     },
   });
 
-  const dataFields = (
-    await prisma.masterDataType.findUnique({
-      where: { id: familyMDT.id },
-      include: { dataFields: { include: { selectOptions: true } } },
-    })
-  ).dataFields;
+  const dataFields = await prisma.dataField.findMany({
+    where: { masterDataTypeId: familyMasterDataType.id },
+    include: { selectOptions: true },
+  });
 
   for (const family of families) {
-    const masterData = await prisma.masterData.create({
+    await prisma.masterData.create({
       data: {
         number: family.number,
-        createdAt: family.createdAt,
-        updatedAt: family.createdAt,
         createdBy: { connect: { id: family.userId } },
-        masterDataType: { connect: { id: familyMDT.id } },
+        masterDataType: { connect: { id: familyMasterDataType.id } },
         answers: {
-          create: dataFields.map((df) => getDataFieldAnswer(df, family)),
+          create: dataFields.map((d) => getDataFieldAnswer(d, family)),
         },
       },
     });
   }
 
-  return res.status(200).json({});
+  // connect responses to MDT instead of family
+
+  const responses = await prisma.response.findMany({
+    where: { survey: { hasFamily: true } },
+    include: { family: true },
+  });
+
+  for (const response of responses) {
+    await prisma.response.update({
+      where: { id: response.id },
+      data: {
+        masterData: {
+          connect: response?.family
+            ? { number: response.family.number }
+            : undefined,
+        },
+      },
+    });
+  }
+
+  // Cleanup
+
+  await prisma.survey.updateMany({
+    where: { hasFamily: true },
+    data: { hasFamily: false },
+  });
 }
+
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
 
 function getDataFieldAnswer(
   dataField: FullDataField,

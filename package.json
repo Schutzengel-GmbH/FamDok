@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx prisma migrate deploy & next start"
+    "start": "npx prisma migrate deploy & next start",
+    "migrate:families": "tsx  prisma/migrateFamilyToMDT.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -36,6 +37,7 @@
     "prisma": "^6",
     "prisma-json-types-generator": "^3.2.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   },
   "version": "1.2.0"
