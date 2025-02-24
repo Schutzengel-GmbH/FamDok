@@ -29,11 +29,13 @@ import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
-import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
-import { FullSurvey } from "@/types/prismaHelperTypes";
+import questions, { IQuestions } from "@/pages/api/surveys/[survey]/questions";
+import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import useToast from "@/components/notifications/notificationContext";
 import useInfoDialog from "../infoDialog/infoDialogContext";
 import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSelect";
+import { JsonValue } from "@prisma/client/runtime/library";
+import DependencyTest from "@/components/editSurvey/dependencyTest";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -42,7 +44,7 @@ export interface EditQuestionDialogProps {
   onClose: () => void;
 }
 
-interface QuestionState {
+export interface QuestionState {
   id?: string;
   questionTitle?: string | undefined;
   questionText: string;
@@ -70,6 +72,8 @@ interface QuestionState {
   numberInSurvey?: number | undefined;
   autocomplete?: boolean | undefined;
   collectionType?: CollectionType | undefined;
+  isDependent?: boolean | undefined;
+  dependencyTest?: PrismaJson.DependencyTest | JsonValue | undefined;
 }
 
 const initialQuestionState: QuestionState = {
@@ -94,6 +98,8 @@ const initialQuestionState: QuestionState = {
   numberInSurvey: undefined,
   autocomplete: undefined,
   collectionType: undefined,
+  isDependent: undefined,
+  dependencyTest: undefined,
 };
 
 export default function EditQuestionDialog({
@@ -127,7 +133,16 @@ export default function EditQuestionDialog({
         ? questionState.selectOptions?.length > 0
         : true;
 
-    setQuestionReady(hasText && selectHasOption && scaleHasOption);
+    const dependencyTest =
+      questionState?.dependencyTest as PrismaJson.DependencyTest;
+
+    const dependentHasTest = questionState.isDependent
+      ? dependencyTest?.questionId !== undefined
+      : true;
+
+    setQuestionReady(
+      hasText && selectHasOption && scaleHasOption && dependentHasTest
+    );
   }, [questionState]);
 
   useEffect(
@@ -139,6 +154,8 @@ export default function EditQuestionDialog({
     updateQuestionState(question || initialQuestionState);
     onClose();
   }
+
+  console.log(questionState.dependencyTest);
 
   async function handleSave() {
     setLoading(true);
@@ -511,6 +528,33 @@ export default function EditQuestionDialog({
             />
           </Box>
         )}
+        <FormControlLabel
+          sx={{ mt: ".5rem" }}
+          control={
+            <Checkbox
+              checked={questionState.isDependent || false}
+              onChange={(e) => {
+                updateQuestionState({
+                  ...questionState,
+                  isDependent: e.target.checked,
+                });
+              }}
+            />
+          }
+          label="Abhängige Frage"
+        />
+        {questionState.isDependent && (
+          <DependencyTest
+            questionId={questionState?.id}
+            questions={survey.questions}
+            dependencyTest={
+              questionState.dependencyTest as PrismaJson.DependencyTest
+            }
+            onChange={(dependencyTest) =>
+              updateQuestionState({ ...questionState, dependencyTest })
+            }
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleSave} disabled={!questionReady}>
@@ -559,6 +603,8 @@ function getCreateInputFromState(
     numberInSurvey: state.numberInSurvey,
     autocomplete: state.autocomplete,
     collectionType: state.collectionType,
+    isDependent: state.isDependent,
+    dependencyTest: state.dependencyTest,
   };
 }
 
@@ -601,5 +647,7 @@ function getUpdateInputFromState(
     numberInSurvey: state.numberInSurvey,
     autocomplete: state.autocomplete,
     collectionType: state.collectionType,
+    isDependent: state.isDependent,
+    dependencyTest: state.dependencyTest,
   };
 }
