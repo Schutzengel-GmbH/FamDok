@@ -188,6 +188,16 @@ async function main() {
     });
   }
 
+  // restart the number sequence
+  const sorted = families.sort((a, b) =>
+    a.number > b.number ? 1 : a.number < b.number ? -1 : 0
+  );
+  const highest = sorted[sorted.length - 1].number;
+
+  await prisma.$queryRawUnsafe(
+    `ALTER SEQUENCE "MasterData_number_seq" RESTART WITH ${highest + 1};`
+  );
+
   // Cleanup
 
   await prisma.survey.updateMany({
@@ -363,4 +373,9 @@ function getDataFieldAnswer(
       return undefined;
   }
 }
+
+
+
+
+
 
