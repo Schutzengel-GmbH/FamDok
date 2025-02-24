@@ -92,9 +92,6 @@ export default async function organizations(
       let deletion;
       const updateInput = req.body.updateInput as QuestionUpdateInput;
 
-      if (updateInput.isDependent && !updateInput.dependencyTest)
-        return res.status(400).json({ error: "BAD_INPUT" });
-
       if (user.role === Role.USER)
         return res.status(403).json({ error: "FORBIDDEN" });
 

@@ -103,9 +103,6 @@ export default async function questions(
       const questionInput = req.body as Prisma.QuestionCreateInput;
       questionInput.survey = { connect: { id: surveyId as string } };
 
-      if (questionInput.isDependent && !questionInput.dependencyTest)
-        return res.status(400).json({ error: "BAD_INPUT" });
-
       const question = await prisma.question
         .create({
           data: questionInput,
