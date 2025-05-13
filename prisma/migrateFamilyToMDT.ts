@@ -1,4 +1,8 @@
-import { FullDataField, FullFamily } from "@/types/prismaHelperTypes";
+import {
+  FullDataField,
+  FullFamily,
+  IAnswerSelectOtherValues,
+} from "@/types/prismaHelperTypes";
 import { isHigherEducation, getEducationString } from "@/utils/utils";
 import { Education, Prisma, PrismaClient } from "@prisma/client";
 import { differenceInYears } from "date-fns";
@@ -110,7 +114,21 @@ async function main() {
     },
     {
       text: "Andere installierte Fachkräfte",
-      type: "Text",
+      type: "Select",
+      selectMultiple: true,
+      selectOptions: {
+        create: [
+          { value: "Familienhilfe/ Jugendamt/ ASD" },
+          { value: "Hebamme" },
+          { value: "Gesetzliche Betreuung" },
+          { value: "Wohneinrichtung" },
+          {
+            value:
+              "Sonstige Medizinische Fachkräfte (Ärzt*innen, Therapeut*innen, etc.)",
+          },
+          { value: "Sonstiges", isOpen: true },
+        ],
+      },
       description:
         "Welche anderen (externen) Fachkräfte sind aktuell in der Familie (z.B. Jugendamt o.ä.)",
       required: false,
@@ -190,12 +208,12 @@ async function main() {
 
   // restart the number sequence
   const sorted = families.sort((a, b) =>
-    a.number > b.number ? 1 : a.number < b.number ? -1 : 0
+    a.number > b.number ? 1 : a.number < b.number ? -1 : 0,
   );
   const highest = sorted[sorted.length - 1].number;
 
   await prisma.$queryRawUnsafe(
-    `ALTER SEQUENCE "MasterData_number_seq" RESTART WITH ${highest + 1};`
+    `ALTER SEQUENCE "MasterData_number_seq" RESTART WITH ${highest + 1};`,
   );
 
   // Cleanup
@@ -218,7 +236,7 @@ main()
 
 function getDataFieldAnswer(
   dataField: FullDataField,
-  family: FullFamily
+  family: FullFamily,
 ): Prisma.DataFieldAnswerCreateInput {
   const base: Prisma.DataFieldAnswerCreateInput = {
     dataField: { connect: { id: dataField.id } },
@@ -267,14 +285,14 @@ function getDataFieldAnswer(
             prev ||
             child.disability === "Yes" ||
             child.disability === "Impending",
-          false
+          false,
         )
       ) {
         answerDisability = true;
       } else if (
         family.children.reduce(
           (prev, child) => prev || child.disability === "No",
-          false
+          false,
         )
       ) {
         answerDisability = false;
@@ -285,7 +303,7 @@ function getDataFieldAnswer(
       if (
         family.children.reduce(
           (prev, child) => prev || child.psychDiagosis,
-          false
+          false,
         )
       )
         return { ...base, answerBool: true };
@@ -293,14 +311,14 @@ function getDataFieldAnswer(
     case "Elternteil Minderjährig":
       if (
         family.caregivers.findIndex(
-          (c) => differenceInYears(family.beginOfCare, c.dateOfBirth) < 18
+          (c) => differenceInYears(family.beginOfCare, c.dateOfBirth) < 18,
         )
       )
         return { ...base, answerBool: true };
       if (
         family.caregivers.reduce(
           (prev, caregiver) => prev || caregiver.dateOfBirth === undefined,
-          false
+          false,
         )
       )
         return undefined;
@@ -314,14 +332,14 @@ function getDataFieldAnswer(
             prev ||
             caregiver.disability === "Yes" ||
             caregiver.disability === "Impending",
-          false
+          false,
         )
       ) {
         answerCaregiverDisability = true;
       } else if (
         family.caregivers.reduce(
           (prev, caregiver) => prev || caregiver.disability === "No",
-          false
+          false,
         )
       ) {
         answerCaregiverDisability = false;
@@ -332,7 +350,7 @@ function getDataFieldAnswer(
       if (
         family.caregivers.reduce(
           (prev, caregiver) => prev || caregiver.psychDiagosis,
-          false
+          false,
         )
       )
         return { ...base, answerBool: true };
@@ -343,14 +361,14 @@ function getDataFieldAnswer(
         ...base,
         answerBool: family.caregivers.reduce(
           (prev, c) => prev || c.migrationBackground,
-          false
+          false,
         ),
       };
     case "Höchster Bildungsabschluss":
       const highestEducation = family.caregivers.reduce(
         (prev, c) =>
           isHigherEducation(prev, c.education) ? prev : c.education,
-        Education.None
+        Education.None,
       );
       const string = getEducationString(highestEducation);
 
@@ -361,11 +379,26 @@ function getDataFieldAnswer(
       if (!educationId) return { ...base };
       return { ...base, answerSelect: { connect: { id: educationId } } };
     case "Andere installierte Fachkräfte":
-      return { ...base, answerText: family.otherInstalledProfessionals };
+      const otherOptionId = dataField.selectOptions.find(
+        (v) => v.value === "Sonstiges",
+      ).id;
+      console.log(dataField.selectOptions);
+      return family.otherInstalledProfessionals
+        ? {
+            ...base,
+            answerSelect: { connect: { id: otherOptionId } },
+            selectOtherValues: [
+              {
+                selectOptionId: otherOptionId,
+                value: family.otherInstalledProfessionals,
+              },
+            ] as IAnswerSelectOtherValues,
+          }
+        : { ...base };
     case "Zugang über":
       const comingFromOptionId =
         dataField.selectOptions.find(
-          (o) => o.value === family.comingFrom?.value
+          (o) => o.value === family.comingFrom?.value,
         )?.id ?? dataField.selectOptions.find((o) => o.value === "Anderes").id;
       if (!comingFromOptionId) return { ...base };
       return { ...base, answerSelect: { connect: { id: comingFromOptionId } } };
@@ -373,9 +406,3 @@ function getDataFieldAnswer(
       return undefined;
   }
 }
-
-
-
-
-
-

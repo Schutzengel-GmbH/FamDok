@@ -1,8 +1,5 @@
 import { DataFieldAnswerComponentProps } from "@/components/masterData/dataFieldAnswerComponents/textDataFieldAnswerComponent";
-import {
-  IAnswerSelectOtherValue,
-  IAnswerSelectOtherValues,
-} from "@/types/prismaHelperTypes";
+import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
 import {
   Checkbox,
   FormControl,
@@ -14,7 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import { DataFieldSelectOption } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SelectDataFieldAnswerComponent({
   answer,
@@ -23,8 +20,14 @@ export default function SelectDataFieldAnswerComponent({
   onChange,
 }: DataFieldAnswerComponentProps) {
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
-    (answer?.selectOtherValues as IAnswerSelectOtherValues) || []
+    (answer?.selectOtherValues as IAnswerSelectOtherValues) || [],
   );
+
+  useEffect(() => {
+    setOtherValues(
+      (answer?.selectOtherValues as IAnswerSelectOtherValues) || [],
+    );
+  }, [answer]);
 
   const optionChecked = (selectOption: DataFieldSelectOption) => {
     return (
@@ -34,7 +37,7 @@ export default function SelectDataFieldAnswerComponent({
 
   const handleChangeMultiple = (
     checked: boolean,
-    selectOption: DataFieldSelectOption
+    selectOption: DataFieldSelectOption,
   ) => {
     if (checked) {
       if (answer)
@@ -52,14 +55,14 @@ export default function SelectDataFieldAnswerComponent({
         onChange({
           ...answer,
           answerSelect: answer.answerSelect.filter(
-            (o) => o.id !== selectOption.id
+            (o) => o.id !== selectOption.id,
           ),
         });
       else
         onChange({
           dataFieldId: dataField.id,
           answerSelect: answer.answerSelect.filter(
-            (o) => o.id !== selectOption.id
+            (o) => o.id !== selectOption.id,
           ),
         });
     }
@@ -67,7 +70,7 @@ export default function SelectDataFieldAnswerComponent({
 
   const handleOtherValueChange = (
     o: Partial<DataFieldSelectOption>,
-    value: string
+    value: string,
   ) => {
     const index = otherValues.findIndex((ov) => ov.selectOptionId === o.id);
     let newValues = otherValues;
@@ -83,34 +86,38 @@ export default function SelectDataFieldAnswerComponent({
 
   return dataField.selectMultiple ? (
     <List>
-      {dataField.selectOptions.map((o) => (
-        <ListItem key={o.id}>
-          <Checkbox
-            disabled={!canEdit}
-            checked={optionChecked(o)}
-            onChange={(e) => handleChangeMultiple(e.target.checked, o)}
-          />
-          {o.isOpen ? (
-            <TextField
-              value={
-                otherValues.find((ov) => ov.selectOptionId === o.id)?.value ||
-                ""
-              }
-              onChange={(e) => handleOtherValueChange(o, e.target.value)}
-              disabled={!optionChecked(o) || !canEdit}
+      {dataField.selectOptions.map((o: DataFieldSelectOption) => {
+        return (
+          <ListItem key={o.id}>
+            <Checkbox
+              disabled={!canEdit}
+              checked={optionChecked(o)}
+              onChange={(e) => handleChangeMultiple(e.target.checked, o)}
             />
-          ) : (
-            <>{o.value}</>
-          )}
-        </ListItem>
-      ))}
+            {o.isOpen ? (
+              <TextField
+                value={
+                  otherValues.find((ov) => {
+                    console.log(ov);
+                    return ov.selectOptionId === o.id;
+                  })?.value || ""
+                }
+                onChange={(e) => handleOtherValueChange(o, e.target.value)}
+                disabled={!optionChecked(o) || !canEdit}
+              />
+            ) : (
+              <>{o.value}</>
+            )}
+          </ListItem>
+        );
+      })}
     </List>
   ) : (
     <FormControl>
       <RadioGroup
         sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}
       >
-        {dataField.selectOptions.map((o) => (
+        {dataField.selectOptions.map((o: DataFieldSelectOption) => (
           <FormControlLabel
             key={o.id}
             control={
@@ -146,4 +153,3 @@ export default function SelectDataFieldAnswerComponent({
     </FormControl>
   );
 }
-
