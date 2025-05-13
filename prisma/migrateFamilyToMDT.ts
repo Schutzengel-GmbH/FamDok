@@ -30,6 +30,10 @@ async function main() {
         { value: "Anderes", isOpen: true },
       ];
 
+  const locationOptions = await prisma.possibleLocation.findMany();
+
+  const useLocationOptions = locationOptions.length > 0;
+
   const dataFieldsInput: Prisma.DataFieldCreateInput[] = [
     {
       text: "Beginn der Betreuung",
@@ -141,6 +145,22 @@ async function main() {
       selectOptions: {
         create: comingFromOptions,
       },
+    },
+    {
+      text: "Wohnort",
+      type: useLocationOptions ? "Select" : "Text",
+      description: "",
+      selectMultiple: false,
+      selectOptions: useLocationOptions
+        ? {
+            create: [
+              ...locationOptions.map<Prisma.DataFieldSelectOptionCreateInput>(
+                (l) => ({ value: l.name }),
+              ),
+              { value: "Anderes/Unbekannt" },
+            ],
+          }
+        : undefined,
     },
   ];
   await prisma.masterDataType.deleteMany({ where: { name: "Familie" } });
@@ -402,6 +422,18 @@ function getDataFieldAnswer(
         )?.id ?? dataField.selectOptions.find((o) => o.value === "Anderes").id;
       if (!comingFromOptionId) return { ...base };
       return { ...base, answerSelect: { connect: { id: comingFromOptionId } } };
+    case "Wohnort":
+      if (dataField.type === "Text")
+        return { ...base, answerText: family.location };
+      else {
+        const locationOptionId =
+          dataField.selectOptions.find((o) => o.value === family.location)
+            ?.id ??
+          dataField.selectOptions.find((o) => o.value === "Anderes/Unbekannt")
+            .id;
+        if (!locationOptionId) return { ...base };
+        return { ...base, answerSelect: { connect: { id: locationOptionId } } };
+      }
     default:
       return undefined;
   }
