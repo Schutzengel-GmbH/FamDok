@@ -18,7 +18,7 @@ export interface IMasterDataByNumber {
 
 export default async function masterDataType(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/families/${req.query.family}`,
@@ -35,7 +35,7 @@ export default async function masterDataType(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   let session = req.session;
@@ -68,7 +68,7 @@ export default async function masterDataType(
         masterDataType: {
           include: {
             dataFields: {
-              include: { selectOptions: true },
+              include: { selectOptions: true, triggeredSurvey: true },
               orderBy: { createdAt: "asc" },
             },
             organization: true,

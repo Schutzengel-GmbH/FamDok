@@ -20,14 +20,14 @@ export interface IMasterData {
 
 export default async function comingFromOptions(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const reqUser = await prisma.user
@@ -72,7 +72,7 @@ export default async function comingFromOptions(
           masterDataType: {
             include: {
               dataFields: {
-                include: { selectOptions: true },
+                include: { selectOptions: true, triggeredSurvey: true },
                 orderBy: { createdAt: "asc" },
               },
               organization: true,

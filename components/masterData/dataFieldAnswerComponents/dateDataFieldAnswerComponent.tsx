@@ -11,7 +11,7 @@ export default function DateDataFieldAnswerComponent({
   return (
     <FormControl sx={{ marginTop: "1rem" }}>
       <DatePicker
-        disabled={canEdit}
+        disabled={!canEdit}
         onChange={(date) => {
           if (date)
             onChange({
@@ -26,4 +26,3 @@ export default function DateDataFieldAnswerComponent({
     </FormControl>
   );
 }
-

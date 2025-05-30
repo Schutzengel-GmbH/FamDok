@@ -91,6 +91,7 @@ model Survey {
   hasMasterData    Boolean         @default(false)
   masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
   masterDataTypeId String?
+  triggeredByDataFields DataField[]
 }
 
 model Question {
@@ -256,6 +257,9 @@ model DataField {
   answers DataFieldAnswer[]
 
   type              DataFieldType
+  triggeredSurvey   Survey? @relation(fields: [triggeredSurveyId], references: [id])
+  triggeredSurveyId String?
+  triggerMultiple   Boolean?
   collectionType    CollectionType?
   collectionMaxSize Int?
   selectMultiple    Boolean?
@@ -372,6 +376,7 @@ enum DataFieldType {
   Select
   Date
   Collection
+  TriggerSurvey
 }
 
 model ComingFromOption {

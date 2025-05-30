@@ -8,6 +8,8 @@ import TextDataFieldAnswerComponent from "@/components/masterData/dataFieldAnswe
 import { FullDataField, FullDataFieldAnswer } from "@/types/prismaHelperTypes";
 import { dataFieldAnswerHasNoValues } from "@/utils/utils";
 import { Alert, Box, Paper, Typography } from "@mui/material";
+import TriggerDataFieldAnswerComponent from "./dataFieldAnswerComponents/triggerDataFieldAnswerComponent";
+import { RecursivePartial } from "@/types/utilTypes";
 
 interface DataFieldCardProps {
   dataField: FullDataField;
@@ -99,6 +101,15 @@ export default function DataFieldCard({
             //@ts-ignore
             answer={answer}
             //@ts-ignore
+            onChange={handleChange}
+          />
+        );
+      case "TriggerSurvey":
+        return (
+          <TriggerDataFieldAnswerComponent
+            answer={answer}
+            canEdit={canEdit}
+            dataField={dataField}
             onChange={handleChange}
           />
         );

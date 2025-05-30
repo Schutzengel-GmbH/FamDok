@@ -28,7 +28,7 @@ import {
 } from "@prisma/client";
 
 export async function createMasterDataType(
-  masterDataType: Prisma.MasterDataTypeCreateInput
+  masterDataType: Prisma.MasterDataTypeCreateInput,
 ) {
   const res = await apiPostJson<
     IMasterDataType,
@@ -43,7 +43,7 @@ export async function createMasterDataType(
 
 export async function updateMasterDataType(
   masterDataType: MasterDataType,
-  update: Prisma.MasterDataTypeUpdateInput
+  update: Prisma.MasterDataTypeUpdateInput,
 ) {
   const res = await apiPostJson<
     IMasterDataByNumber,
@@ -58,7 +58,7 @@ export async function updateMasterDataType(
 
 export async function deleteMasterDataType(masterDataType: MasterDataType) {
   const res = await apiDelete<IMasterDataByNumber>(
-    `/api/masterDataType/${masterDataType.id}`
+    `/api/masterDataType/${masterDataType.id}`,
   ).catch((e) => {
     throw new Error(e);
   });
@@ -69,13 +69,13 @@ export async function deleteMasterDataType(masterDataType: MasterDataType) {
 
 export async function addDataField(
   masterDataTypeId: string,
-  dataField: Prisma.DataFieldCreateInput
+  dataField: Prisma.DataFieldCreateInput,
 ) {
   const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
     `/api/masterDataType/${masterDataTypeId}`,
     {
       update: { dataFields: { create: dataField } },
-    }
+    },
   ).catch((e) => {
     throw new Error(e);
   });
@@ -92,7 +92,7 @@ export async function updateDataField(
     value: string;
     isOpen?: boolean;
     info?: string;
-  }[]
+  }[],
 ) {
   const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
     `/api/masterDataType/${dataField.masterDataTypeId}`,
@@ -100,7 +100,7 @@ export async function updateDataField(
       dataFieldId: dataField.id,
       dataFieldUpdate: dataFieldUpdate,
       selectOptions,
-    }
+    },
   ).catch((e) => {
     throw new Error(e);
   });
@@ -111,11 +111,11 @@ export async function updateDataField(
 
 export async function deleteDataField(
   masterDataTypeId: string,
-  dataField: DataField
+  dataField: DataField,
 ) {
   const res = await apiPostJson<IMasterDataTypeByID, IMasterDataTypeByIdBody>(
     `/api/masterDataType/${masterDataTypeId}`,
-    { dataFieldsToDelete: [dataField] }
+    { dataFieldsToDelete: [dataField] },
   ).catch((e) => {
     throw new Error(e);
   });
@@ -126,11 +126,11 @@ export async function deleteDataField(
 
 export async function addMasterData(
   masterDataType: MasterDataType,
-  masterData: Prisma.MasterDataCreateInput
+  masterData: Prisma.MasterDataCreateInput,
 ) {
   const res = await apiPostJson<IMasterData, Prisma.MasterDataCreateInput>(
     `/api/masterDataType/${masterDataType.id}/masterData`,
-    masterData
+    masterData,
   ).catch((e) => {
     throw new Error(e);
   });
@@ -142,14 +142,14 @@ export async function addMasterData(
 export async function updateMasterData(
   masterDataType: MasterDataType,
   masterData: MasterData,
-  update: Prisma.MasterDataUpdateInput
+  update: Prisma.MasterDataUpdateInput,
 ) {
   const res = await apiPostJson<
     IMasterDataByNumber,
     Prisma.MasterDataUpdateInput
   >(
     `/api/masterDataType/${masterDataType.id}/masterData/${masterData.number}`,
-    update
+    update,
   ).catch((e) => {
     throw new Error(e);
   });
@@ -161,14 +161,14 @@ export async function updateMasterData(
 export async function submitMasterDataAnswers(
   masterDataTypeId: string,
   masterDataNumber: number,
-  answerState: Partial<FullDataFieldAnswer>[]
+  answerState: Partial<FullDataFieldAnswer>[],
 ) {
   const res = await apiPostJson<
     ISubmitMasterDataAnswers,
     Partial<FullDataFieldAnswer>[]
   >(
     `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}/submitAnswers`,
-    answerState
+    answerState,
   ).catch((e) => {
     throw new Error(e);
   });
@@ -180,7 +180,7 @@ export async function submitMasterDataAnswers(
 export async function updateMasterDataCreatedBy(
   masterDataTypeId: string,
   masterDataNumber: number,
-  user: User
+  user: User,
 ) {
   const res = await apiPostJson<
     IMasterDataByNumber,
@@ -197,10 +197,10 @@ export async function updateMasterDataCreatedBy(
 
 export async function deleteMasterData(
   masterDataType: MasterDataType,
-  masterData: MasterData
+  masterData: MasterData,
 ) {
   const res = await apiDelete<IMasterDataByNumber>(
-    `/api/masterDataType/${masterDataType.id}/masterData/${masterData.number}`
+    `/api/masterDataType/${masterDataType.id}/masterData/${masterData.number}`,
   ).catch((e) => {
     throw new Error(e);
   });
@@ -213,7 +213,7 @@ export async function addDataFieldAnswers(
   masterDataTypeId: string,
   masterDataNumber: string,
   answersToDelete: { id: string }[],
-  answers: Prisma.DataFieldAnswerCreateManyMasterDataInput[]
+  answers: Prisma.DataFieldAnswerCreateManyMasterDataInput[],
 ) {
   const res = await apiPostJson<
     IMasterDataByNumber,
@@ -244,6 +244,8 @@ export function getDataFieldTypeName(type: DataFieldType): string {
       return "Datum";
     case "Collection":
       return "Sammlung";
+    case "TriggerSurvey":
+      return "Umfrage triggern";
     default:
       return type;
   }
@@ -265,7 +267,7 @@ export function getCollectionTypeName(type: CollectionType): string {
 }
 
 export function getCollectionDataField(
-  type: CollectionType
+  type: CollectionType,
 ): keyof Omit<FullCollection, "id" | "createdAt" | "type" | "updatedAt"> {
   switch (type) {
     case "Text":
@@ -281,7 +283,7 @@ export function getCollectionDataField(
 
 export function getAnswerString(
   answer: FullDataFieldAnswer | undefined,
-  type: DataFieldType
+  type: DataFieldType,
 ) {
   if (!answer) return "Keine Angabe";
 
@@ -292,8 +294,8 @@ export function getAnswerString(
       return answer.answerBool === true
         ? "Ja"
         : answer.answerBool === false
-        ? "Nein"
-        : "Keine Angabe";
+          ? "Nein"
+          : "Keine Angabe";
     case "Int":
       return answer.answerInt;
     case "Num":
@@ -317,7 +319,7 @@ export function getAnswerString(
                     )?.find((o) => o.selectOptionId === val.id)?.value
                   : val.value
               }`,
-        ""
+        "",
       );
     case "Date":
       return new Date(answer.answerDate).toLocaleDateString();
@@ -335,17 +337,17 @@ export function getCollectionString(collection: FullCollection) {
     case "Text":
       return collection.collectionDataString.reduce(
         (prev, val) => (prev ? prev + ", " + val.value : val.value),
-        ""
+        "",
       );
     case "Int":
       return collection.collectionDataInt.reduce(
         (prev, val) => (prev ? prev + ", " + val.value : val.value),
-        ""
+        "",
       );
     case "Num":
       return collection.collectionDataFloat.reduce(
         (prev, val) => (prev ? prev + ", " + val.value : val.value),
-        ""
+        "",
       );
     case "Date":
       return collection.collectionDataDate.reduce(
@@ -353,11 +355,9 @@ export function getCollectionString(collection: FullCollection) {
           prev
             ? prev + ", " + new Date(val.value).toLocaleDateString()
             : new Date(val.value).toLocaleDateString(),
-        ""
+        "",
       );
     default:
       return "-/-";
   }
 }
-
-

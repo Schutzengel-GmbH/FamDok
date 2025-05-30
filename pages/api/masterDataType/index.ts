@@ -21,14 +21,14 @@ export interface IMasterDataType {
 
 export default async function masterData(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   await superTokensNextWrapper(
     async (next) => {
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const reqUser = await prisma.user
@@ -63,7 +63,7 @@ export default async function masterData(
       masterDataTypes = await prisma.masterDataType.findMany({
         include: {
           dataFields: {
-            include: { selectOptions: true },
+            include: { selectOptions: true, triggeredSurvey: true },
             orderBy: { createdAt: "asc" },
           },
           organization: true,
@@ -86,7 +86,7 @@ export default async function masterData(
         !hasOneOfRole(
           reqUser,
           [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
-          data?.organization?.connect?.id
+          data?.organization?.connect?.id,
         )
       )
         return res.status(403).json({ error: "FORBIDDEN" });

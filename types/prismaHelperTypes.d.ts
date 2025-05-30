@@ -175,9 +175,7 @@ export type FullAnswer = Prisma.AnswerGetPayload<{
 }>;
 
 declare global {
-  namespace PrismaJson {
-
-  }
+  namespace PrismaJson {}
 }
 
 export type PartialAnswer = RecursivePartial<FullAnswer>;
@@ -228,7 +226,7 @@ export type FullMasterDataType = Prisma.MasterDataTypeGetPayload<{
 }>;
 
 export type FullDataField = Prisma.DataFieldGetPayload<{
-  include: { selectOptions: true };
+  include: { selectOptions: true; triggeredSurvey: true };
 }>;
 
 export type FullDataFieldAnswer = Prisma.DataFieldAnswerGetPayload<{

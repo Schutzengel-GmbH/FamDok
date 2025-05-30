@@ -31,7 +31,7 @@ export default function MasterDataByNumber({
 }: MasterDataByNumberProps) {
   const { masterData, error, isLoading, mutate } = useMasterDataByNumber(
     masterDataTypeId,
-    parseInt(masterDataNumber)
+    parseInt(masterDataNumber),
   );
   const [masterDataAnswersState, setMasterDataAnswersState] = useState<
     Partial<FullDataFieldAnswer>[]
@@ -43,7 +43,7 @@ export default function MasterDataByNumber({
 
   useEffect(() => {
     const requiredFields = masterData?.masterDataType.dataFields.filter(
-      (df) => df.required
+      (df) => df.required,
     );
 
     setRequiredFieldState(
@@ -52,10 +52,10 @@ export default function MasterDataByNumber({
           (df) =>
             df.required &&
             dataFieldAnswerHasNoValues(
-              masterDataAnswersState.find((a) => a.dataFieldId === df.id)
-            )
+              masterDataAnswersState.find((a) => a.dataFieldId === df.id),
+            ),
         )
-        .map((f) => ({ dataFieldId: f.id, dataFieldText: f.text })) || []
+        .map((f) => ({ dataFieldId: f.id, dataFieldText: f.text })) || [],
     );
   }, [masterDataAnswersState]);
 
@@ -63,11 +63,11 @@ export default function MasterDataByNumber({
 
   const { user } = useUserData();
 
-//  const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
+  //  const canDelete = user && ["ADMIN", "CONTROLLER"].includes(user.role);
 
   const handleDelete = async () => {
     const res = await apiDelete<IMasterDataByNumber>(
-      `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}`
+      `/api/masterDataType/${masterDataTypeId}/masterData/${masterDataNumber}`,
     );
     setDeleteOpen(false);
     router.push("/masterData");
@@ -83,14 +83,14 @@ export default function MasterDataByNumber({
 
   const handleAnswerChanged = (
     dataField: FullDataField,
-    answer: Partial<FullDataFieldAnswer>
+    answer: Partial<FullDataFieldAnswer>,
   ) => {
     setUnsavedChanges(true);
     if (masterDataAnswersState?.find((a) => a.dataFieldId === dataField.id))
       setMasterDataAnswersState(
         masterDataAnswersState?.map((a) =>
-          a.dataFieldId === dataField.id ? answer : a
-        )
+          a.dataFieldId === dataField.id ? answer : a,
+        ),
       );
     else
       setMasterDataAnswersState([
@@ -106,7 +106,7 @@ export default function MasterDataByNumber({
       const res = await updateMasterDataCreatedBy(
         masterData.masterDataTypeId,
         masterData.number,
-        currentUser
+        currentUser,
       );
       if (res.error)
         addToast({
@@ -128,11 +128,12 @@ export default function MasterDataByNumber({
   };
 
   const saveChanges = async () => {
+    console.log("save", masterDataAnswersState);
     try {
       const res = await submitMasterDataAnswers(
         masterDataTypeId,
         Number(masterDataNumber),
-        masterDataAnswersState
+        masterDataAnswersState,
       );
       setUnsavedChanges(false);
       router.push("/masterData");

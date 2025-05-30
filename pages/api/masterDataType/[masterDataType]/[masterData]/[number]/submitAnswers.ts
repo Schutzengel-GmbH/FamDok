@@ -17,7 +17,7 @@ export interface ISubmitMasterDataAnswers {
 
 export default async function submitAnswers(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/masterDataType/${req.query.masterDataType}/${req.query.masterData}/${req.query.number}`,
@@ -34,9 +34,9 @@ export default async function submitAnswers(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
-
+  var debug;
   let session = req.session;
   const user = await prisma.user
     .findUnique({
@@ -154,8 +154,20 @@ export default async function submitAnswers(
 
             if (answerState.answerCollection) {
               const answer = masterData.answers.find(
-                (a) => a.id === answerState.id
+                (a) => a.id === answerState.id,
               );
+
+              let collectionId = answer?.answerCollection?.id || undefined;
+              if (collectionId === undefined) {
+                const collection = await prisma.collection.create({
+                  data: { type: answer.dataField.collectionType },
+                });
+                collectionId = collection.id;
+                const update = await prisma.dataFieldAnswer.update({
+                  where: { id: answer.id },
+                  data: { collectionId },
+                });
+              }
 
               const collectionDataField = () => {
                 switch (answer.dataField.collectionType) {
@@ -170,29 +182,37 @@ export default async function submitAnswers(
                 }
               };
 
-              const collectionDataToDelete = answer.answerCollection[
-                collectionDataField()
-              ].filter(
-                (d) =>
-                  answerState.answerCollection[collectionDataField()].find(
-                    (v) => v.id === d.id
-                  ) === undefined
-              );
+              const colelctionId = answer?.answerCollection?.id;
 
-              //@ts-ignore it's fine...
-              const del = await prisma[collectionDataField()].deleteMany({
-                where: { id: { in: collectionDataToDelete.map((v) => v.id) } },
-              });
+              const collectionDataToDelete = answer.answerCollection
+                ? answer.answerCollection[collectionDataField()]?.filter(
+                    (d) =>
+                      answerState.answerCollection[collectionDataField()]?.find(
+                        (v) => v.id === d.id,
+                      ) === undefined,
+                  )
+                : undefined;
+
+              const del = collectionDataToDelete
+                ? await prisma[collectionDataField()].deleteMany({
+                    where: {
+                      id: { in: collectionDataToDelete.map((v) => v.id) },
+                    },
+                  })
+                : undefined;
 
               const collectionDataToUpdate = [];
               const collectionDataToAdd = answerState.answerCollection[
                 collectionDataField()
-              ].filter((d) => d.id === undefined);
+              ]
+                .filter((d) => d.id === undefined)
+                .map((d) => ({ ...d, collectionId }));
 
-              //@ts-ignore it's fine...
               const add = await prisma[collectionDataField()].createMany({
                 data: collectionDataToAdd,
               });
+
+              console.log(add);
             }
           } catch (e) {
             logger.error(e);
@@ -274,9 +294,8 @@ export default async function submitAnswers(
         }
       }
 
-      return res.status(200).json({});
+      return res.status(200).json({ debug });
     default:
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

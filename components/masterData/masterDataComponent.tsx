@@ -90,8 +90,7 @@ export default function MasterDataComponent() {
           ))}
         </Select>
         <Button onClick={navigateStats}>
-          <QueryStats />{" "}
-          {user?.role === "USER" ? "Meine Familien" : "Statistik"}
+          <QueryStats /> {user?.role === "USER" ? "Meine Daten" : "Statistik"}
         </Button>
       </Box>
 
