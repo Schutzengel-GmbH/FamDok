@@ -220,6 +220,7 @@ export default async function submitAnswers(
           }
         } else {
           try {
+            console.log(answerState);
             const create = await prisma.dataFieldAnswer
               .create({
                 data: {

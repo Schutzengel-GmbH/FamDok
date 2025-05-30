@@ -74,7 +74,7 @@ export default function DataFieldListItem({
           </ListItem>
           <ListItem>
             <ListItemText>{`Datenfeldtyp: ${getDataFieldTypeName(
-              dataField.type
+              dataField.type,
             )}`}</ListItemText>
           </ListItem>
           {dataField.required && (
@@ -100,7 +100,7 @@ export default function DataFieldListItem({
               {dataField.selectOptions.map((o, i, arr) =>
                 i === arr.length - 1
                   ? `${o.value}${o.isOpen ? ` (offen)` : ""}`
-                  : `${o.value}${o.isOpen ? ` (offen)` : ""}, `
+                  : `${o.value}${o.isOpen ? ` (offen)` : ""}, `,
               )}
             </ListItem>
           )}
@@ -122,6 +122,7 @@ export default function DataFieldListItem({
           setOpenEdit(false);
         }}
         dataField={dataField}
+        masterDataTypeId={dataField.masterDataTypeId}
       />
 
       <ConfirmDialog

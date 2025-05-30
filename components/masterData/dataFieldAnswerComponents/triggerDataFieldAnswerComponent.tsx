@@ -69,16 +69,17 @@ export default function TriggerDataFieldAnswerComponent({
         parseInt(masterDataNumber as string),
         [
           {
-            id: answer.id,
+            id: answer?.id,
             dataFieldId: dataField.id,
             collectionId: answer?.collectionId || undefined,
             answerCollection: {
               //TODO: fix this, but requires quite a refactor...
+              type: "Date",
               collectionDataDate: [
                 //@ts-expect-error bad definitions for RecursivePartial, should be fine
                 ...collectionDataDate,
                 //@ts-expect-error bad definitions for RecursivePartial, should be fine
-                { collectionId: answer.collectionId, value: date },
+                { collectionId: answer?.collectionId, value: date },
               ],
             },
           },

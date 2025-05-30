@@ -34,6 +34,10 @@ async function main() {
 
   const useLocationOptions = locationOptions.length > 0;
 
+  const abschluss = await prisma.survey.findFirstOrThrow({
+    where: { name: "Abschluss-Auswertung" },
+  });
+
   const dataFieldsInput: Prisma.DataFieldCreateInput[] = [
     {
       text: "Beginn der Betreuung",
@@ -45,7 +49,9 @@ async function main() {
     },
     {
       text: "Ende der Betreuung",
-      type: "Collection",
+      type: "TriggerSurvey",
+      triggerMultiple: true,
+      triggeredSurvey: { connect: { id: abschluss.id } },
       collectionType: "Date",
       description:
         "Wann wurde die Familie abgeschlossen. Weitere Daten wenn eine wieder aufgenommene Betreuung wieder abgeschlossen wird.",
@@ -200,7 +206,9 @@ async function main() {
         createdBy: { connect: { id: family.userId } },
         masterDataType: { connect: { id: familyMasterDataType.id } },
         answers: {
-          create: dataFields.map((d) => getDataFieldAnswer(d, family)),
+          create: dataFields
+            .filter((d) => getDataFieldAnswer(d, family) !== undefined)
+            .map((d) => getDataFieldAnswer(d, family)),
         },
       },
     });
@@ -264,17 +272,20 @@ function getDataFieldAnswer(
 
   switch (dataField.text) {
     case "Beginn der Betreuung":
-      return {
-        ...base,
-        answerCollection: {
-          create: {
-            type: "Date",
-            collectionDataDate: {
-              create: { value: new Date(family.beginOfCare) },
+      return family.beginOfCare
+
+        ? {
+            ...base,
+            answerCollection: {
+              create: {
+                type: "Date",
+                collectionDataDate: {
+                  create: { value: new Date(family.beginOfCare) },
+                },
+              },
             },
-          },
-        },
-      };
+          }
+        : undefined;
     case "Ende der Betreuung":
       return family.endOfCare
         ? {
@@ -288,7 +299,7 @@ function getDataFieldAnswer(
               },
             },
           }
-        : { ...base };
+        : undefined;
     case "Anzahl Kinder":
       return {
         ...base,
