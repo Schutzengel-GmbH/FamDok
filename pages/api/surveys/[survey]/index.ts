@@ -31,7 +31,7 @@ export interface ISurvey {
 
 export default async function survey(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/surveys/${req.query.survey}`,
@@ -49,7 +49,7 @@ export default async function survey(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const { survey: surveyId } = req.query;
@@ -71,7 +71,11 @@ export default async function survey(
           include: { selectOptions: true, defaultAnswerSelectOptions: true },
         },
         masterDataType: {
-          include: { dataFields: { include: { selectOptions: true } } },
+          include: {
+            dataFields: {
+              include: { selectOptions: true, triggeredSurvey: true },
+            },
+          },
         },
       },
     });
@@ -129,4 +133,3 @@ export default async function survey(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

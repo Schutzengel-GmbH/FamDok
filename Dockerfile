@@ -1,6 +1,5 @@
 FROM node:lts-buster-slim AS builder
 RUN apt-get update && apt-get install libssl-dev ca-certificates python3-dev -y
-ENV NODE_ENV=production
 WORKDIR /app
 COPY . .
 RUN npm install

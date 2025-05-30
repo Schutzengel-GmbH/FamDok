@@ -45,7 +45,11 @@ export type FullResponse = Prisma.ResponseGetPayload<{
           };
         };
         masterDataType: {
-          include: { dataFields: { include: { selectOptions: true } } };
+          include: {
+            dataFields: {
+              include: { selectOptions: true; triggeredSurvey: true };
+            };
+          };
         };
       };
     };
@@ -84,7 +88,7 @@ export type FullSurvey = Prisma.SurveyGetPayload<{
     };
     masterDataType: {
       include: {
-        dataFields: { include: { selectOptions: true } };
+        dataFields: { include: { selectOptions: true; triggeredSurvey: true } };
         organization: true;
       };
     };
@@ -139,7 +143,11 @@ export type FullSurveyWithResponses = Prisma.SurveyGetPayload<{
               };
             };
             masterDataType: {
-              include: { dataFields: { include: { selectOptions: true } } };
+              include: {
+                dataFields: {
+                  include: { selectOptions: true; triggeredSurvey: true };
+                };
+              };
             };
           };
         };
@@ -197,7 +205,7 @@ export type FullMasterData = Prisma.MasterDataGetPayload<{
   include: {
     masterDataType: {
       include: {
-        dataFields: { include: { selectOptions: true } };
+        dataFields: { include: { selectOptions: true; triggeredSurvey: true } };
         organization: true;
       };
     };
@@ -220,7 +228,7 @@ export type FullMasterData = Prisma.MasterDataGetPayload<{
 
 export type FullMasterDataType = Prisma.MasterDataTypeGetPayload<{
   include: {
-    dataFields: { include: { selectOptions: true } };
+    dataFields: { include: { selectOptions: true; triggeredSurvey: true } };
     organization: true;
   };
 }>;

@@ -196,7 +196,7 @@ async function main() {
 
   const dataFields = await prisma.dataField.findMany({
     where: { masterDataTypeId: familyMasterDataType.id },
-    include: { selectOptions: true },
+    include: { selectOptions: true, triggeredSurvey: true },
   });
 
   for (const family of families) {
@@ -273,7 +273,6 @@ function getDataFieldAnswer(
   switch (dataField.text) {
     case "Beginn der Betreuung":
       return family.beginOfCare
-
         ? {
             ...base,
             answerCollection: {
