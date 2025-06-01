@@ -25,7 +25,8 @@
     "react-tabulator": "^0.19.0",
     "supertokens-auth-react": "^0.47.1",
     "supertokens-node": "^20",
-    "swr": "^2.2.0"
+    "swr": "^2.2.0",
+    "prisma-json-types-generator": "^3.4.2"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -35,7 +36,7 @@
     "@types/react": "18.0.17",
     "pino-pretty": "^10.2.0",
     "prisma": "^6",
-    "prisma-json-types-generator": "^3.2.2",
+    "prisma-json-types-generator": "^3.4.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5"
