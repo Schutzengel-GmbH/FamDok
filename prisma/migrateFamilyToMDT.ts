@@ -3,9 +3,55 @@ import {
   FullFamily,
   IAnswerSelectOtherValues,
 } from "@/types/prismaHelperTypes";
-import { isHigherEducation, getEducationString } from "@/utils/utils";
 import { Education, Prisma, PrismaClient } from "@prisma/client";
 import { differenceInYears } from "date-fns";
+
+function getEducationString(e: Education) {
+  switch (e) {
+    case "None":
+      return "Kein";
+    case "Unknown":
+      return "Unbekannt";
+    case "Other":
+      return "Andere";
+    case "Foerderschulabschluss":
+      return "Foerderschulabschluss";
+    case "Hauptschulabschluss":
+      return "Hauptschulabschluss";
+    case "Realschulabschluss":
+      return "Realschulabschluss";
+    case "Fachhochschulreife":
+      return "Fachhochschulreife";
+    case "Abitur":
+      return "Abitur";
+    case "Berufsausbildung":
+      return "Berufsausbildung";
+    case "UniversityDegree":
+      return "Hochschulabschluss";
+    case "Higher":
+      return "Höher";
+  }
+}
+
+function isHigherEducation(ed: Education, comp: Education) {
+  const sortedEducationArray: Education[] = [
+    Education.None,
+    Education.Unknown,
+    Education.Other,
+    Education.Foerderschulabschluss,
+    Education.Hauptschulabschluss,
+    Education.Realschulabschluss,
+    Education.Fachhochschulreife,
+    Education.Abitur,
+    Education.UniversityDegree,
+    Education.Higher,
+  ];
+  if (!ed) return true;
+  else
+    return (
+      sortedEducationArray.indexOf(ed) > sortedEducationArray.indexOf(comp)
+    );
+}
 
 const prisma = new PrismaClient();
 async function main() {
