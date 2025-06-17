@@ -13,7 +13,7 @@ import useToast from "@/components/notifications/notificationContext";
 
 export interface AddOrgMenuProps {
   open: boolean;
-  onClose: () => void;
+  onClose: (id?: string) => void;
 }
 
 const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
@@ -24,12 +24,13 @@ const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
     const res = await apiPostJson<IOrganizations>("/api/organizations", {
       name,
     });
-    if (res instanceof FetchError)
+    if (res instanceof FetchError) {
       addToast({
         message: `Fehler bei der Verbindung zum Server: ${res.error}`,
         severity: "error",
       });
-    else {
+      onClose();
+    } else {
       if (res.error)
         addToast({
           message: `Fehler beim Hinzufügen der Organisation: ${res.error}}`,
@@ -40,8 +41,8 @@ const AddOrgMenu = ({ open, onClose }: AddOrgMenuProps) => {
         message: `${res.organization.name} hinzugefügt`,
         severity: "success",
       });
+      onClose(res.organization.id);
     }
-    onClose();
   }
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
