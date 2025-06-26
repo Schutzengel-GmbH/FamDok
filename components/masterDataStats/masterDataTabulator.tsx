@@ -38,9 +38,15 @@ export default function MasterDataTabulator({
   masterDataType,
 }: MasterDataTabulatorProps) {
   const [filters, setFilters] = useState<IMasterDataFilter[]>([]);
-  const [where, setWhere] = useState({
-    AND: [...filters?.map((f) => getMasterDataWhereInput(f, masterDataType))],
-  });
+  const [where, setWhere] = useState(
+    filters && filters.length > 0
+      ? {
+          AND: [
+            ...filters?.map((f) => getMasterDataWhereInput(f, masterDataType)),
+          ],
+        }
+      : undefined
+  );
   const router = useRouter();
   const { masterData, isLoading, error } = useMasterData(
     masterDataType.id,
