@@ -217,6 +217,7 @@ export function getMasterDataData(
         break;
     }
   }
+  console.log
   return data;
 }
 
@@ -744,17 +745,17 @@ export function masterDataColumnDefinitions(
           columns: [
             {
               title: "Fachkraft",
-              field: "responseCreatedBy.name",
+              field: "createdBy.name",
               headerSortTristate: true,
             },
             {
               title: "Organisation",
-              field: "responseCreatedBy.organization.name",
+              field: "createdBy.organization.name",
               headerSortTristate: true,
             },
             {
               title: "Unterorganisation",
-              field: "responseCreatedBy.subOrganizations",
+              field: "createdBy.subOrganizations",
               formatter: (cell) => {
                 if (!cell?.getValue()) return "";
                 return (cell.getValue() as string[]).reduce(
