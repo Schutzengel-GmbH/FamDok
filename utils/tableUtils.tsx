@@ -738,6 +738,8 @@ export function masterDataColumnDefinitions(
                   formatter: collectionFormatter,
                   formatterParams: { collectionType: dataField.collectionType },
                 };
+              case "TriggerSurvey":
+                return {title: "", visible: false}
               default:
                 return { title: "--FEHLER--" };
             }
