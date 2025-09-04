@@ -762,9 +762,10 @@ export function masterDataColumnDefinitions(
               title: "Unterorganisation",
               field: "createdBy.subOrganizations",
               formatter: (cell) => {
+                console.log(cell)
                 if (!cell?.getValue()) return "";
-                return (cell.getValue() as string[]).reduce(
-                  (acc, n) => (acc === "" ? n : acc + ", " + n),
+                return (cell.getValue() as SubOrganization[]).reduce(
+                  (acc, n) => (acc === "" ? n.name : acc + ", " + n.name),
                   ""
                 );
               },
