@@ -100,7 +100,7 @@ export function responsesToAllAnswersTable(
     data.surveyId = response.surveyId;
     data.responseCreatedBy = {
       ...response.user,
-      name: response.user.name || response.user.email,
+      name: response.user?.name || response.user?.email || 'Kein Nutzer zugewiesen',
       //@ts-ignore
       subOrganizations: response?.user?.subOrganizations?.map((o) => o.name),
     };
@@ -172,6 +172,7 @@ export function getMasterDataData(
 ): MasterDataTableData {
   let data: MasterDataTableData = {};
   data["number"] = masterData.number;
+  data["createdBy"] = masterData.createdBy;
   for (let answer of masterData.answers) {
     const dataField = masterData.masterDataType.dataFields.find(
       (d) => d.id === answer.dataFieldId,
@@ -218,6 +219,7 @@ export function getMasterDataData(
         break;
     }
   }
+  console.log
   return data;
 }
 
@@ -660,6 +662,8 @@ export function masterDataColumnDefinitionsNoSurvey(
             formatter: collectionFormatter,
             formatterParams: { collectionType: dataField.collectionType },
           };
+        case "TriggerSurvey":
+          return {title: "", visible: false};
         default:
           return { title: "--FEHLER--" };
       }
@@ -735,6 +739,8 @@ export function masterDataColumnDefinitions(
                   formatter: collectionFormatter,
                   formatterParams: { collectionType: dataField.collectionType },
                 };
+              case "TriggerSurvey":
+                return {title: "", visible: false}
               default:
                 return { title: "--FEHLER--" };
             }
@@ -745,22 +751,22 @@ export function masterDataColumnDefinitions(
           columns: [
             {
               title: "Fachkraft",
-              field: "responseCreatedBy.name",
+              field: "createdBy.name",
               headerSortTristate: true,
             },
             {
               title: "Organisation",
-              field: "responseCreatedBy.organization.name",
+              field: "createdBy.organization.name",
               headerSortTristate: true,
             },
             {
               title: "Unterorganisation",
-              field: "responseCreatedBy.subOrganizations",
+              field: "createdBy.subOrganizations",
               formatter: (cell) => {
                 if (!cell?.getValue()) return "";
-                return (cell.getValue() as string[]).reduce(
-                  (acc, n) => (acc === "" ? n : acc + ", " + n),
-                  "",
+                return (cell.getValue() as SubOrganization[]).reduce(
+                  (acc, n) => (acc === "" ? n.name : acc + ", " + n.name),
+                  ""
                 );
               },
             },

@@ -22,7 +22,8 @@ export interface IQuestions {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "FORBIDDEN";
+    | "FORBIDDEN"
+    | "BAD_INPUT";
 }
 
 export default async function questions(
@@ -99,7 +100,7 @@ export default async function questions(
       )
         return res.status(403).json({ error: "FORBIDDEN" });
 
-      const questionInput = req.body;
+      const questionInput = req.body as Prisma.QuestionCreateInput;
       questionInput.survey = { connect: { id: surveyId as string } };
 
       const question = await prisma.question
@@ -118,3 +119,4 @@ export default async function questions(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

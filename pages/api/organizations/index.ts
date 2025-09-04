@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { Response } from "express";
 import { prisma } from "@/db/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
 
 supertokens.init(backendConfig());
@@ -19,7 +19,7 @@ export interface IOrganizations {
 
 export default async function organizations(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: "/organizations",
@@ -36,7 +36,7 @@ export default async function organizations(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const user = await prisma.user
@@ -58,7 +58,7 @@ export default async function organizations(
       return res.status(200).json({ organizations });
 
     case "POST":
-      if (user.role !== "ADMIN")
+      if (user.role !== Role.ADMIN && user.role !== Role.CONTROLLER)
         return res.status(403).json({ error: "FORBIDDEN" });
 
       const newOrg = await prisma.organization

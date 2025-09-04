@@ -24,7 +24,7 @@ const OrgSelect = ({
   onChange,
 }: OrgSelectInterface) => {
   const [organizationId, setOrganizationId] = useState<string | undefined>(
-    value
+    value,
   );
   const [addOrgOpen, setAddOrgOpen] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ const OrgSelect = ({
 
   const { data, mutate, isLoading } = useSWR<IOrganizations>(
     "api/organizations",
-    fetcher
+    fetcher,
   );
 
   return (
@@ -67,9 +67,11 @@ const OrgSelect = ({
 
       <AddOrgMenu
         open={addOrgOpen}
-        onClose={() => {
+        onClose={(id) => {
           mutate();
           setAddOrgOpen(false);
+          setOrganizationId(id);
+          onChange(id);
         }}
       />
     </>

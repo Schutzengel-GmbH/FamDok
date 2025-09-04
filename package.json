@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx prisma migrate deploy & next start"
+    "start": "npx prisma migrate deploy & next start",
+    "migrate:families": "tsx  prisma/migrateFamilyToMDT.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -24,7 +25,8 @@
     "react-tabulator": "^0.19.0",
     "supertokens-auth-react": "^0.47.1",
     "supertokens-node": "^20",
-    "swr": "^2.2.0"
+    "swr": "^2.2.0",
+    "prisma-json-types-generator": "^3.4.2"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -34,8 +36,10 @@
     "@types/react": "18.0.17",
     "pino-pretty": "^10.2.0",
     "prisma": "^6",
+    "prisma-json-types-generator": "^3.4.2",
     "ts-node": "^10.9.2",
-    "typescript": "^4.8.2"
+    "tsx": "^4.19.3",
+    "typescript": "^5"
   },
   "version": "1.2.0"
 }

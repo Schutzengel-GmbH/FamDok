@@ -16,39 +16,41 @@ import InputErrorsComponent from "@/components/response/inputErrorsComponent";
 import { answerHasNoValues } from "@/utils/utils";
 import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
-import { MasterData } from "@prisma/client";
+import { MasterData, Prisma } from "@prisma/client";
 import SelectMasterData from "@/components/response/selectMasterData";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
   survey: FullSurvey;
   onChange: () => void;
+  initialMasterData?: MasterData;
 };
 
 export default function ResponseComponent({
   initialResponse,
   survey,
   onChange,
+  initialMasterData,
 }: ResponseComponentProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const [response, setResponse] = useState<FullResponse>(initialResponse);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [answersState, setAnswersState] = useState<PartialAnswer[]>(
-    response?.answers || getDefaultAnswerstate(survey)
+    response?.answers || getDefaultAnswerstate(survey),
   );
   const [inputErrors, setInputErrors] = useState<
     { questionId: string; error: InputErrors }[]
   >([]);
   const [masterData, setMasterData] = useState<Partial<MasterData>>(
-    initialResponse?.masterData
+    initialResponse?.masterData || initialMasterData,
   );
 
   async function handleSave() {
     if (!response) {
       const res = await apiPostJson<IResponses>(
         `/api/surveys/${survey.id}/responses`,
-        { masterData }
+        { masterData },
       );
       if (res instanceof FetchError)
         addToast({
@@ -68,7 +70,7 @@ export default function ResponseComponent({
     } else {
       const res = await apiPostJson<IResponse>(
         `/api/surveys/${survey.id}/responses/${response.id}/`,
-        { masterData }
+        { masterData },
       );
       if (res instanceof FetchError)
         addToast({
@@ -91,7 +93,7 @@ export default function ResponseComponent({
   async function submitAnswers(responseId: string) {
     const res = await apiPostJson<ISubmitAnswer>(
       `/api/surveys/${survey.id}/responses/${responseId}/submitAnswers`,
-      { answersState }
+      { answersState },
     );
     if (res instanceof FetchError)
       addToast({
@@ -121,13 +123,13 @@ export default function ResponseComponent({
   function handleAnswerChanged(newAnswer: PartialAnswer, error?: InputErrors) {
     setAnswersState(
       answersState.map((a) =>
-        a.questionId === newAnswer.questionId ? newAnswer : a
-      )
+        a.questionId === newAnswer.questionId ? newAnswer : a,
+      ),
     );
     setUnsavedChanges(true);
 
     const indexOfError = inputErrors.findIndex(
-      (e) => e.questionId === newAnswer.questionId
+      (e) => e.questionId === newAnswer.questionId,
     );
 
     if (error !== undefined && indexOfError >= 0)
@@ -135,8 +137,8 @@ export default function ResponseComponent({
         inputErrors.map((e) =>
           e.questionId === newAnswer.questionId
             ? { questionId: newAnswer.questionId, error }
-            : e
-        )
+            : e,
+        ),
       );
     else if (error !== undefined && indexOfError < 0)
       setInputErrors([
@@ -145,7 +147,7 @@ export default function ResponseComponent({
       ]);
     else
       setInputErrors(
-        inputErrors.filter((e) => e.questionId !== newAnswer.questionId)
+        inputErrors.filter((e) => e.questionId !== newAnswer.questionId),
       );
   }
 
@@ -159,7 +161,7 @@ export default function ResponseComponent({
       survey.questions.filter(
         (q) =>
           q.required &&
-          answerHasNoValues(answersState.find((a) => a.questionId === q.id))
+          answerHasNoValues(answersState.find((a) => a.questionId === q.id)),
       ).length > 0
     );
   }
@@ -238,4 +240,3 @@ function getDefaultAnswerstate(survey: FullSurvey): PartialAnswer[] {
         : undefined,
   }));
 }
-

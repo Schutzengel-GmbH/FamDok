@@ -72,21 +72,22 @@ enum Role {
 }
 
 model Survey {
-  id               String          @id @default(cuid())
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  createdBy        User?           @relation(fields: [creatorId], references: [id])
-  creatorId        String?
-  organization     Organization?   @relation(fields: [organizationId], references: [id])
-  organizationId   String?
-  name             String?
-  description      String?
-  questions        Question[]
-  responses        Response[]
-  hasFamily        Boolean         @default(false)
-  hasMasterData    Boolean         @default(false)
-  masterDataType   MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
-  masterDataTypeId String?
+  id                    String          @id @default(cuid())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  createdBy             User?           @relation(fields: [creatorId], references: [id])
+  creatorId             String?
+  organization          Organization?   @relation(fields: [organizationId], references: [id])
+  organizationId        String?
+  name                  String?
+  description           String?
+  questions             Question[]
+  responses             Response[]
+  hasFamily             Boolean         @default(false)
+  hasMasterData         Boolean         @default(false)
+  masterDataType        MasterDataType? @relation(fields: [masterDataTypeId], references: [id], onDelete: Cascade)
+  masterDataTypeId      String?
+  triggeredByDataFields DataField[]
 }
 
 model Question {
@@ -228,14 +229,14 @@ model MasterData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  createdBy User @relation(fields: [userId], references: [id])
+  createdBy User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   masterDataType     MasterDataType @relation(fields: [masterDataTypeId, masterDataTypeName], references: [id, name], onDelete: Cascade)
   masterDataTypeId   String
   masterDataTypeName String
 
   answers   DataFieldAnswer[]
-  userId    String
+  userId    String?
   responses Response[]
 
   @@id(name: "id", fields: [masterDataTypeName, number])
@@ -252,6 +253,9 @@ model DataField {
   answers DataFieldAnswer[]
 
   type              DataFieldType
+  triggeredSurvey   Survey?                 @relation(fields: [triggeredSurveyId], references: [id])
+  triggeredSurveyId String?
+  triggerMultiple   Boolean?
   collectionType    CollectionType?
   collectionMaxSize Int?
   selectMultiple    Boolean?
@@ -368,6 +372,7 @@ enum DataFieldType {
   Select
   Date
   Collection
+  TriggerSurvey
 }
 
 model ComingFromOption {

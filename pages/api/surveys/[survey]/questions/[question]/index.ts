@@ -20,12 +20,13 @@ export interface IQuestion {
     | "INTERNAL_SERVER_ERROR"
     | "METHOD_NOT_ALLOWED"
     | "NOT_FOUND"
-    | "FORBIDDEN";
+    | "FORBIDDEN"
+    | "BAD_INPUT";
 }
 
 export default async function organizations(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response,
+  res: NextApiResponse & Response
 ) {
   const logger = _logger.child({
     endpoint: `/surveys/${req.query.survey}/questions/${req.query.question}`,
@@ -42,7 +43,7 @@ export default async function organizations(
       return await verifySession()(req, res, next);
     },
     req,
-    res,
+    res
   );
 
   const { survey: surveyId, question: questionId } = req.query;
@@ -108,7 +109,7 @@ export default async function organizations(
         const oldSelectOptions = question.selectOptions;
 
         const selectOptionIdsToDelete = oldSelectOptions.filter(
-          (s) => newSelectOptions.findIndex((ns) => ns.id === s.id) < 0,
+          (s) => newSelectOptions.findIndex((ns) => ns.id === s.id) < 0
         );
 
         const selectOptionCreate = newSelectOptions.filter((ns) => !ns.id);
@@ -186,3 +187,4 @@ export default async function organizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
+

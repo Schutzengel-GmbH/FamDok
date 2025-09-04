@@ -20,7 +20,11 @@ export interface ISurveys {
           defaultAnswerSelectOptions: true;
         };
         masterDataType: {
-          include: { dataFields: { include: { selectOptions: true } } };
+          include: {
+            dataFields: {
+              include: { selectOptions: true; triggeredSurvey: true };
+            };
+          };
         };
       };
     };
@@ -33,7 +37,11 @@ export interface ISurveys {
           defaultAnswerSelectOptions: true;
         };
         masterDataType: {
-          include: { dataFields: { include: { selectOptions: true } } };
+          include: {
+            dataFields: {
+              include: { selectOptions: true; triggeredSurvey: true };
+            };
+          };
         };
       };
     };
@@ -43,7 +51,7 @@ export interface ISurveys {
 
 export default async function surveys(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `/surveys`,
@@ -61,7 +69,7 @@ export default async function surveys(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
   // if it comes here, it means that the session verification was successful
   let session = req.session;
@@ -99,7 +107,11 @@ export default async function surveys(
               },
             },
             masterDataType: {
-              include: { dataFields: { include: { selectOptions: true } } },
+              include: {
+                dataFields: {
+                  include: { selectOptions: true, triggeredSurvey: true },
+                },
+              },
             },
           },
         })
@@ -131,7 +143,11 @@ export default async function surveys(
               },
             },
             masterDataType: {
-              include: { dataFields: { include: { selectOptions: true } } },
+              include: {
+                dataFields: {
+                  include: { selectOptions: true, triggeredSurvey: true },
+                },
+              },
             },
           },
         })
@@ -146,4 +162,3 @@ export default async function surveys(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-

@@ -3,22 +3,26 @@ import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSel
 import DataFieldTypeSelect from "@/components/masterDataTypes/dataFieldTypeSelect";
 import useToast from "@/components/notifications/notificationContext";
 import { FullDataField } from "@/types/prismaHelperTypes";
+import { useMasterDataTypes, useSurveys } from "@/utils/apiHooks";
 import { addDataField, updateDataField } from "@/utils/masterDataUtils";
 import { Save, Cancel } from "@mui/icons-material";
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  MenuItem,
+  Select,
   Switch,
   TextField,
 } from "@mui/material";
 import { CollectionType, DataFieldType, Prisma } from "@prisma/client";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface EditDataFieldDialogProps {
   dataField?: FullDataField;
@@ -41,6 +45,8 @@ export interface IDataFieldState {
   }[];
   required: boolean;
   type: DataFieldType;
+  triggeredSurveyId?: string;
+  triggerMultiple?: boolean;
 }
 
 export default function EditDataFieldDialog({
@@ -58,7 +64,26 @@ export default function EditDataFieldDialog({
     selectOptions: dataField?.selectOptions || [],
     required: dataField?.required || undefined,
     type: dataField?.type || undefined,
+    triggeredSurveyId: dataField?.triggeredSurveyId,
+    triggerMultiple: dataField?.triggerMultiple || undefined,
   });
+
+  useEffect(() => {
+    setDataFieldState({
+      text: dataField?.text || undefined,
+      description: dataField?.description || undefined,
+      collectionType: dataField?.collectionType || undefined,
+      collectionMaxSize: dataField?.collectionMaxSize || undefined,
+      selectMultiple: dataField?.selectMultiple || undefined,
+      selectOptions: dataField?.selectOptions || [],
+      required: dataField?.required || undefined,
+      type: dataField?.type || undefined,
+      triggeredSurveyId: dataField?.triggeredSurveyId,
+      triggerMultiple: dataField?.triggerMultiple || undefined,
+    });
+  }, [dataField]);
+
+  const { surveys } = useSurveys();
 
   const { addToast } = useToast();
 
@@ -82,10 +107,16 @@ export default function EditDataFieldDialog({
             required: dataFieldState.required,
             type: dataFieldState.type,
             selectMultiple: dataFieldState.selectMultiple,
+            triggeredSurvey: dataFieldState.triggeredSurveyId
+              ? {
+                  connect: { id: dataFieldState.triggeredSurveyId },
+                }
+              : undefined,
+            triggerMultiple: dataFieldState.triggerMultiple,
           },
           dataFieldState.selectOptions.length > 0
             ? dataFieldState.selectOptions
-            : undefined
+            : undefined,
         );
         addToast({ message: "Datenfeld geändert", severity: "success" });
         handleClose();
@@ -104,7 +135,18 @@ export default function EditDataFieldDialog({
 
       try {
         const res = await addDataField(masterDataTypeId, {
-          ...dataFieldState,
+          text: dataFieldState.text,
+          description: dataFieldState.description,
+          required: dataFieldState.required,
+          type: dataFieldState.type,
+          selectMultiple: dataFieldState.selectMultiple,
+          triggeredSurvey: dataFieldState.triggeredSurveyId
+            ? {
+                connect: { id: dataFieldState.triggeredSurveyId },
+              }
+            : undefined,
+          triggerMultiple: dataFieldState.triggerMultiple,
+
           selectOptions: { create: dataFieldState.selectOptions },
         });
         addToast({ message: "Datenfeld geändert", severity: "success" });
@@ -125,6 +167,8 @@ export default function EditDataFieldDialog({
       selectOptions: dataField?.selectOptions || [],
       required: dataField?.required || undefined,
       type: dataField?.type || undefined,
+      triggerMultiple: dataField?.triggerMultiple || undefined,
+      triggeredSurveyId: dataField?.triggeredSurveyId || undefined,
     });
     onClose();
   };
@@ -212,6 +256,43 @@ export default function EditDataFieldDialog({
               />
             </>
           )}
+          {dataFieldState.type === "TriggerSurvey" && (
+            <>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={dataFieldState.triggerMultiple as boolean}
+                    onChange={(e) => {
+                      setDataFieldState({
+                        ...dataFieldState,
+                        triggerMultiple: e.target.checked,
+                        collectionType: "Date",
+                      });
+                    }}
+                  />
+                }
+                label={"Mehrere Trigger zulassen"}
+              />
+              <Select
+                value={dataFieldState.triggeredSurveyId}
+                onChange={(e) =>
+                  setDataFieldState({
+                    ...dataFieldState,
+                    triggeredSurveyId: e.target.value,
+                  })
+                }
+              >
+                {surveys ? (
+                  surveys.map((s) => {
+                    if (s.masterDataTypeId === masterDataTypeId)
+                      return <MenuItem value={s.id}>{s.name}</MenuItem>;
+                  })
+                ) : (
+                  <CircularProgress />
+                )}
+              </Select>
+            </>
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -225,4 +306,3 @@ export default function EditDataFieldDialog({
     </Dialog>
   );
 }
-

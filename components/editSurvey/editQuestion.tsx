@@ -29,11 +29,12 @@ import { useEffect, useState } from "react";
 import ScaleNamesComponent from "./scaleNamesComponent";
 import SelectOptionsComponent from "./selectOptionsComponent";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
-import { IQuestions } from "@/pages/api/surveys/[survey]/questions";
-import { FullSurvey } from "@/types/prismaHelperTypes";
+import questions, { IQuestions } from "@/pages/api/surveys/[survey]/questions";
+import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import useToast from "@/components/notifications/notificationContext";
 import useInfoDialog from "../infoDialog/infoDialogContext";
 import CollectionTypeSelect from "@/components/masterDataTypes/collectionTypeSelect";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 export interface EditQuestionDialogProps {
   question?: Prisma.QuestionGetPayload<{ include: { selectOptions: true } }>;
@@ -42,7 +43,7 @@ export interface EditQuestionDialogProps {
   onClose: () => void;
 }
 
-interface QuestionState {
+export interface QuestionState {
   id?: string;
   questionTitle?: string | undefined;
   questionText: string;

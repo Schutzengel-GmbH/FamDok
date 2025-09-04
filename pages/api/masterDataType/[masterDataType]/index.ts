@@ -33,7 +33,7 @@ export interface IMasterDataTypeByIdBody {
 
 export default async function masterDataType(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse & Response
+  res: NextApiResponse & Response,
 ) {
   const logger = _logger.child({
     endpoint: `masterDataType`,
@@ -48,7 +48,7 @@ export default async function masterDataType(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   let session = req.session;
@@ -67,7 +67,7 @@ export default async function masterDataType(
       where: { id: id as string },
       include: {
         dataFields: {
-          include: { selectOptions: true },
+          include: { selectOptions: true, triggeredSurvey: true },
           orderBy: { createdAt: "asc" },
         },
         organization: true,
@@ -97,7 +97,7 @@ export default async function masterDataType(
           ?.selectOptions || [];
 
       const selectOptionsToDelete = currentSelectOptions.filter(
-        (c) => !data.selectOptions?.map((o) => o.id).includes(c.id)
+        (c) => !data.selectOptions?.map((o) => o.id).includes(c.id),
       );
       const selectOptionsToUpdate = data.selectOptions?.filter((so) => so.id);
       const selectOptionsToCreate = data.selectOptions?.filter((so) => !so.id);
@@ -158,7 +158,7 @@ export default async function masterDataType(
         !hasOneOfRole(
           reqUser,
           [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
-          update.organizationId
+          update.organizationId,
         )
       )
         return res.status(403).json({ error: "FORBIDDEN" });
@@ -185,7 +185,7 @@ export default async function masterDataType(
         !hasOneOfRole(
           reqUser,
           [Role.ADMIN, Role.CONTROLLER, Role.ORGCONTROLLER],
-          mdtToDelete.organizationId
+          mdtToDelete.organizationId,
         )
       )
         return res.status(403).json({ error: "FORBIDDEN" });

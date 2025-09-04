@@ -97,6 +97,9 @@ export default async function response(
         user: { include: { organization: true, subOrganizations: true } },
         masterData: {
           include: {
+            createdBy: {
+              include: { organization: true, subOrganizations: true },
+            },
             answers: {
               include: {
                 answerCollection: {

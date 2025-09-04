@@ -24,7 +24,7 @@ export interface ISubOrganizations {
 
 export default async function subOrganizations(
   req: NextApiRequest & SessionRequest,
-  res: NextApiResponse<ISubOrganizations> & Response
+  res: NextApiResponse<ISubOrganizations> & Response,
 ) {
   const logger = _logger.child({
     endpoint: "/subOrganizations",
@@ -41,7 +41,7 @@ export default async function subOrganizations(
       return await verifySession()(req, res, next);
     },
     req,
-    res
+    res,
   );
 
   const { organizationId } = req.query as { organizationId: string };
@@ -76,7 +76,7 @@ export default async function subOrganizations(
 
     case "POST":
       const createInput = JSON.parse(
-        req.body
+        req.body,
       ) as Prisma.SubOrganizationCreateInput;
 
       if (user.role !== Role.ADMIN) {
@@ -104,4 +104,3 @@ export default async function subOrganizations(
       return res.status(405).json({ error: "METHOD_NOT_ALLOWED" });
   }
 }
-
