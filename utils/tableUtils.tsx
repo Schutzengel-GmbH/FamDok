@@ -100,7 +100,7 @@ export function responsesToAllAnswersTable(
     data.surveyId = response.surveyId;
     data.responseCreatedBy = {
       ...response.user,
-      name: response.user.name || response.user.email,
+      name: response.user?.name || response.user?.email || 'Kein Nutzer zugewiesen',
       //@ts-ignore
       subOrganizations: response?.user?.subOrganizations?.map((o) => o.name),
     };
@@ -171,6 +171,7 @@ export function getMasterDataData(
 ): MasterDataTableData {
   let data: MasterDataTableData = {};
   data["number"] = masterData.number;
+  data["createdBy"] = masterData.createdBy;
   for (let answer of masterData.answers) {
     const dataField = masterData.masterDataType.dataFields.find(
       (d) => d.id === answer.dataFieldId
@@ -660,6 +661,8 @@ export function masterDataColumnDefinitionsNoSurvey(
             formatter: collectionFormatter,
             formatterParams: { collectionType: dataField.collectionType },
           };
+        case "TriggerSurvey":
+          return {title: "", visible: false};
         default:
           return { title: "--FEHLER--" };
       }
