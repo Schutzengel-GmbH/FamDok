@@ -1,6 +1,7 @@
 import DashboardDownloadButtons from "@/components/dashboards/dashboardDownloadButtons";
 import FiltersComponent from "@/components/surveyStats/filtersComponent";
 import { IMasterData } from "@/pages/api/masterDataType/[masterDataType]/[masterData]";
+import survey from "@/pages/api/surveys/[survey]";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import { useResponses } from "@/utils/apiHooks";
 import {
@@ -20,8 +21,10 @@ import {
   dashboardPerQuestionColumnDefinitions,
   dashboardPerSubOrgColumnDefinitions,
   dashboardPerUserColumnDefinitions,
+  dashboardMDCountColumnDefinitions,
   getWhereInputFromFamilyFilters,
   globalOptions,
+  masterDataDashboardData,
 } from "@/utils/tableUtils";
 import {
   Box,
@@ -40,7 +43,7 @@ interface DashboardProps {
   survey: FullSurvey;
 }
 
-type CountByOption = "user" | "organization" | "subOrganization" | "question";
+type CountByOption = "user" | "organization" | "subOrganization" | "question" | "masterDataCount";
 
 export default function Dashboard({ survey }: DashboardProps) {
   const [countBy, setCountBy] = useState<CountByOption>("user");
@@ -120,6 +123,9 @@ export default function Dashboard({ survey }: DashboardProps) {
       case "question":
         setColumnDef(dashboardPerQuestionColumnDefinitions);
         return answersPerQuestionDashboardData(responses, selectedQuestion);
+      case "masterDataCount":
+        setColumnDef(dashboardMDCountColumnDefinitions)
+        return masterDataDashboardData(responses);
       default:
         return [];
     }
@@ -140,7 +146,7 @@ export default function Dashboard({ survey }: DashboardProps) {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem" }}>
-        <CountBy countBy={countBy} onChange={setCountBy} />
+        <CountBy countBy={countBy} onChange={setCountBy} hasMD={survey.hasMasterData}/>
         {countBy === "question" && (
           <SelectQuestion
             survey={survey}
@@ -174,9 +180,11 @@ export default function Dashboard({ survey }: DashboardProps) {
 
 function CountBy({
   countBy,
+  hasMD,
   onChange,
 }: {
   countBy: CountByOption;
+  hasMD: boolean;
   onChange: (countBy: CountByOption) => void;
 }) {
   return (
@@ -196,6 +204,9 @@ function CountBy({
       <MenuItem key={"question"} value={"question"}>
         Nach Frage
       </MenuItem>
+      {hasMD && <MenuItem key={"masterDataCount"} value={"masterDataCount"}>
+        Nach Stammdaten
+      </MenuItem>}
     </Select>
   );
 }
