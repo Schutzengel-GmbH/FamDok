@@ -94,7 +94,7 @@ export default async function responses(
   }
 
   const extraWhereInput =
-    whereInput !== "{}"
+    whereInput && whereInput !== ";{}"
       ? JSON.parse(whereInput as string)
       : survey.hasMasterData
       ? { masterDataNumber: { gte: 0 } }
