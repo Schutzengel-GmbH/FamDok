@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import {
   FullResponse,
   FullSurvey,
@@ -8,7 +8,12 @@ import { useEffect, useState } from "react";
 import ResponseAnswerQuestionsComponent from "@/components/response/responseAnswerQuestionComponent";
 import UnsavedChangesComponent from "@/components/response/unsavedChangesComponent";
 import { useRouter } from "next/router";
-import { FetchError, apiGet, apiPostJson } from "@/utils/fetchApiUtils";
+import {
+  FetchError,
+  apiDelete,
+  apiGet,
+  apiPostJson,
+} from "@/utils/fetchApiUtils";
 import { IResponses } from "@/pages/api/surveys/[survey]/responses";
 import { ISubmitAnswer } from "@/pages/api/surveys/[survey]/responses/[response]/submitAnswers";
 import { InputErrors } from "@/components/response/answerQuestion";
@@ -18,6 +23,7 @@ import { IResponse } from "@/pages/api/surveys/[survey]/responses/[response]";
 import useToast from "@/components/notifications/notificationContext";
 import { MasterData, Prisma } from "@prisma/client";
 import SelectMasterData from "@/components/response/selectMasterData";
+import ConfirmDialog from "../utilityComponents/confirmDialog";
 
 type ResponseComponentProps = {
   initialResponse?: FullResponse;
@@ -37,20 +43,21 @@ export default function ResponseComponent({
   const [response, setResponse] = useState<FullResponse>(initialResponse);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const [answersState, setAnswersState] = useState<PartialAnswer[]>(
-    response?.answers || getDefaultAnswerstate(survey),
+    response?.answers || getDefaultAnswerstate(survey)
   );
   const [inputErrors, setInputErrors] = useState<
     { questionId: string; error: InputErrors }[]
   >([]);
   const [masterData, setMasterData] = useState<Partial<MasterData>>(
-    initialResponse?.masterData || initialMasterData,
+    initialResponse?.masterData || initialMasterData
   );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
 
   async function handleSave() {
     if (!response) {
       const res = await apiPostJson<IResponses>(
         `/api/surveys/${survey.id}/responses`,
-        { masterData },
+        { masterData }
       );
       if (res instanceof FetchError)
         addToast({
@@ -70,7 +77,7 @@ export default function ResponseComponent({
     } else {
       const res = await apiPostJson<IResponse>(
         `/api/surveys/${survey.id}/responses/${response.id}/`,
-        { masterData },
+        { masterData }
       );
       if (res instanceof FetchError)
         addToast({
@@ -93,7 +100,7 @@ export default function ResponseComponent({
   async function submitAnswers(responseId: string) {
     const res = await apiPostJson<ISubmitAnswer>(
       `/api/surveys/${survey.id}/responses/${responseId}/submitAnswers`,
-      { answersState },
+      { answersState }
     );
     if (res instanceof FetchError)
       addToast({
@@ -123,13 +130,13 @@ export default function ResponseComponent({
   function handleAnswerChanged(newAnswer: PartialAnswer, error?: InputErrors) {
     setAnswersState(
       answersState.map((a) =>
-        a.questionId === newAnswer.questionId ? newAnswer : a,
-      ),
+        a.questionId === newAnswer.questionId ? newAnswer : a
+      )
     );
     setUnsavedChanges(true);
 
     const indexOfError = inputErrors.findIndex(
-      (e) => e.questionId === newAnswer.questionId,
+      (e) => e.questionId === newAnswer.questionId
     );
 
     if (error !== undefined && indexOfError >= 0)
@@ -137,8 +144,8 @@ export default function ResponseComponent({
         inputErrors.map((e) =>
           e.questionId === newAnswer.questionId
             ? { questionId: newAnswer.questionId, error }
-            : e,
-        ),
+            : e
+        )
       );
     else if (error !== undefined && indexOfError < 0)
       setInputErrors([
@@ -147,7 +154,7 @@ export default function ResponseComponent({
       ]);
     else
       setInputErrors(
-        inputErrors.filter((e) => e.questionId !== newAnswer.questionId),
+        inputErrors.filter((e) => e.questionId !== newAnswer.questionId)
       );
   }
 
@@ -161,10 +168,34 @@ export default function ResponseComponent({
       survey.questions.filter(
         (q) =>
           q.required &&
-          answerHasNoValues(answersState.find((a) => a.questionId === q.id)),
+          answerHasNoValues(answersState.find((a) => a.questionId === q.id))
       ).length > 0
     );
   }
+
+  const deleteResponse = async () => {
+    try {
+      const res = await apiDelete<IResponse>(
+        `/api/surveys/${survey.id}/responses/${response.id}`
+      );
+      if (res instanceof FetchError)
+        addToast({
+          message: `Fehler bei der Verbindung zum Server: ${res.error}`,
+          severity: "error",
+        });
+      else
+        addToast({
+          message: `Antwort gelöscht.`,
+          severity: "success",
+        });
+      setDeleteDialogOpen(false);
+    } catch (e) {
+      addToast({
+        message: `Fehler: ${e}`,
+        severity: "error",
+      });
+    }
+  };
 
   return (
     <Box
@@ -214,6 +245,18 @@ export default function ResponseComponent({
         survey={survey}
         answersState={answersState}
         onChange={handleAnswerChanged}
+      />
+
+      <Button onClick={() => setDeleteDialogOpen(true)} color="error">
+        Löschen
+      </Button>
+
+      <ConfirmDialog
+        title={`Diese Antwort löschen?`}
+        body={`Soll diese Antwort endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.`}
+        open={deleteDialogOpen}
+        onConfirm={deleteResponse}
+        onCancel={() => setDeleteDialogOpen(false)}
       />
     </Box>
   );
