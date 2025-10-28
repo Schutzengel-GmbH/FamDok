@@ -1,8 +1,16 @@
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
-import { TextField, Checkbox, List, ListItem } from "@mui/material";
+import { RecursivePartial } from "@/types/utilTypes";
+import {
+  Autocomplete,
+  Checkbox,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+} from "@mui/material";
 import { SelectOption } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function AnswerSelectMultipleComponent({
   question,
@@ -12,21 +20,6 @@ export default function AnswerSelectMultipleComponent({
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
     (answer?.answerSelectOtherValues as IAnswerSelectOtherValues) || []
   );
-
-  function handleChange(checked: boolean, selectOption: SelectOption) {
-    if (checked)
-      onChange({
-        ...answer,
-        answerSelect: [...answer.answerSelect, selectOption],
-      });
-    else
-      onChange({
-        ...answer,
-        answerSelect: answer.answerSelect.filter(
-          (o) => o.id !== selectOption.id
-        ),
-      });
-  }
 
   function updateOtherValues(id: string, value: string) {
     const index = otherValues.findIndex((o) => o.selectOptionId === id);
@@ -41,36 +34,23 @@ export default function AnswerSelectMultipleComponent({
     onChange({ ...answer, answerSelectOtherValues: newValues });
   }
 
-  function isSelected(id: string) {
-    return answer
-      ? answer.answerSelect.findIndex((a) => a.id === id) >= 0
-      : question.defaultAnswerSelectOptions.findIndex((a) => a.id === id) >=
-          0 || false;
+  function handleChange(_e, options: RecursivePartial<SelectOption>[]) {
+    onChange({ ...answer, answerSelect: options });
   }
 
   return (
-    <List>
-      {question.selectOptions.map((s) => (
-        <ListItem key={s.id}>
-          <Checkbox
-            checked={isSelected(s.id)}
-            onChange={(e) => handleChange(e.target.checked, s)}
-          />
-          {!s.isOpen && <>{s.value}</>}
-          {s.isOpen && (
-            <TextField
-              label={s.value}
-              value={
-                otherValues?.find((v) => v.selectOptionId === s.id)?.value || ""
-              }
-              onChange={(e) => {
-                updateOtherValues(s.id, e.currentTarget.value);
-              }}
-            />
-          )}
-        </ListItem>
-      ))}
-    </List>
+    <Autocomplete
+      multiple
+      filterSelectedOptions
+      limitTags={2}
+      options={question.selectOptions}
+      getOptionLabel={(o) => o.value}
+      value={answer.answerSelect}
+      onChange={handleChange}
+      isOptionEqualToValue={(v1, v2) => v1.id === v2.id}
+      renderInput={(params) => (
+        <TextField {...params} label={question.questionText} />
+      )}
+    />
   );
 }
-
