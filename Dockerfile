@@ -1,4 +1,4 @@
-FROM node:lts-buster-slim AS builder
+FROM node:22 AS builder
 RUN apt-get update && apt-get install libssl-dev ca-certificates python3-dev -y
 WORKDIR /app
 COPY . .
@@ -6,7 +6,7 @@ RUN npm install
 RUN npx prisma generate
 RUN npm run build
 
-FROM node:lts-buster-slim AS production
+FROM node:22 AS production
 RUN apt-get update && apt-get install libssl-dev ca-certificates python3-dev -y
 WORKDIR /app
 

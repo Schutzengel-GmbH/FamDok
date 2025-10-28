@@ -115,6 +115,9 @@ export default async function myResponses(
             caregiver: true,
             masterData: {
               include: {
+                createdBy: {
+                  include: { organization: true, subOrganizations: true },
+                },
                 answers: {
                   include: {
                     answerCollection: {

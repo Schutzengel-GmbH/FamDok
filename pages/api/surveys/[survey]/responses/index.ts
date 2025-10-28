@@ -9,7 +9,6 @@ import { prisma } from "@/db/prisma";
 import { Prisma, Role } from "@prisma/client";
 import { logger as _logger } from "@/config/logger";
 import { FullResponse } from "@/types/prismaHelperTypes";
-import { error } from "console";
 
 supertokens.init(backendConfig());
 
@@ -57,7 +56,7 @@ export default async function responses(
 
   if (!user) return res.status(500).json({ error: "INTERNAL_SERVER_ERROR" });
 
-  const survey = await prisma.survey
+  const survey: Prisma.SurveyGetPayload<{}> = await prisma.survey
     .findUniqueOrThrow({ where: { id: surveyId as string } })
     .catch((err) => {
       if (
@@ -93,10 +92,14 @@ export default async function responses(
     ];
     where.user = { organizationId: user.organizationId };
   }
-  const extraWhereInput = whereInput ? JSON.parse(whereInput as string) : {};
-  where = { ...extraWhereInput, ...where };
 
-  console.log(JSON.stringify(where, null, 2));
+  const extraWhereInput =
+    whereInput !== "{}"
+      ? JSON.parse(whereInput as string)
+      : survey.hasMasterData
+      ? { masterDataNumber: { gte: 0 } }
+      : {};
+  where = { ...extraWhereInput, ...where };
 
   switch (req.method) {
     case "GET":
@@ -126,6 +129,9 @@ export default async function responses(
             user: { include: { organization: true, subOrganizations: true } },
             masterData: {
               include: {
+                createdBy: {
+                  include: { organization: true, subOrganizations: true },
+                },
                 answers: {
                   include: {
                     answerCollection: {
@@ -140,22 +146,12 @@ export default async function responses(
                   },
                 },
                 masterDataType: {
-                  include: { dataFields: { include: { selectOptions: true } } },
+                  include: {
+                    dataFields: { include: { selectOptions: true } },
+                  },
                 },
               },
             },
-            family: {
-              include: {
-                caregivers: true,
-                children: true,
-                comingFrom: true,
-                createdBy: {
-                  include: { organization: true, subOrganizations: true },
-                },
-              },
-            },
-            child: true,
-            caregiver: true,
           },
         })
         .catch((err) => {

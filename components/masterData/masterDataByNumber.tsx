@@ -183,7 +183,7 @@ export default function MasterDataByNumber({
       <CreatedByComponent
         canEdit={canEdit}
         user={currentUser}
-        userChanged={currentUser?.id !== masterData?.createdBy.id}
+        userChanged={currentUser?.id !== masterData?.createdBy?.id}
         onChange={setCurrentUser}
         onSave={handleSaveUser}
         onCancel={() => setCurrentUser(masterData?.createdBy)}
