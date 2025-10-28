@@ -42,7 +42,7 @@ export default function TriggerDataFieldAnswerComponent({
 
   const { masterData } = useMasterDataByNumber(
     masterDataTypeId as string,
-    parseInt(masterDataNumber as string),
+    parseInt(masterDataNumber as string)
   );
 
   const mutlipleTriggers = dataField.triggerMultiple;
@@ -54,7 +54,7 @@ export default function TriggerDataFieldAnswerComponent({
   >(
     mutlipleTriggers
       ? answer?.answerCollection?.collectionDataDate || []
-      : undefined,
+      : undefined
   );
 
   const dates = mutlipleTriggers
@@ -83,7 +83,7 @@ export default function TriggerDataFieldAnswerComponent({
               ],
             },
           },
-        ],
+        ]
       );
       console.log(res);
       error = res.error;
@@ -97,14 +97,14 @@ export default function TriggerDataFieldAnswerComponent({
             dataFieldId: dataField.id,
             answerDate: date,
           },
-        ],
+        ]
       );
       error = res.error;
     }
     if (error) alert(error);
     else
       router.push(
-        `/surveys/${dataField.triggeredSurveyId}/newResponse?number=${masterDataNumber}&mdt=${masterDataTypeId}`,
+        `/surveys/${dataField.triggeredSurveyId}/newResponse?number=${masterDataNumber}&mdt=${masterDataTypeId}`
       );
   }
 
@@ -190,7 +190,7 @@ export default function TriggerDataFieldAnswerComponent({
           />
           <Typography sx={{ mt: "1rem" }}>
             Achtung, beim Bestätigen wird zur Umfrage{" "}
-            {dataField.triggeredSurvey.name} weitergeleitet und alle sonstigen
+            {dataField?.triggeredSurvey?.name} weitergeleitet und alle sonstigen
             Änderungen werden verworfen.
           </Typography>
         </DialogContent>
