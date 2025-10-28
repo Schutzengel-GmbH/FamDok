@@ -189,6 +189,7 @@ export default function ResponseComponent({
           severity: "success",
         });
       setDeleteDialogOpen(false);
+      router.push("/surveys");
     } catch (e) {
       addToast({
         message: `Fehler: ${e}`,
