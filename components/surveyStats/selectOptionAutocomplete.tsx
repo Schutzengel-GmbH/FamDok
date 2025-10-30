@@ -1,10 +1,10 @@
-import { FullQuestion } from "@/types/prismaHelperTypes";
+import { FullDataField, FullQuestion } from "@/types/prismaHelperTypes";
 import { QuestionTypeUnion } from "@/types/utilTypes";
 import { Autocomplete, TextField } from "@mui/material";
 import { Question, SelectOption } from "@prisma/client";
 
 interface SelectOptionAutocompleteProps {
-  question: QuestionTypeUnion;
+  question: any;
   options: SelectOption[];
   onChange: (options: SelectOption[]) => void;
 }
@@ -28,4 +28,3 @@ export default function SelectOptionAutocomplete({
     />
   );
 }
-
