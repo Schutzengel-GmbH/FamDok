@@ -136,7 +136,6 @@ export default function AnswerQuestion({
         <CollectionDataFieldAnswerComponent
           dataField={question}
           answer={answer}
-          //@ts-ignore
           onChange={handleChange}
           canEdit={true}
         />
