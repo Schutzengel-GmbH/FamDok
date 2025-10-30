@@ -39,8 +39,12 @@ export default function Toast({
         {icon}
         <p className={styles.message}>{message}</p>
       </div>
-      <button id='removeButton' className={styles.removeButton} onClick={remove}>
-        <CloseIcon fill='white' width={24} />
+      <button
+        id="removeButton"
+        className={styles.removeButton}
+        onClick={remove}
+      >
+        <CloseIcon fill="white" width={24} /> ''
       </button>
     </div>
   );

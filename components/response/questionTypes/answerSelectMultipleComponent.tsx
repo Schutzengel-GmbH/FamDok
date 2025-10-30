@@ -1,14 +1,8 @@
+import useInputDialog from "@/components/inputDialog/inputDialogContext";
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
 import { RecursivePartial } from "@/types/utilTypes";
-import {
-  Autocomplete,
-  Checkbox,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  TextField,
-} from "@mui/material";
+import { Autocomplete, Chip, TextField } from "@mui/material";
 import { SelectOption } from "@prisma/client";
 import { useState } from "react";
 
@@ -17,6 +11,8 @@ export default function AnswerSelectMultipleComponent({
   answer,
   onChange,
 }: AnswerComponentProps) {
+  const { showInputDialog } = useInputDialog();
+
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
     (answer?.answerSelectOtherValues as IAnswerSelectOtherValues) || []
   );
@@ -31,11 +27,59 @@ export default function AnswerSelectMultipleComponent({
       newValues.push({ selectOptionId: id, value: value });
       setOtherValues(newValues);
     }
-    onChange({ ...answer, answerSelectOtherValues: newValues });
+    return newValues;
   }
 
-  function handleChange(_e, options: RecursivePartial<SelectOption>[]) {
-    onChange({ ...answer, answerSelect: options });
+  function handleChange(
+    e: any,
+    options: RecursivePartial<SelectOption>[],
+    reason: string,
+    details?: any
+  ) {
+    if (reason === "selectOption" && details.option.isOpen) {
+      showInputDialog({
+        title: details.option.value || "Misc",
+        initialValue: "",
+        onConfirm: function (value: string) {
+          const otherValues = updateOtherValues(details.option.id, value);
+          onChange({
+            ...answer,
+            answerSelect: options,
+            answerSelectOtherValues: otherValues,
+          });
+        },
+      });
+    } else onChange({ ...answer, answerSelect: options });
+  }
+
+  function handleEdit(option: RecursivePartial<SelectOption>) {
+    showInputDialog({
+      title: "",
+      initialValue:
+        otherValues.find((o) => o.selectOptionId === option.id).value || "",
+      onConfirm: function (value: string) {
+        const otherValues = updateOtherValues(option.id, value);
+        onChange({
+          ...answer,
+          answerSelectOtherValues: otherValues,
+        });
+      },
+    });
+  }
+
+  function getOptionLabel(option: RecursivePartial<SelectOption>) {
+    const otherValue = otherValues.find((o) => o.selectOptionId === option.id);
+
+    if (option.isOpen) return `${option.value}: ${otherValue?.value || "---"}`;
+
+    return option.value;
+  }
+
+  function isOptionEqualToValue(
+    option: RecursivePartial<SelectOption>,
+    value: RecursivePartial<SelectOption>
+  ) {
+    return option.value === value.value;
   }
 
   return (
@@ -44,12 +88,32 @@ export default function AnswerSelectMultipleComponent({
       filterSelectedOptions
       limitTags={2}
       options={question.selectOptions}
-      getOptionLabel={(o) => o.value}
+      getOptionLabel={getOptionLabel}
+      ChipProps={{ onClick: (e) => console.log(e) }}
       value={answer.answerSelect}
       onChange={handleChange}
-      isOptionEqualToValue={(v1, v2) => v1.id === v2.id}
+      renderTags={(values, getTagProps) =>
+        values.map((v, i) => {
+          const { className, disabled, key, onDelete, tabIndex } = getTagProps({
+            index: i,
+          });
+          return (
+            <Chip
+              clickable
+              onClick={() => handleEdit(v)}
+              key={key}
+              className={className}
+              disabled={disabled}
+              label={getOptionLabel(v)}
+              onDelete={(e) => onDelete(e)}
+              tabIndex={tabIndex}
+            />
+          );
+        })
+      }
+      isOptionEqualToValue={isOptionEqualToValue}
       renderInput={(params) => (
-        <TextField {...params} label={question.questionText} />
+        <TextField {...params} placeholder={question.questionText} />
       )}
     />
   );

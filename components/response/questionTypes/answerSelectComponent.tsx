@@ -1,42 +1,21 @@
-import InfoItem from "@/components/editSurvey/selectOptionInfo";
+import useInputDialog from "@/components/inputDialog/inputDialogContext";
 import { AnswerComponentProps } from "@/components/response/answerQuestion";
 import { IAnswerSelectOtherValues } from "@/types/prismaHelperTypes";
-import { Info } from "@mui/icons-material";
-import {
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  TextField,
-} from "@mui/material";
+import { RecursivePartial } from "@/types/utilTypes";
+import { Autocomplete, Chip, TextField } from "@mui/material";
 import { SelectOption } from "@prisma/client";
-import { useState, ChangeEvent, MouseEvent, SyntheticEvent } from "react";
+import { useState } from "react";
 
-export default function AnswerSelectComponent({
+export default function AnswerSelectMultipleComponent({
   question,
   answer,
   onChange,
 }: AnswerComponentProps) {
+  const { showInputDialog } = useInputDialog();
+
   const [otherValues, setOtherValues] = useState<IAnswerSelectOtherValues>(
     (answer?.answerSelectOtherValues as IAnswerSelectOtherValues) || []
   );
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    onChange({
-      ...answer,
-      answerSelect: [{ id: e.target.value }],
-      answerSelectOtherValues: otherValues,
-    });
-  }
-
-  function handleClick(option: Partial<SelectOption>) {
-    if (isChecked(option))
-      onChange({
-        ...answer,
-        answerSelect: [],
-        answerSelectOtherValues: otherValues,
-      });
-  }
 
   function updateOtherValues(id: string, value: string) {
     const index = otherValues.findIndex((o) => o.selectOptionId === id);
@@ -48,48 +27,64 @@ export default function AnswerSelectComponent({
       newValues.push({ selectOptionId: id, value: value });
       setOtherValues(newValues);
     }
-    onChange({ ...answer, answerSelectOtherValues: newValues });
+    return newValues;
   }
 
-  function isChecked(o: Partial<SelectOption>): boolean {
-    return answer
-      ? answer.answerSelect.findIndex((a) => a.id === o.id) >= 0
-      : question.defaultAnswerSelectOptions.findIndex((a) => a.id === o.id) >=
-          0 || false;
+  function handleChange(
+    e: any,
+    option: RecursivePartial<SelectOption>,
+    reason: string,
+    details?: any
+  ) {
+    if (reason === "selectOption" && details.option.isOpen) {
+      showInputDialog({
+        title: details.option.value || "Misc",
+        initialValue: "",
+        onConfirm: function (value: string) {
+          const otherValues = updateOtherValues(details.option.id, value);
+          onChange({
+            ...answer,
+            answerSelect: [option],
+            answerSelectOtherValues: otherValues,
+          });
+        },
+      });
+    } else onChange({ ...answer, answerSelect: [option] });
+  }
+
+  function handleEdit(option: RecursivePartial<SelectOption>) {
+    showInputDialog({
+      title: "",
+      initialValue:
+        otherValues.find((o) => o.selectOptionId === option.id).value || "",
+      onConfirm: function (value: string) {
+        const otherValues = updateOtherValues(option.id, value);
+        onChange({
+          ...answer,
+          answerSelectOtherValues: otherValues,
+        });
+      },
+    });
+  }
+
+  function getOptionLabel(option: RecursivePartial<SelectOption>) {
+    const otherValue = otherValues.find((o) => o.selectOptionId === option.id);
+
+    if (option.isOpen) return `${option.value}: ${otherValue?.value || "---"}`;
+
+    return option.value;
   }
 
   return (
-    <FormControl>
-      <RadioGroup onChange={handleChange}>
-        {question.selectOptions.map((o) => (
-          <FormControlLabel
-            key={o.id}
-            value={o.id}
-            control={
-              <Radio checked={isChecked(o)} onClick={() => handleClick(o)} />
-            }
-            label={
-              <>
-                {o.isOpen ? (
-                  <TextField
-                    label={o.value}
-                    value={
-                      otherValues?.find((v) => v.selectOptionId === o.id)
-                        ?.value || ""
-                    }
-                    onChange={(e) => {
-                      updateOtherValues(o.id, e.currentTarget.value);
-                    }}
-                  />
-                ) : (
-                  o.value
-                )}
-                {o.info ? <InfoItem info={o.info} /> : null}
-              </>
-            }
-          />
-        ))}
-      </RadioGroup>
-    </FormControl>
+    <Autocomplete
+      options={question.selectOptions}
+      getOptionLabel={getOptionLabel}
+      ChipProps={{ onClick: (e) => console.log(e) }}
+      value={answer.answerSelect[0]}
+      onChange={handleChange}
+      renderInput={(params) => (
+        <TextField {...params} placeholder={question.questionText} />
+      )}
+    />
   );
 }
