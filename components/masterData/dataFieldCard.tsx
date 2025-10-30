@@ -123,18 +123,14 @@ export default function DataFieldCard({
   return (
     <Paper
       sx={{
+        p: ".5rem",
         display: "flex",
         flexDirection: "column",
         gap: ".5rem",
-        alignItems: "baseline",
-        p: ".5rem",
-        border: requiredButNoAnswer ? "2px solid red" : "none",
       }}
     >
       <Typography variant="h6">{dataField.text}:</Typography>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        {getAnswerComponent()}
-      </Box>
+      {getAnswerComponent()}
       {requiredButNoAnswer && (
         <Typography color={"error"}>*Diese Frage ist nicht optional</Typography>
       )}

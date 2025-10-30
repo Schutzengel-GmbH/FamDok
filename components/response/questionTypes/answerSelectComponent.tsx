@@ -52,21 +52,6 @@ export default function AnswerSelectMultipleComponent({
     } else onChange({ ...answer, answerSelect: [option] });
   }
 
-  function handleEdit(option: RecursivePartial<SelectOption>) {
-    showInputDialog({
-      title: "",
-      initialValue:
-        otherValues.find((o) => o.selectOptionId === option.id).value || "",
-      onConfirm: function (value: string) {
-        const otherValues = updateOtherValues(option.id, value);
-        onChange({
-          ...answer,
-          answerSelectOtherValues: otherValues,
-        });
-      },
-    });
-  }
-
   function getOptionLabel(option: RecursivePartial<SelectOption>) {
     const otherValue = otherValues.find((o) => o.selectOptionId === option.id);
 
@@ -79,8 +64,7 @@ export default function AnswerSelectMultipleComponent({
     <Autocomplete
       options={question.selectOptions}
       getOptionLabel={getOptionLabel}
-      ChipProps={{ onClick: (e) => console.log(e) }}
-      value={answer.answerSelect[0]}
+      value={answer?.answerSelect[0]}
       onChange={handleChange}
       renderInput={(params) => (
         <TextField {...params} placeholder={question.questionText} />

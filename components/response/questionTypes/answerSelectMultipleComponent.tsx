@@ -89,8 +89,7 @@ export default function AnswerSelectMultipleComponent({
       limitTags={2}
       options={question.selectOptions}
       getOptionLabel={getOptionLabel}
-      ChipProps={{ onClick: (e) => console.log(e) }}
-      value={answer.answerSelect}
+      value={answer?.answerSelect}
       onChange={handleChange}
       renderTags={(values, getTagProps) =>
         values.map((v, i) => {
