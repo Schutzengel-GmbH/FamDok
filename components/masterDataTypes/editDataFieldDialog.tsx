@@ -106,6 +106,7 @@ export default function EditDataFieldDialog({
             description: dataFieldState.description,
             required: dataFieldState.required,
             type: dataFieldState.type,
+            collectionType: dataFieldState.collectionType,
             selectMultiple: dataFieldState.selectMultiple,
             triggeredSurvey: dataFieldState.triggeredSurveyId
               ? {
@@ -116,7 +117,7 @@ export default function EditDataFieldDialog({
           },
           dataFieldState.selectOptions.length > 0
             ? dataFieldState.selectOptions
-            : undefined,
+            : undefined
         );
         addToast({ message: "Datenfeld geändert", severity: "success" });
         handleClose();

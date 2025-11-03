@@ -10,6 +10,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { de } from "date-fns/locale";
 import { ToastProvider } from "@/components/notifications/notificationContext";
 import { InfoDialogProvider } from "@/components/infoDialog/infoDialogContext";
+import { InputDialogProvider } from "@/components/inputDialog/inputDialogContext";
 import {
   ThemeProvider,
   createTheme,
@@ -86,15 +87,15 @@ function MyApp({ Component, pageProps }): JSX.Element {
                   ? "dark"
                   : "light"
                 : mode === Theme.Light
-                  ? "light"
-                  : "dark",
+                ? "light"
+                : "dark",
           },
         },
         deDE,
         pickersDeDE,
-        coreDeDE,
+        coreDeDE
       ),
-    [systemPrefersDark, mode],
+    [systemPrefersDark, mode]
   );
 
   return (
@@ -105,16 +106,18 @@ function MyApp({ Component, pageProps }): JSX.Element {
             <ConfigProvider>
               <CssBaseline />
               <Layout>
-                <InfoDialogProvider>
-                  <ToastProvider>
-                    <script
-                      type="text/javascript"
-                      src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
-                    ></script>
-                    <Component {...pageProps} />
-                    <CookieBanner />
-                  </ToastProvider>
-                </InfoDialogProvider>
+                <InputDialogProvider>
+                  <InfoDialogProvider>
+                    <ToastProvider>
+                      <script
+                        type="text/javascript"
+                        src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+                      ></script>
+                      <Component {...pageProps} />
+                      <CookieBanner />
+                    </ToastProvider>
+                  </InfoDialogProvider>
+                </InputDialogProvider>
               </Layout>
             </ConfigProvider>
           </ThemeProvider>
