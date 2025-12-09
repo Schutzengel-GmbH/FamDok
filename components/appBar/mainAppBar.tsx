@@ -20,19 +20,17 @@ export default function MainAppBar() {
   const theme = useTheme();
   const settings = useConfig();
 
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<
-    HTMLElement | undefined
-  >(undefined);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState(undefined);
   const openUserMenu = Boolean(userMenuAnchorEl);
 
   const [navMenuOpen, setNavMenuOpen] = React.useState(false);
   const router = useRouter();
 
-  async function handleUserMenu(e: React.MouseEvent<HTMLButtonElement>) {
+  async function handleUserMenu(e: React.SyntheticEvent) {
     if (!(await Session.doesSessionExist())) {
       router.push("/auth");
     } else {
-      setUserMenuAnchorEl(e.currentTarget);
+      setUserMenuAnchorEl(e.target);
     }
   }
 
