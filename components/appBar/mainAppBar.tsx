@@ -11,18 +11,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { AccountCircle } from "@mui/icons-material";
 import React from "react";
 import UserMenuComponent from "@/components/appBar/userMenu";
-import Session, {
-  SessionContextType,
-} from "supertokens-auth-react/recipe/session";
-import { SessionContextUpdate } from "supertokens-auth-react/lib/build/recipe/session/types";
+import Session from "supertokens-web-js/recipe/session";
 import { useRouter } from "next/router";
 import NavMenuComponent from "@/components/appBar/navMenu";
 import { useConfig } from "../utilityComponents/conficContext";
 
 export default function MainAppBar() {
-  let sessionContext = Session.useSessionContext() as SessionContextType &
-    SessionContextUpdate;
-
   const theme = useTheme();
   const settings = useConfig();
 
@@ -34,8 +28,8 @@ export default function MainAppBar() {
   const [navMenuOpen, setNavMenuOpen] = React.useState(false);
   const router = useRouter();
 
-  function handleUserMenu(e: React.MouseEvent<HTMLButtonElement>) {
-    if (!sessionContext.doesSessionExist) {
+  async function handleUserMenu(e: React.MouseEvent<HTMLButtonElement>) {
+    if (!(await Session.doesSessionExist())) {
       router.push("/auth");
     } else {
       setUserMenuAnchorEl(e.currentTarget);
@@ -46,15 +40,13 @@ export default function MainAppBar() {
     setUserMenuAnchorEl(undefined);
   }
 
-  function handleNavMenu() {
-    if (!sessionContext.doesSessionExist) {
+  async function handleNavMenu() {
+    if (!(await Session.doesSessionExist())) {
       return;
     } else {
       setNavMenuOpen(true);
     }
   }
-
-  if (sessionContext.loading) return null;
 
   return (
     <AppBar position="sticky">
