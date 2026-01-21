@@ -12,7 +12,7 @@ import { Role, User } from "@prisma/client";
 export function useUserData(id?: string) {
   const { data, error, isLoading, mutate } = useSWR<IUserMe>(
     `/api/user/${id ? id : "me"}`,
-    fetcher
+    fetcher,
   );
 
   return {
@@ -41,7 +41,6 @@ export function generateTempPassword(): string {
 
 export async function getUserByEmail(email: string) {
   const users = await listUsersByAccountInfo("public", { email });
-  console.log(email, users);
   return users[0];
 }
 
@@ -60,7 +59,7 @@ export async function getUserByAuthId(authId: string) {
 export function hasOneOfRole(
   user: User,
   roles: Role[],
-  organizationId?: string
+  organizationId?: string,
 ) {
   if (organizationId) {
     if (!roles.includes(user.role)) return false;
