@@ -13,7 +13,7 @@ export class SurveyExport {
       include: {
         questions: { include: { selectOptions: true } };
       };
-    }>
+    }>,
   ) {
     this.survey = survey;
     this.surveyCreateInput = this.getSurveyCreateInput();
@@ -34,6 +34,7 @@ export class SurveyExport {
     for (const question of this.survey.questions) {
       questions.push({
         type: question.type,
+        autocomplete: question.autocomplete,
         questionText: question.questionText,
         questionDescription: question.questionDescription,
         questionTitle: question.questionTitle,
@@ -61,4 +62,3 @@ export class SurveyExport {
     return JSON.stringify(this.surveyCreateInput);
   }
 }
-
