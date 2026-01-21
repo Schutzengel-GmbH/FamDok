@@ -151,13 +151,20 @@ export const CollectionDateFilters: IFilter[] = [
   { filter: "not", name: "Ein Element ist nicht am" },
 ];
 
-export function getFiltersForDataFieldType(args: {
-  type: DataFieldType;
-  selectMultiple?: boolean;
-  collectionType?: CollectionType;
-  omit?: FilterType[];
-}) {
+export function getFiltersForDataFieldType(
+  args:
+    | {
+        type: DataFieldType;
+        selectMultiple?: boolean;
+        collectionType?: CollectionType;
+        omit?: FilterType[];
+      }
+    | "CREATEDBY"
+    | "CREATEDBYORG",
+) {
   if (!args) return [];
+  if (args === "CREATEDBY" || args === "CREATEDBYORG") return [];
+
   const { type, selectMultiple, collectionType, omit } = args;
 
   let filters = [];
@@ -268,15 +275,31 @@ export interface SelectFilterProps {
 
 export function getMasterDataWhereInput(
   filter: IMasterDataFilter,
-  masterDataType: FullMasterDataType
+  masterDataType: FullMasterDataType,
 ): Prisma.MasterDataWhereInput {
+  console.log(filter);
   if (!filter?.dataFieldId) return {};
 
   if (filter.dataFieldId === "NUMBER")
     return { number: { [filter.filter]: filter.value } };
 
+  if (filter.dataFieldId === "CREATEDBY")
+    return {
+      createdBy: { id: filter.value },
+    };
+
+  if (filter.dataFieldId === "CREATEDBYORG")
+    return {
+      createdBy: {
+        organizationId: filter?.value?.organization.id,
+        subOrganizations: filter?.value?.subOrganization
+          ? { some: { id: filter.value.subOrganization.id } }
+          : undefined,
+      },
+    };
+
   const dataField = masterDataType.dataFields.find(
-    (f) => f.id === filter.dataFieldId
+    (f) => f.id === filter.dataFieldId,
   );
 
   let answerField: keyof FullDataFieldAnswer;
@@ -466,7 +489,7 @@ export function getMasterDataWhereInput(
 
 export function getWhereInput(
   filter: IFilter,
-  survey: FullSurvey
+  survey: FullSurvey,
 ): Prisma.ResponseWhereInput {
   if (!filter?.questionId) return {};
 
@@ -665,7 +688,7 @@ export function getWhereInput(
 }
 
 export function getGeneralWhereInput(
-  generalFilter: IGeneralFilter
+  generalFilter: IGeneralFilter,
 ): Prisma.ResponseWhereInput {
   if (!generalFilter?.field) return {};
 
@@ -693,4 +716,3 @@ export function getGeneralWhereInput(
       return {};
   }
 }
-

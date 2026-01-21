@@ -17,9 +17,18 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
 } from "@mui/material";
-import { DataField, SelectOption } from "@prisma/client";
+import {
+  DataField,
+  Organization,
+  SelectOption,
+  SubOrganization,
+} from "@prisma/client";
+import UserSelectId from "./userSelectId";
+import SelectOrgOrSubOrg from "./selectOrgOrSubOrg";
+import { da } from "date-fns/locale";
 
 interface MasterDataFilterComponentProps {
   masterDataType: FullMasterDataType;
@@ -32,11 +41,18 @@ export default function MasterDataFilterComponent({
   masterDataFilter,
   onChange,
 }: MasterDataFilterComponentProps) {
-  const dataField = masterDataType?.dataFields.find(
-    (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId,
-  );
-
-  const isNumberFilter: boolean = masterDataFilter?.dataFieldId === "NUMBER";
+  let dataField;
+  if (
+    masterDataFilter?.dataFieldId === "NUMBER" ||
+    masterDataFilter?.dataFieldId === "CREATEDBY" ||
+    masterDataFilter?.dataFieldId === "CREATEDBYORG"
+  )
+    dataField = masterDataFilter.dataFieldId;
+  else
+    dataField = masterDataType?.dataFields.find(
+      (currentDataField) =>
+        currentDataField.id === masterDataFilter?.dataFieldId,
+    );
 
   return (
     <Box
@@ -48,17 +64,16 @@ export default function MasterDataFilterComponent({
       }}
     >
       <SelectDataField
-        isNumberFilter={isNumberFilter}
         masterDataType={masterDataType}
         dataField={dataField}
         onChange={(dataField) =>
           onChange({
-            dataFieldId: dataField === "NUMBER" ? "NUMBER" : dataField.id,
+            dataFieldId:
+              typeof dataField === "object" ? dataField.id : dataField,
           })
         }
       />
       <SelectFilter
-        isNumberFilter={isNumberFilter}
         dataField={dataField}
         filter={masterDataFilter}
         onChange={(f) =>
@@ -70,7 +85,6 @@ export default function MasterDataFilterComponent({
         }
       />
       <ValueInput
-        isNumberFilter={isNumberFilter}
         dataField={dataField}
         filter={masterDataFilter}
         onChange={(f) => onChange({ ...masterDataFilter, value: f.value })}
@@ -80,35 +94,49 @@ export default function MasterDataFilterComponent({
 }
 
 interface SelectDataFieldProps {
-  isNumberFilter: boolean;
   masterDataType: FullMasterDataType;
-  dataField: DataField;
-  onChange: (dataField: DataField | "NUMBER") => void;
+  dataField: DataField | "NUMBER" | "CREATEDBY" | "CREATEDBYORG";
+  onChange: (dataField: Partial<DataField>) => void;
 }
 
 function SelectDataField({
-  isNumberFilter,
   masterDataType,
   dataField,
   onChange,
 }: SelectDataFieldProps) {
+  function change(e: SelectChangeEvent<string>) {
+    switch (e.target.value) {
+      case "NUMBER":
+      case "CREATEDBY":
+      case "CREATEDBYORG":
+        onChange({ id: e.target.value });
+        break;
+      default:
+        const df = masterDataType.dataFields.find(
+          (d) => d.id === e.target.value,
+        );
+        onChange(df);
+        break;
+    }
+  }
+
   return (
     <FormControl sx={{ width: "25%" }}>
       <InputLabel id="questionLabel">Datenfeld</InputLabel>
       <Select
         labelId="questionLabel"
         label={"Datenfeld"}
-        value={isNumberFilter ? "NUMBER" : dataField?.id || ""}
-        onChange={(e) =>
-          e.target.value === "NUMBER"
-            ? onChange("NUMBER")
-            : onChange(
-                masterDataType.dataFields.find((q) => q.id === e.target.value),
-              )
-        }
+        value={typeof dataField === "object" ? dataField.id : dataField || ""}
+        onChange={change}
       >
         <MenuItem key={"NUMBER"} value={"NUMBER"}>
           Nummer (Stammdatenart {masterDataType.name})
+        </MenuItem>
+        <MenuItem key={"CREATEDBY"} value={"CREATEDBY"}>
+          Erstellt von ...
+        </MenuItem>
+        <MenuItem key={"CREATEDBYORG"} value={"CREATEDBYORG"}>
+          Erstellt von Organisation ...
         </MenuItem>
         {masterDataType.dataFields.map((df) => (
           <MenuItem key={df.id} value={df.id}>
@@ -121,21 +149,18 @@ function SelectDataField({
 }
 
 interface SelectFilterProps {
-  isNumberFilter: boolean;
-  dataField: DataField;
+  dataField: DataField | "NUMBER" | "CREATEDBY" | "CREATEDBYORG";
   filter: IMasterDataFilter;
   onChange: (filter: IMasterDataFilter) => void;
 }
 
-function SelectFilter({
-  isNumberFilter,
-  dataField,
-  filter,
-  onChange,
-}: SelectFilterProps) {
-  const filters = isNumberFilter
-    ? getFiltersForDataFieldType({ type: "Int", omit: ["empty", "notEmpty"] })
-    : getFiltersForDataFieldType(dataField);
+function SelectFilter({ dataField, filter, onChange }: SelectFilterProps) {
+  const filters =
+    dataField === "NUMBER"
+      ? getFiltersForDataFieldType({ type: "Int", omit: ["empty", "notEmpty"] })
+      : getFiltersForDataFieldType(dataField);
+
+  if (dataField === "CREATEDBY" || dataField === "CREATEDBYORG") return <></>;
 
   return (
     <FormControl sx={{ width: "25%" }}>
@@ -160,34 +185,44 @@ function SelectFilter({
 }
 
 interface ValueInputProps {
-  isNumberFilter: boolean;
-  dataField: FullDataField;
+  dataField: FullDataField | "NUMBER" | "CREATEDBY" | "CREATEDBYORG";
   filter: IMasterDataFilter;
   onChange: (filter: IMasterDataFilter) => void;
 }
 
-function ValueInput({
-  isNumberFilter,
-  dataField,
-  filter,
-  onChange,
-}: ValueInputProps) {
+function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
   if (NO_VALUE_FILTERS.includes(filter?.filter)) return <></>;
 
-  if (isNumberFilter)
-    return (
-      <TextField
-        type="text"
-        value={filter.value || ""}
-        onChange={(e) => {
-          const number = Number(e.target.value);
-          if (Number.isNaN(number)) return;
-          onChange({ ...filter, value: number });
-        }}
-      />
-    );
+  const type =
+    dataField === "NUMBER"
+      ? "Num"
+      : dataField === "CREATEDBY"
+        ? "CREATEDBY"
+        : dataField === "CREATEDBYORG"
+          ? "CREATEDBYORG"
+          : dataField?.type;
 
-  switch (dataField?.type) {
+  switch (type) {
+    case "CREATEDBYORG":
+      return (
+        <SelectOrgOrSubOrg
+          organization={filter?.value?.organization}
+          subOrganization={filter?.value?.subOrganization}
+          onChange={(org, subOrg) =>
+            onChange({
+              ...filter,
+              value: { organization: org, subOrganization: subOrg },
+            })
+          }
+        />
+      );
+    case "CREATEDBY":
+      return (
+        <UserSelectId
+          userId={filter.value}
+          onChange={(id) => onChange({ ...filter, value: id })}
+        />
+      );
     case "Text":
       return (
         <TextField
@@ -224,7 +259,7 @@ function ValueInput({
     case "Select":
       return (
         <SelectOptionAutocomplete
-          question={dataField}
+          question={dataField as FullDataField}
           options={filter.value}
           onChange={(o) => onChange({ ...filter, value: o })}
         />
@@ -232,7 +267,7 @@ function ValueInput({
     case "Collection":
       return (
         <CollectionValues
-          dataField={dataField}
+          dataField={dataField as FullDataField}
           value={filter.value}
           onChange={(o) => onChange({ ...filter, value: o })}
         />
