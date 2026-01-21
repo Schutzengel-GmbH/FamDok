@@ -80,7 +80,7 @@ export default function FiltersComponent({
     onChange({
       filters,
       familyFilters: familyFilters.map((f, i) =>
-        i === index ? updatedFilter : f
+        i === index ? updatedFilter : f,
       ),
       generalFilters,
       masterDataFilters,
@@ -110,7 +110,7 @@ export default function FiltersComponent({
       filters,
       familyFilters,
       generalFilters: generalFilters.map((f, i) =>
-        i === index ? updatedFilter : f
+        i === index ? updatedFilter : f,
       ),
       masterDataFilters,
     });
@@ -136,14 +136,14 @@ export default function FiltersComponent({
 
   function updateMasterDataFilter(
     updatedFilter: IMasterDataFilter,
-    index: number
+    index: number,
   ) {
     onChange({
       filters,
       familyFilters,
       generalFilters,
       masterDataFilters: masterDataFilters.map((f, i) =>
-        i === index ? updatedFilter : f
+        i === index ? updatedFilter : f,
       ),
     });
   }
@@ -283,4 +283,3 @@ export default function FiltersComponent({
     </Box>
   );
 }
-

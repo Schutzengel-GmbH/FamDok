@@ -11,6 +11,7 @@ import {
   getWhereInput,
   getGeneralWhereInput,
   IMasterDataFilter,
+  getMasterDataWhereInput,
 } from "@/utils/filters";
 import {
   answersPerOrgDashboardData,
@@ -43,12 +44,17 @@ interface DashboardProps {
   survey: FullSurvey;
 }
 
-type CountByOption = "user" | "organization" | "subOrganization" | "question" | "masterDataCount";
+type CountByOption =
+  | "user"
+  | "organization"
+  | "subOrganization"
+  | "question"
+  | "masterDataCount";
 
 export default function Dashboard({ survey }: DashboardProps) {
   const [countBy, setCountBy] = useState<CountByOption>("user");
   const [columnDef, setColumnDef] = useState<ColumnDefinition[]>(
-    dashboardPerUserColumnDefinitions
+    dashboardPerUserColumnDefinitions,
   );
   const [selectedQuestion, setSelectedQuestion] = useState<FullQuestion>();
   const tableRef = useRef();
@@ -104,6 +110,15 @@ export default function Dashboard({ survey }: DashboardProps) {
         family: survey.hasFamily
           ? getWhereInputFromFamilyFilters(filters.familyFilters)
           : undefined,
+        masterData: survey.hasMasterData
+          ? {
+              AND: [
+                ...filters.masterDataFilters.map((f) =>
+                  getMasterDataWhereInput(f, survey.masterDataType),
+                ),
+              ],
+            }
+          : undefined,
       });
   }
 
@@ -124,7 +139,7 @@ export default function Dashboard({ survey }: DashboardProps) {
         setColumnDef(dashboardPerQuestionColumnDefinitions);
         return answersPerQuestionDashboardData(responses, selectedQuestion);
       case "masterDataCount":
-        setColumnDef(dashboardMDCountColumnDefinitions)
+        setColumnDef(dashboardMDCountColumnDefinitions);
         return masterDataDashboardData(responses);
       default:
         return [];
@@ -134,7 +149,8 @@ export default function Dashboard({ survey }: DashboardProps) {
   const hasFilters =
     filters.familyFilters?.length > 0 ||
     filters.filters?.length > 0 ||
-    filters.generalFilters?.length > 0;
+    filters.generalFilters?.length > 0 ||
+    filters.masterDataFilters?.length > 0;
 
   return (
     <Box
@@ -146,7 +162,11 @@ export default function Dashboard({ survey }: DashboardProps) {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "row", gap: ".5rem" }}>
-        <CountBy countBy={countBy} onChange={setCountBy} hasMD={survey.hasMasterData}/>
+        <CountBy
+          countBy={countBy}
+          onChange={setCountBy}
+          hasMD={survey.hasMasterData}
+        />
         {countBy === "question" && (
           <SelectQuestion
             survey={survey}
@@ -204,9 +224,11 @@ function CountBy({
       <MenuItem key={"question"} value={"question"}>
         Nach Frage
       </MenuItem>
-      {hasMD && <MenuItem key={"masterDataCount"} value={"masterDataCount"}>
-        Nach Stammdaten
-      </MenuItem>}
+      {hasMD && (
+        <MenuItem key={"masterDataCount"} value={"masterDataCount"}>
+          Nach Stammdaten
+        </MenuItem>
+      )}
     </Select>
   );
 }
@@ -234,4 +256,3 @@ function SelectQuestion({
     </Select>
   );
 }
-
