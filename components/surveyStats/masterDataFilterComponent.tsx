@@ -33,11 +33,10 @@ export default function MasterDataFilterComponent({
   onChange,
 }: MasterDataFilterComponentProps) {
   const dataField = masterDataType?.dataFields.find(
-    (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId
+    (currentDataField) => currentDataField.id === masterDataFilter?.dataFieldId,
   );
 
   const isNumberFilter: boolean = masterDataFilter?.dataFieldId === "NUMBER";
-  console.log(isNumberFilter);
 
   return (
     <Box
@@ -104,7 +103,7 @@ function SelectDataField({
           e.target.value === "NUMBER"
             ? onChange("NUMBER")
             : onChange(
-                masterDataType.dataFields.find((q) => q.id === e.target.value)
+                masterDataType.dataFields.find((q) => q.id === e.target.value),
               )
         }
       >
@@ -243,4 +242,3 @@ function ValueInput({
       return <></>;
   }
 }
-
