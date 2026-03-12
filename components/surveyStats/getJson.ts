@@ -26,14 +26,14 @@ export function getMasterDataJson(masterData: FullMasterData[]) {
     for (let dataField of m.masterDataType.dataFields) {
       obj[dataField.text] = getDataFieldAnswer(
         m.answers.find((a) => a.dataFieldId === dataField.id),
-        dataField
+        dataField,
       );
     }
 
     obj.verantwortlich = {
-      name: m.createdBy.name,
-      email: m.createdBy.email,
-      organisation: m.createdBy.organization.name,
+      name: m.createdBy?.name,
+      email: m.createdBy?.email,
+      organisation: m.createdBy?.organization?.name,
     };
 
     humanReadable.push(obj);
@@ -58,7 +58,7 @@ export function getFamiliesJson(families: FullFamily[]) {
           psych_diagnose: getBoolString(curr.psychDiagosis),
         },
       }),
-      {}
+      {},
     );
 
     let bezugspersonen = family?.caregivers?.reduce(
@@ -73,7 +73,7 @@ export function getFamiliesJson(families: FullFamily[]) {
           psych_diagnose: getBoolString(curr.psychDiagosis),
         },
       }),
-      {}
+      {},
     );
 
     let verantwortlich = {
@@ -101,7 +101,7 @@ export function getFamiliesJson(families: FullFamily[]) {
 
 export function getDataFieldAnswer(
   dataFieldAnswer: FullDataFieldAnswer,
-  dataField: FullDataField
+  dataField: FullDataField,
 ) {
   switch (dataField.type) {
     case "Text":
@@ -121,7 +121,7 @@ export function getDataFieldAnswer(
             ans.push(
               (
                 dataFieldAnswer?.selectOtherValues as IAnswerSelectOtherValues
-              )?.find((v) => v.selectOptionId === option.id).value
+              )?.find((v) => v.selectOptionId === option.id).value,
             );
         } else if (op) ans.push(op.value);
       }
@@ -133,25 +133,25 @@ export function getDataFieldAnswer(
         case "Text":
           return (
             dataFieldAnswer?.answerCollection.collectionDataString.map(
-              (a) => a.value
+              (a) => a.value,
             ) || null
           );
         case "Int":
           return (
             dataFieldAnswer?.answerCollection.collectionDataInt.map(
-              (a) => a.value
+              (a) => a.value,
             ) || null
           );
         case "Num":
           return (
             dataFieldAnswer?.answerCollection.collectionDataFloat.map(
-              (a) => a.value
+              (a) => a.value,
             ) || null
           );
         case "Date":
           return (
             dataFieldAnswer?.answerCollection.collectionDataDate.map(
-              (a) => a.value
+              (a) => a.value,
             ) || null
           );
       }
@@ -167,7 +167,7 @@ export function getFullResponseJson(data: FullResponse[]) {
         ...prev,
         [curr.question.questionText]: getAnswer(curr),
       }),
-      {}
+      {},
     );
 
     // let kinder = response.family?.children?.reduce(
@@ -225,7 +225,7 @@ export function getFullResponseJson(data: FullResponse[]) {
 
       for (let answer of response.masterData.answers) {
         let dataField = response.masterData.masterDataType.dataFields.find(
-          (df) => df.id === answer.dataFieldId
+          (df) => df.id === answer.dataFieldId,
         );
         masterDataObj[dataField.text] = getDataFieldAnswer(answer, dataField);
       }
@@ -243,7 +243,7 @@ function getAnswer(
   a: FullAnswer & {
     question: Question & { selectOptions: SelectOption[] };
     answerSelect: SelectOption[];
-  }
+  },
 ) {
   switch (a.question.type) {
     case "Text":
@@ -262,8 +262,8 @@ function getAnswer(
           if (op)
             ans.push(
               (a.answerSelectOtherValues as IAnswerSelectOtherValues)?.find(
-                (v) => v.selectOptionId === option.id
-              ).value
+                (v) => v.selectOptionId === option.id,
+              ).value,
             );
         } else if (op) ans.push(op.value);
       }
@@ -273,7 +273,7 @@ function getAnswer(
     case "Scale":
       return (
         a.question.selectOptions.findIndex(
-          (o) => o.id === a.answerSelect[0]?.id
+          (o) => o.id === a.answerSelect[0]?.id,
         ) + 1
       );
     case "Collection":
@@ -289,4 +289,3 @@ function getAnswer(
       }
   }
 }
-
