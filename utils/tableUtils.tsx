@@ -769,7 +769,22 @@ export function masterDataColumnDefinitions(
                   formatterParams: { collectionType: dataField.collectionType },
                 };
               case "TriggerSurvey":
-                return { title: "", visible: false };
+                return dataField.triggerMultiple
+                  ? {
+                      title: dataField.text,
+                      field: dataField.id,
+                      formatter: collectionFormatter,
+                      formatterParams: {
+                        collectionType: dataField.collectionType,
+                      },
+                    }
+                  : {
+                      title: dataField.text,
+                      field: dataField.id,
+                      formatter: dateFormatter,
+                      sorter: dateSorter,
+                      headerSortTristate: true,
+                    };
               default:
                 return { title: "--FEHLER--" };
             }
