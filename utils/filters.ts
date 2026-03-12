@@ -332,6 +332,7 @@ export function getMasterDataWhereInput(
       answerField = dataField.triggerMultiple
         ? "answerCollection"
         : "answerDate";
+      break;
     case "Collection":
       answerField = "answerCollection";
       break;
