@@ -246,6 +246,7 @@ function ValueInput({ dataField, filter, onChange }: ValueInputProps) {
         />
       );
     case "Date":
+    case "TriggerSurvey":
       return (
         <DatePickerComponent
           currentAnswer={filter.value}
