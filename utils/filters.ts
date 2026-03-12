@@ -158,6 +158,7 @@ export function getFiltersForDataFieldType(
         selectMultiple?: boolean;
         collectionType?: CollectionType;
         omit?: FilterType[];
+        triggerMultiple?: boolean;
       }
     | "CREATEDBY"
     | "CREATEDBYORG",
@@ -165,7 +166,7 @@ export function getFiltersForDataFieldType(
   if (!args) return [];
   if (args === "CREATEDBY" || args === "CREATEDBYORG") return [];
 
-  const { type, selectMultiple, collectionType, omit } = args;
+  const { type, selectMultiple, collectionType, omit, triggerMultiple } = args;
 
   let filters = [];
 
@@ -189,6 +190,11 @@ export function getFiltersForDataFieldType(
       break;
     case "Date":
       filters = [...NullFilters, ...DateFilters];
+      break;
+    case "TriggerSurvey":
+      triggerMultiple
+        ? (filters = [...CollectionFilters, ...CollectionDateFilters])
+        : (filters = DateFilters);
       break;
     case "Collection":
       switch (collectionType) {
@@ -277,7 +283,6 @@ export function getMasterDataWhereInput(
   filter: IMasterDataFilter,
   masterDataType: FullMasterDataType,
 ): Prisma.MasterDataWhereInput {
-  console.log(filter);
   if (!filter?.dataFieldId) return {};
 
   if (filter.dataFieldId === "NUMBER")
@@ -323,6 +328,10 @@ export function getMasterDataWhereInput(
     case "Date":
       answerField = "answerDate";
       break;
+    case "TriggerSurvey":
+      answerField = dataField.triggerMultiple
+        ? "answerCollection"
+        : "answerDate";
     case "Collection":
       answerField = "answerCollection";
       break;
