@@ -77,6 +77,7 @@ model Survey {
   updatedAt             DateTime        @updatedAt
   createdBy             User?           @relation(fields: [creatorId], references: [id])
   creatorId             String?
+  hidden                Boolean?
   organization          Organization?   @relation(fields: [organizationId], references: [id])
   organizationId        String?
   name                  String?

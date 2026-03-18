@@ -8,15 +8,18 @@ import {
   IMoveQuestion,
   IMoveQuestionInput,
 } from "@/pages/api/surveys/[survey]/moveQuestion";
-import masterDataTypes from "@/pages/masterDataTypes";
 import { FullQuestion, FullSurvey } from "@/types/prismaHelperTypes";
 import { useMasterDataTypes } from "@/utils/apiHooks";
 import { FetchError, apiPostJson } from "@/utils/fetchApiUtils";
-import { Add, Edit } from "@mui/icons-material";
+import { Add, Edit, Info } from "@mui/icons-material";
 import {
   Alert,
   Box,
+  Button,
   Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
   FormControlLabel,
   IconButton,
   List,
@@ -26,11 +29,14 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { MasterDataType, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { info } from "console";
 import { compareAsc } from "date-fns";
 import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 type EditSurveyComponentProps = {
   survey: FullSurvey;
@@ -48,14 +54,19 @@ export default function EditSurveyComponent({
   const [description, setDescription] = useState<string>(survey.description);
   const [hasFamily, setHasFamily] = useState<boolean>(survey.hasFamily);
   const [hasMasterData, setHasMasterData] = useState<boolean>(
-    survey.hasMasterData
+    survey.hasMasterData,
   );
+  const [hidden, setHidden] = useState<boolean>(survey.hidden);
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
   const [editNameOpen, setEditNameOpen] = useState<boolean>(false);
   const [editDescOpen, setEditDescOpen] = useState<boolean>(false);
   const [addOpen, setAddOpen] = useState<boolean>(false);
+  const [hiddenInfoOpen, setHiddenInfoOpen] = useState<boolean>(false);
+
+  const hiddenInfo: string = `# Info
+Ein versteckter Fragebogen taucht in der Liste zur Beantwortung nicht auf. Er ist aber weiterhin verfügbar. Dies ist vor allem für Fragebögen nützlich, die von Stammdaten getriggert werden. In allen Auswertungen taucht der Fragebogen normal auf.`;
 
   function handleAdd() {
     setAddOpen(true);
@@ -69,9 +80,9 @@ export default function EditSurveyComponent({
   useEffect(
     () =>
       setSelectedMdt(
-        masterDataTypes?.find((mdt) => mdt.id === survey?.masterDataType?.id)
+        masterDataTypes?.find((mdt) => mdt.id === survey?.masterDataType?.id),
       ),
-    [masterDataTypes]
+    [masterDataTypes],
   );
 
   async function handleSaveChanges() {
@@ -82,10 +93,11 @@ export default function EditSurveyComponent({
         description,
         hasFamily,
         hasMasterData,
+        hidden,
         masterDataType: selectedMdt
           ? { connect: { id: selectedMdt.id } }
           : undefined,
-      }
+      },
     );
     if (res instanceof FetchError)
       addToast({
@@ -120,7 +132,7 @@ export default function EditSurveyComponent({
       {
         newPosition: question.numberInSurvey - 1,
         questionId: question.id,
-      } as IMoveQuestionInput
+      } as IMoveQuestionInput,
     );
     onChange();
 
@@ -140,7 +152,7 @@ export default function EditSurveyComponent({
       {
         newPosition: question.numberInSurvey + 1,
         questionId: question.id,
-      } as IMoveQuestionInput
+      } as IMoveQuestionInput,
     );
 
     onChange();
@@ -159,6 +171,7 @@ export default function EditSurveyComponent({
     setDescription(survey.description);
     setHasFamily(survey.hasFamily);
     setHasMasterData(survey.hasMasterData);
+    setHidden(survey.hidden);
     setUnsavedChanges(false);
   }
 
@@ -188,6 +201,44 @@ export default function EditSurveyComponent({
           <Edit />
         </IconButton>
       </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          gap: ".5rem",
+          alignItems: "center",
+        }}
+      >
+        <FormControlLabel
+          label="Fragebogen versteckt"
+          control={
+            <Checkbox
+              checked={hidden}
+              onChange={(e) => {
+                setHidden(e.target.checked);
+                setUnsavedChanges(survey.hidden !== e.target.checked);
+              }}
+            />
+          }
+        />
+        <Tooltip title={<ReactMarkdown>{hiddenInfo}</ReactMarkdown>}>
+          <Info
+            fontSize="small"
+            onClick={(e) => {
+              e.preventDefault();
+              setHiddenInfoOpen(true);
+            }}
+          />
+        </Tooltip>
+        <Dialog open={hiddenInfoOpen} onClose={() => setHiddenInfoOpen(false)}>
+          <DialogContent>
+            <ReactMarkdown>{hiddenInfo}</ReactMarkdown>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setHiddenInfoOpen(false)}>OK</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
         <FormControlLabel
           label="Hat Stammdaten"
@@ -275,4 +326,3 @@ export default function EditSurveyComponent({
     </Box>
   );
 }
-
