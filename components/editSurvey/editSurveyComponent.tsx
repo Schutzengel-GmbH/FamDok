@@ -48,8 +48,9 @@ export default function EditSurveyComponent({
   const [description, setDescription] = useState<string>(survey.description);
   const [hasFamily, setHasFamily] = useState<boolean>(survey.hasFamily);
   const [hasMasterData, setHasMasterData] = useState<boolean>(
-    survey.hasMasterData
+    survey.hasMasterData,
   );
+  const [hidden, setHidden] = useState<boolean>(survey.hidden);
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
@@ -69,9 +70,9 @@ export default function EditSurveyComponent({
   useEffect(
     () =>
       setSelectedMdt(
-        masterDataTypes?.find((mdt) => mdt.id === survey?.masterDataType?.id)
+        masterDataTypes?.find((mdt) => mdt.id === survey?.masterDataType?.id),
       ),
-    [masterDataTypes]
+    [masterDataTypes],
   );
 
   async function handleSaveChanges() {
@@ -82,10 +83,11 @@ export default function EditSurveyComponent({
         description,
         hasFamily,
         hasMasterData,
+        hidden,
         masterDataType: selectedMdt
           ? { connect: { id: selectedMdt.id } }
           : undefined,
-      }
+      },
     );
     if (res instanceof FetchError)
       addToast({
@@ -120,7 +122,7 @@ export default function EditSurveyComponent({
       {
         newPosition: question.numberInSurvey - 1,
         questionId: question.id,
-      } as IMoveQuestionInput
+      } as IMoveQuestionInput,
     );
     onChange();
 
@@ -140,7 +142,7 @@ export default function EditSurveyComponent({
       {
         newPosition: question.numberInSurvey + 1,
         questionId: question.id,
-      } as IMoveQuestionInput
+      } as IMoveQuestionInput,
     );
 
     onChange();
@@ -159,6 +161,7 @@ export default function EditSurveyComponent({
     setDescription(survey.description);
     setHasFamily(survey.hasFamily);
     setHasMasterData(survey.hasMasterData);
+    setHidden(survey.hidden);
     setUnsavedChanges(false);
   }
 
@@ -188,6 +191,20 @@ export default function EditSurveyComponent({
           <Edit />
         </IconButton>
       </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
+        <FormControlLabel
+          label="Fragebogen versteckt"
+          control={
+            <Checkbox
+              checked={hidden}
+              onChange={(e) => {
+                setHidden(e.target.checked);
+                setUnsavedChanges(survey.hidden !== e.target.checked);
+              }}
+            />
+          }
+        />
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: ".5rem" }}>
         <FormControlLabel
           label="Hat Stammdaten"
@@ -275,4 +292,3 @@ export default function EditSurveyComponent({
     </Box>
   );
 }
-

@@ -18,9 +18,9 @@ type SurveysProps = {
 export default function Surveys({ surveys }: SurveysProps) {
   return (
     <Box>
-      {surveys.map((s) => (
-        <SurveyComponent key={s.id} survey={s} />
-      ))}
+      {surveys.map((s) =>
+        s.hidden ? "" : <SurveyComponent key={s.id} survey={s} />,
+      )}
     </Box>
   );
 }
