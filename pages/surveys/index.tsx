@@ -11,7 +11,13 @@ function ProtectedPage() {
 
   if (isLoading) return <Loading />;
 
-  if (error) return <Error statusCode={500} title={error} />;
+  if (error)
+    return (
+      <Error
+        statusCode={500}
+        title={error instanceof Error ? error.message : String(error)}
+      />
+    );
 
   return <Surveys surveys={data.surveys} />;
 }
